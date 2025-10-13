@@ -194,7 +194,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: WeeklyBarChartCard(
-                      weeklyData: _generateWeeklyData(),
+                      data: _generateWeeklyData(),
                     ),
                   ),
                 ),
@@ -368,7 +368,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
 
   /// Share statistics as text.
   Future<void> _shareStatistics(
-      OverallStatistics stats, int totalHabits) async {
+      OverallStatistics stats, int totalHabits,) async {
     final completionPercentage =
         (stats.completionRate * 100).toStringAsFixed(1);
 
@@ -377,7 +377,7 @@ class _StatisticsScreenState extends ConsumerState<StatisticsScreen> {
     for (var i = 0; i < stats.topHabits.length && i < 3; i++) {
       final habit = stats.topHabits[i];
       topHabitsBuffer.write(
-          '\n  ${i + 1}. ${habit.habit.name} - ${habit.completionRate.toStringAsFixed(0)}%');
+          '\n  ${i + 1}. ${habit.habit.name} - ${habit.completionRate.toStringAsFixed(0)}%',);
     }
 
     final text = '''
@@ -441,4 +441,17 @@ class TopHabitData {
   final Habit habit;
   final int completionCount;
   final double completionRate;
+}
+
+/// Day completion data model for bar chart.
+class DayCompletionData {
+  const DayCompletionData({
+    required this.dayLabel,
+    required this.completionRate,
+    required this.date,
+  });
+
+  final String dayLabel;
+  final double completionRate;
+  final DateTime date;
 }

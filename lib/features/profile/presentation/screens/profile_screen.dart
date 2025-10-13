@@ -226,7 +226,7 @@ class ProfileScreen extends ConsumerWidget {
                                     child: Column(
                                       children: [
                                         const Text('🏆',
-                                            style: TextStyle(fontSize: 48)),
+                                            style: TextStyle(fontSize: 48),),
                                         const SizedBox(height: 8),
                                         Text(
                                           'Henüz başarı kazanılmadı',

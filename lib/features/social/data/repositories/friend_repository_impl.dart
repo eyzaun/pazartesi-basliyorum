@@ -220,7 +220,7 @@ class FriendRepositoryImpl implements FriendRepository {
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => FriendModel.fromDocument(doc).toEntity())
-            .toList());
+            .toList(),);
   }
 }
 

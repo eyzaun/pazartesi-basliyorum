@@ -4,6 +4,32 @@ part 'sync_queue_item.g.dart';
 
 @HiveType(typeId: 0)
 class SyncQueueItem extends HiveObject {
+
+  SyncQueueItem({
+    required this.id,
+    required this.operation,
+    required this.entityType,
+    required this.entityId,
+    required this.data,
+    required this.createdAt,
+    this.retryCount = 0,
+    this.isSyncing = false,
+    this.error,
+  });
+
+  factory SyncQueueItem.fromMap(Map<String, dynamic> map) {
+    return SyncQueueItem(
+      id: map['id'] as String,
+      operation: map['operation'] as String,
+      entityType: map['entityType'] as String,
+      entityId: map['entityId'] as String,
+      data: map['data'] as String,
+      createdAt: DateTime.parse(map['createdAt'] as String),
+      retryCount: map['retryCount'] as int? ?? 0,
+      isSyncing: map['isSyncing'] as bool? ?? false,
+      error: map['error'] as String?,
+    );
+  }
   @HiveField(0)
   final String id;
 
@@ -30,18 +56,6 @@ class SyncQueueItem extends HiveObject {
 
   @HiveField(8)
   final String? error;
-
-  SyncQueueItem({
-    required this.id,
-    required this.operation,
-    required this.entityType,
-    required this.entityId,
-    required this.data,
-    required this.createdAt,
-    this.retryCount = 0,
-    this.isSyncing = false,
-    this.error,
-  });
 
   SyncQueueItem copyWith({
     String? id,
@@ -79,20 +93,6 @@ class SyncQueueItem extends HiveObject {
       'isSyncing': isSyncing,
       'error': error,
     };
-  }
-
-  factory SyncQueueItem.fromMap(Map<String, dynamic> map) {
-    return SyncQueueItem(
-      id: map['id'] as String,
-      operation: map['operation'] as String,
-      entityType: map['entityType'] as String,
-      entityId: map['entityId'] as String,
-      data: map['data'] as String,
-      createdAt: DateTime.parse(map['createdAt'] as String),
-      retryCount: map['retryCount'] as int? ?? 0,
-      isSyncing: map['isSyncing'] as bool? ?? false,
-      error: map['error'] as String?,
-    );
   }
 }
 

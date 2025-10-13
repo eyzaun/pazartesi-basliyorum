@@ -3,6 +3,14 @@ import '../../domain/entities/achievement.dart';
 
 /// Firestore model for achievements.
 class AchievementModel {
+  const AchievementModel({
+    required this.id,
+    required this.userId,
+    required this.badgeType,
+    required this.unlockedAt,
+    this.habitId,
+    this.metadata,
+  });
 
   /// Convert Firestore document to model.
   factory AchievementModel.fromFirestore(DocumentSnapshot doc) {
@@ -28,14 +36,6 @@ class AchievementModel {
       metadata: entity.metadata,
     );
   }
-  const AchievementModel({
-    required this.id,
-    required this.userId,
-    required this.badgeType,
-    required this.unlockedAt,
-    this.habitId,
-    this.metadata,
-  });
 
   final String id;
   final String userId;

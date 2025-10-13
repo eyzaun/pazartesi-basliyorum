@@ -5,25 +5,25 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class InitialSyncProgress {
-  final String message;
-  final double progress;
 
   const InitialSyncProgress(this.message, this.progress);
+  final String message;
+  final double progress;
 }
 
 class InitialSyncException implements Exception {
-  final String message;
   InitialSyncException(this.message);
+  final String message;
 
   @override
   String toString() => message;
 }
 
 class InitialSyncService {
-  final FirebaseFirestore _firestore;
-  final FirebaseAuth _auth;
 
   InitialSyncService(this._firestore, this._auth);
+  final FirebaseFirestore _firestore;
+  final FirebaseAuth _auth;
 
   Future<void> performInitialSync({
     required Function(InitialSyncProgress) onProgress,
@@ -34,7 +34,7 @@ class InitialSyncService {
     }
 
     try {
-      onProgress(const InitialSyncProgress('Başlıyor...', 0.0));
+      onProgress(const InitialSyncProgress('Başlıyor...', 0));
 
       // Download habits
       onProgress(const InitialSyncProgress('Alışkanlıklar indiriliyor...', 0.1));
@@ -52,7 +52,7 @@ class InitialSyncService {
       onProgress(const InitialSyncProgress('Profil indiriliyor...', 0.9));
       await _downloadUserProfile(userId);
 
-      onProgress(const InitialSyncProgress('Tamamlandı!', 1.0));
+      onProgress(const InitialSyncProgress('Tamamlandı!', 1));
     } catch (e) {
       throw InitialSyncException('İlk senkronizasyon başarısız: $e');
     }

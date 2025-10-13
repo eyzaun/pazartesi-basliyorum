@@ -11,7 +11,7 @@ class InitialSyncDialog extends ConsumerStatefulWidget {
 }
 
 class _InitialSyncDialogState extends ConsumerState<InitialSyncDialog> {
-  InitialSyncProgress _progress = const InitialSyncProgress('Başlıyor...', 0.0);
+  InitialSyncProgress _progress = const InitialSyncProgress('Başlıyor...', 0);
   bool _isError = false;
   String _errorMessage = '';
 
@@ -118,7 +118,7 @@ class _InitialSyncDialogState extends ConsumerState<InitialSyncDialog> {
                 setState(() {
                   _isError = false;
                   _errorMessage = '';
-                  _progress = const InitialSyncProgress('Başlıyor...', 0.0);
+                  _progress = const InitialSyncProgress('Başlıyor...', 0);
                 });
                 _startSync();
               },

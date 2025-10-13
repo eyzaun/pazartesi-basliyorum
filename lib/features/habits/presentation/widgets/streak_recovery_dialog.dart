@@ -121,7 +121,7 @@ class StreakRecoveryDialog extends StatelessWidget {
                     Row(
                       children: [
                         Icon(Icons.info_outline,
-                            color: Colors.green[700], size: 20),
+                            color: Colors.green[700], size: 20,),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -147,7 +147,7 @@ class StreakRecoveryDialog extends StatelessWidget {
                       Row(
                         children: [
                           Icon(Icons.access_time,
-                              size: 16, color: Colors.orange[700]),
+                              size: 16, color: Colors.orange[700],),
                           const SizedBox(width: 4),
                           Text(
                             'Kalan süre: $hoursRemaining saat',
@@ -218,7 +218,7 @@ class StreakRecoveryDialog extends StatelessWidget {
                     Row(
                       children: [
                         Icon(Icons.info_outline,
-                            color: Colors.orange[700], size: 20),
+                            color: Colors.orange[700], size: 20,),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(

@@ -247,7 +247,7 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
                                   shape: BoxShape.circle,
                                   border: isSelected
                                       ? Border.all(
-                                          color: Colors.white, width: 3)
+                                          color: Colors.white, width: 3,)
                                       : null,
                                   boxShadow: isSelected
                                       ? [
@@ -262,7 +262,7 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
                                 ),
                                 child: isSelected
                                     ? const Icon(Icons.check,
-                                        color: Colors.white, size: 20)
+                                        color: Colors.white, size: 20,)
                                     : null,
                               ),
                             );

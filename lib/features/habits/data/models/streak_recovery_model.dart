@@ -3,6 +3,13 @@ import '../../domain/entities/streak_recovery.dart';
 
 /// Firestore model for streak recovery records.
 class StreakRecoveryModel {
+  const StreakRecoveryModel({
+    required this.id,
+    required this.habitId,
+    required this.userId,
+    required this.recoveredDate,
+    required this.usedAt,
+  });
 
   /// Convert Firestore document to model.
   factory StreakRecoveryModel.fromFirestore(DocumentSnapshot doc) {
@@ -26,13 +33,6 @@ class StreakRecoveryModel {
       usedAt: entity.usedAt,
     );
   }
-  const StreakRecoveryModel({
-    required this.id,
-    required this.habitId,
-    required this.userId,
-    required this.recoveredDate,
-    required this.usedAt,
-  });
 
   final String id;
   final String habitId;

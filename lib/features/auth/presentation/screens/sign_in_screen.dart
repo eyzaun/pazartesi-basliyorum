@@ -150,7 +150,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text(
-                            'Şifre sıfırlama linki gönderildi! E-postanızı kontrol edin.'),
+                            'Şifre sıfırlama linki gönderildi! E-postanızı kontrol edin.',),
                         backgroundColor: Colors.green,
                       ),
                     );

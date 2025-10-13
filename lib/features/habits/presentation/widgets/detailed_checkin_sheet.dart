@@ -246,7 +246,7 @@ class _DetailedCheckInSheetState extends State<DetailedCheckInSheet>
                           isSelected: _selectedQuality == LogQuality.minimal,
                           onTap: () {
                             setState(
-                                () => _selectedQuality = LogQuality.minimal);
+                                () => _selectedQuality = LogQuality.minimal,);
                             HapticFeedback.mediumImpact();
                           },
                         ),
@@ -273,7 +273,7 @@ class _DetailedCheckInSheetState extends State<DetailedCheckInSheet>
                           isSelected: _selectedQuality == LogQuality.excellent,
                           onTap: () {
                             setState(
-                                () => _selectedQuality = LogQuality.excellent);
+                                () => _selectedQuality = LogQuality.excellent,);
                             HapticFeedback.mediumImpact();
                           },
                         ),
@@ -438,7 +438,7 @@ class _QualityButton extends StatelessWidget {
         child: Column(
           children: [
             TweenAnimationBuilder<double>(
-              tween: Tween(begin: 1.0, end: isSelected ? 1.2 : 1.0),
+              tween: Tween(begin: 1, end: isSelected ? 1.2 : 1.0),
               duration: const Duration(milliseconds: 200),
               builder: (context, scale, child) {
                 return Transform.scale(

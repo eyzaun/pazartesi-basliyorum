@@ -8,13 +8,13 @@ import '../../domain/repositories/habit_repository.dart';
 /// Offline-first wrapper for HabitRepository
 /// This decorator adds sync queue functionality to any HabitRepository
 class OfflineFirstHabitRepository implements HabitRepository {
-  final HabitRepository _baseRepository;
-  final SyncService _syncService;
 
   OfflineFirstHabitRepository(
     this._baseRepository,
     this._syncService,
   );
+  final HabitRepository _baseRepository;
+  final SyncService _syncService;
 
   @override
   Future<Result<Habit>> createHabit(Habit habit) async {

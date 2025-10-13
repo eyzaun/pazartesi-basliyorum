@@ -27,7 +27,7 @@ class AuthLocalDataSource {
       sharedPreferences.setString(_keyPhotoUrl, user.photoUrl ?? ''),
       sharedPreferences.setBool(_keyIsLoggedIn, true),
       sharedPreferences.setInt(
-          _keyLastLoginTime, DateTime.now().millisecondsSinceEpoch),
+          _keyLastLoginTime, DateTime.now().millisecondsSinceEpoch,),
     ]);
   }
 

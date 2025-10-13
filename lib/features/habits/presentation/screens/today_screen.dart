@@ -74,7 +74,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
             habitId: habit.id,
             userId: user.id,
             missedDate: yesterday,
-          )).future,
+          ),).future,
         );
 
         // Calculate current streak to show in dialog
@@ -379,7 +379,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                                       habitId: habit.id,
                                       userId: userId,
                                       missedDate: yesterday,
-                                    )).future,
+                                    ),).future,
                                   );
 
                                   final statsResult = await ref
@@ -667,7 +667,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
   }
 
   Future<void> _completeHabit(
-      String habitId, String userId, Map<String, dynamic> data) async {
+      String habitId, String userId, Map<String, dynamic> data,) async {
     final quality = data['quality'] as LogQuality?;
     final note = data['note'] as String?;
     // final photo = data['photo'] as File?; // TODO: Upload photo to Firebase Storage
@@ -702,7 +702,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
   }
 
   Future<void> _skipHabit(
-      String habitId, String userId, Map<String, dynamic> data) async {
+      String habitId, String userId, Map<String, dynamic> data,) async {
     final reason = data['reason'] as String?;
     final note = data['note'] as String?;
 

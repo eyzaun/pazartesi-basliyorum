@@ -57,7 +57,7 @@ class HeatmapCalendarCard extends StatelessWidget {
       'Ç',
       'P',
       'C',
-      'C'
+      'C',
     ]; // Turkish abbreviations
     days.add(
       SizedBox(
@@ -71,7 +71,7 @@ class HeatmapCalendarCard extends StatelessWidget {
                           fontSize: 10,
                           color: Colors.grey[600],
                         ),
-                  ))
+                  ),)
               .toList(),
         ),
       ),

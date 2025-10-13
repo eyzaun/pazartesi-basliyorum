@@ -133,7 +133,7 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
   }
 
   Widget _buildStepIndicator(
-      int step, String number, String label, ThemeData theme) {
+      int step, String number, String label, ThemeData theme,) {
     final isActive = step == _currentStep;
     final isCompleted = step < _currentStep;
 
@@ -659,7 +659,7 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
               borderRadius: BorderRadius.circular(12),
             ),
             leading: Icon(Icons.notifications_outlined,
-                color: theme.colorScheme.primary),
+                color: theme.colorScheme.primary,),
             title: Text(
               _reminderTime == null
                   ? 'Hatırlatıcı kur'

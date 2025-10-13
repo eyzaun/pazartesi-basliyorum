@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "167069643931",
+    "project_id": "pazartesi-basliyorum",
+    "storage_bucket": "pazartesi-basliyorum.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:167069643931:android:31b1806814335915d4c23e",
+        "android_client_info": {
+          "package_name": "com.loncagames.pazartesibasliyorum"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "167069643931-ukmq2o290trusmmvj8gaiqk8hc15oe7i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.loncagames.pazartesibasliyorum",
+            "certificate_hash": "336708eebb72176378514519d03973506ec75b54"
+          }
+        },
+        {
+          "client_id": "167069643931-vomb8ugovd2f8t1tprlffhv8l1gan2sj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.loncagames.pazartesibasliyorum",
+            "certificate_hash": "e15b158cbf9f0857209aa56c2677761d3865032a"
+          }
+        },
+        {
+          "client_id": "167069643931-okbnjkorvbqfpgkjrp2uqth58klneian.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBE1M2mBAs6CzyCeRFkIQaIW5r_Mg7-vKo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "167069643931-okbnjkorvbqfpgkjrp2uqth58klneian.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

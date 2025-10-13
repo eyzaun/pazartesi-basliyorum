@@ -49,9 +49,10 @@ app.*.map.json
 *.gr.dart
 
 # Firebase
-**/google-services.json
-**/GoogleService-Info.plist
-firebase_options.dart
+# IMPORTANT: Uncomment below to exclude Firebase config (keep commented for backup)
+# **/google-services.json
+# **/GoogleService-Info.plist
+# firebase_options.dart
 
 # Environment variables
 .env
@@ -73,8 +74,9 @@ coverage/
 **/android/gradlew.bat
 **/android/local.properties
 **/android/**/GeneratedPluginRegistrant.java
-**/android/key.properties
-*.jks
+# IMPORTANT: Uncomment below to exclude keys (keep commented for backup)
+# **/android/key.properties
+# *.jks
 
 # iOS/XCode related
 **/ios/**/*.mode1v3

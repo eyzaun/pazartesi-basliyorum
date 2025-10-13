@@ -140,7 +140,7 @@ class _AchievementUnlockedDialogState extends State<AchievementUnlockedDialog>
 
 /// Show achievement unlocked dialog.
 void showAchievementUnlockedDialog(
-    BuildContext context, Achievement achievement) {
+    BuildContext context, Achievement achievement,) {
   showDialog(
     context: context,
     barrierDismissible: false,

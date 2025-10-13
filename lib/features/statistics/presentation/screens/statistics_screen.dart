@@ -329,12 +329,12 @@ class StatisticsScreen extends ConsumerWidget {
                             'Per',
                             'Cum',
                             'Cmt',
-                            'Paz'
+                            'Paz',
                           ];
                           if (value.toInt() >= 0 &&
                               value.toInt() < days.length) {
                             return Text(days[value.toInt()],
-                                style: const TextStyle(fontSize: 10));
+                                style: const TextStyle(fontSize: 10),);
                           }
                           return const Text('');
                         },
@@ -449,7 +449,7 @@ class StatisticsScreen extends ConsumerWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.local_fire_department,
-                        size: 16, color: Colors.orange[700]),
+                        size: 16, color: Colors.orange[700],),
                     const SizedBox(width: 4),
                     Text(
                       '${stats.currentStreak}',

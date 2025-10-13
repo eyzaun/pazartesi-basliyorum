@@ -113,7 +113,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
                       Tab(icon: Icon(Icons.bar_chart), text: 'Grafik'),
                       Tab(
                           icon: Icon(Icons.analytics_outlined),
-                          text: 'İstatistik'),
+                          text: 'İstatistik',),
                     ],
                   ),
                 ),
@@ -334,7 +334,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
                 title: Text(log.date.toFormattedDate()),
                 subtitle: log.note != null
                     ? Text(log.note!,
-                        maxLines: 1, overflow: TextOverflow.ellipsis)
+                        maxLines: 1, overflow: TextOverflow.ellipsis,)
                     : log.skipped && log.skipReason != null
                         ? Text('Atlandı: ${log.skipReason}')
                         : null,
@@ -838,7 +838,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
                     '4 hafta önce',
                     '3 hafta önce',
                     '2 hafta önce',
-                    'Bu hafta'
+                    'Bu hafta',
                   ];
                   if (value.toInt() >= 0 && value.toInt() < weeks.length) {
                     return Padding(
@@ -1511,7 +1511,6 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
               borderRadius: BorderRadius.circular(4),
               border: Border.all(
                 color: Colors.grey[300]!,
-                width: 1,
               ),
             ),
           ),

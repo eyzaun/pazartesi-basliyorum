@@ -22,9 +22,7 @@ class PushNotificationService {
 
     // Request permission
     final settings = await _messaging.requestPermission(
-      alert: true,
       badge: true,
-      sound: true,
     );
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {

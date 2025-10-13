@@ -4,6 +4,10 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ConnectivityService {
+
+  ConnectivityService(this._connectivity) {
+    _init();
+  }
   final Connectivity _connectivity;
   final _connectivityController = StreamController<bool>.broadcast();
 
@@ -12,20 +16,12 @@ class ConnectivityService {
   Stream<bool> get onConnectivityChanged => _connectivityController.stream;
   bool get isOnline => _isOnline;
 
-  ConnectivityService(this._connectivity) {
-    _init();
-  }
-
   void _init() {
     // Check initial connectivity
-    _connectivity.checkConnectivity().then((result) {
-      _updateConnectivityStatus(result);
-    });
+    _connectivity.checkConnectivity().then(_updateConnectivityStatus);
 
     // Listen to connectivity changes
-    _connectivity.onConnectivityChanged.listen((result) {
-      _updateConnectivityStatus(result);
-    });
+    _connectivity.onConnectivityChanged.listen(_updateConnectivityStatus);
   }
 
   void _updateConnectivityStatus(List<ConnectivityResult> results) {

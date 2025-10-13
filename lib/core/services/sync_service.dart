@@ -12,6 +12,15 @@ import 'connectivity_service.dart';
 import 'sync_queue_item.dart';
 
 class SyncService {
+
+  SyncService(
+    this._queueBox,
+    this._firestore,
+    this._auth,
+    this._connectivity,
+  ) {
+    _initializeSync();
+  }
   final Box<SyncQueueItem> _queueBox;
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
@@ -30,15 +39,6 @@ class SyncService {
   DateTime? get lastSyncTime => _lastSyncTime;
 
   bool _isSyncing = false;
-
-  SyncService(
-    this._queueBox,
-    this._firestore,
-    this._auth,
-    this._connectivity,
-  ) {
-    _initializeSync();
-  }
 
   void _initializeSync() {
     // Listen to connectivity changes
@@ -269,7 +269,6 @@ class SyncService {
       final resetOp = op.copyWith(
         retryCount: 0,
         isSyncing: false,
-        error: null,
       );
       await _queueBox.put(op.id, resetOp);
     }
@@ -295,7 +294,7 @@ class SyncService {
 // Providers
 final syncQueueBoxProvider = FutureProvider<Box<SyncQueueItem>>((ref) async {
   if (!Hive.isBoxOpen('sync_queue')) {
-    return await Hive.openBox<SyncQueueItem>('sync_queue');
+    return Hive.openBox<SyncQueueItem>('sync_queue');
   }
   return Hive.box<SyncQueueItem>('sync_queue');
 });

@@ -42,7 +42,6 @@ class MonthlyLineChartCard extends StatelessWidget {
                             color: const Color(0xFF6C63FF),
                             barWidth: 3,
                             dotData: FlDotData(
-                              show: true,
                               getDotPainter: (spot, percent, barData, index) {
                                 return FlDotCirclePainter(
                                   radius: 4,
@@ -90,14 +89,13 @@ class MonthlyLineChartCard extends StatelessWidget {
                             ),
                           ),
                           rightTitles: const AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
+                            
                           ),
                           topTitles: const AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
+                            
                           ),
                         ),
                         gridData: FlGridData(
-                          show: true,
                           drawVerticalLine: false,
                           horizontalInterval: 25,
                           getDrawingHorizontalLine: (value) {

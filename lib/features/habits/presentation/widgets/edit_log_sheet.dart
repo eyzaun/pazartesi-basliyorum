@@ -286,7 +286,7 @@ class _EditLogSheetState extends State<EditLogSheet>
                           isSelected: _selectedQuality == LogQuality.minimal,
                           onTap: () {
                             setState(
-                                () => _selectedQuality = LogQuality.minimal);
+                                () => _selectedQuality = LogQuality.minimal,);
                             HapticFeedback.mediumImpact();
                           },
                         ),
@@ -313,7 +313,7 @@ class _EditLogSheetState extends State<EditLogSheet>
                           isSelected: _selectedQuality == LogQuality.excellent,
                           onTap: () {
                             setState(
-                                () => _selectedQuality = LogQuality.excellent);
+                                () => _selectedQuality = LogQuality.excellent,);
                             HapticFeedback.mediumImpact();
                           },
                         ),
@@ -491,7 +491,7 @@ class _QualityButton extends StatelessWidget {
           children: [
             TweenAnimationBuilder<double>(
               duration: const Duration(milliseconds: 200),
-              tween: Tween(begin: 1.0, end: isSelected ? 1.2 : 1.0),
+              tween: Tween(begin: 1, end: isSelected ? 1.2 : 1.0),
               builder: (context, value, child) => Transform.scale(
                 scale: value,
                 child: Text(

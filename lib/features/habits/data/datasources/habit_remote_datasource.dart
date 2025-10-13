@@ -31,7 +31,7 @@ class HabitRemoteDataSource {
 
       return querySnapshot.docs
           .map((doc) =>
-              HabitModel.fromFirestore(doc.data() as Map<String, dynamic>))
+              HabitModel.fromFirestore(doc.data() as Map<String, dynamic>),)
           .toList();
     } catch (e) {
       throw Exception('Failed to fetch habits: $e');
@@ -49,7 +49,7 @@ class HabitRemoteDataSource {
 
       return querySnapshot.docs
           .map((doc) =>
-              HabitModel.fromFirestore(doc.data() as Map<String, dynamic>))
+              HabitModel.fromFirestore(doc.data() as Map<String, dynamic>),)
           .toList();
     } catch (e) {
       throw Exception('Failed to fetch active habits: $e');
@@ -120,7 +120,7 @@ class HabitRemoteDataSource {
         .map(
           (snapshot) => snapshot.docs
               .map((doc) =>
-                  HabitModel.fromFirestore(doc.data() as Map<String, dynamic>))
+                  HabitModel.fromFirestore(doc.data() as Map<String, dynamic>),)
               .toList(),
         );
   }
@@ -139,7 +139,7 @@ class HabitRemoteDataSource {
 
       return querySnapshot.docs
           .map((doc) =>
-              HabitLogModel.fromFirestore(doc.data() as Map<String, dynamic>))
+              HabitLogModel.fromFirestore(doc.data() as Map<String, dynamic>),)
           .toList();
     } catch (e) {
       throw Exception('Failed to fetch logs: $e');
@@ -184,7 +184,7 @@ class HabitRemoteDataSource {
 
       return querySnapshot.docs
           .map((doc) =>
-              HabitLogModel.fromFirestore(doc.data() as Map<String, dynamic>))
+              HabitLogModel.fromFirestore(doc.data() as Map<String, dynamic>),)
           .toList();
     } catch (e) {
       throw Exception('Failed to fetch today logs: $e');
@@ -223,7 +223,7 @@ class HabitRemoteDataSource {
         .map(
           (snapshot) => snapshot.docs
               .map((doc) => HabitLogModel.fromFirestore(
-                  doc.data() as Map<String, dynamic>))
+                  doc.data() as Map<String, dynamic>,),)
               .toList(),
         );
   }
@@ -291,7 +291,7 @@ class HabitRemoteDataSource {
           .where('habitId', isEqualTo: habitId)
           .where('userId', isEqualTo: userId)
           .where('usedAt',
-              isGreaterThanOrEqualTo: Timestamp.fromDate(sevenDaysAgo))
+              isGreaterThanOrEqualTo: Timestamp.fromDate(sevenDaysAgo),)
           .orderBy('usedAt', descending: true)
           .get();
 

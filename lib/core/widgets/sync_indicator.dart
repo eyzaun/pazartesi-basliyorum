@@ -188,12 +188,12 @@ class SyncIndicator extends ConsumerWidget {
 
 // Small version for habit cards
 class HabitCardSyncBadge extends ConsumerWidget {
-  final String habitId;
 
   const HabitCardSyncBadge({
     required this.habitId,
     super.key,
   });
+  final String habitId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -143,7 +143,7 @@ class SharedHabitRepositoryImpl implements SharedHabitRepository {
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => SharedHabitModel.fromDocument(doc).toEntity())
-            .toList());
+            .toList(),);
   }
 
   @override
@@ -155,7 +155,7 @@ class SharedHabitRepositoryImpl implements SharedHabitRepository {
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => SharedHabitModel.fromDocument(doc).toEntity())
-            .toList());
+            .toList(),);
   }
 }
 

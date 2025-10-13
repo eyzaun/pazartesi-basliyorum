@@ -19,7 +19,7 @@ class Validators {
 
   /// Validate password.
   static String? password(String? value,
-      {int minLength = 6, String? errorMessage}) {
+      {int minLength = 6, String? errorMessage,}) {
     if (value == null || value.isEmpty) {
       return errorMessage ?? 'Şifre gerekli';
     }
@@ -33,7 +33,7 @@ class Validators {
 
   /// Validate username.
   static String? username(String? value,
-      {int minLength = 3, String? errorMessage}) {
+      {int minLength = 3, String? errorMessage,}) {
     if (value == null || value.isEmpty) {
       return errorMessage ?? 'Kullanıcı adı gerekli';
     }
@@ -52,7 +52,7 @@ class Validators {
 
   /// Validate required field.
   static String? required(String? value,
-      {String? fieldName, String? errorMessage}) {
+      {String? fieldName, String? errorMessage,}) {
     if (value == null || value.isEmpty) {
       return errorMessage ?? '${fieldName ?? "Bu alan"} gerekli';
     }
@@ -87,7 +87,7 @@ class Validators {
 
   /// Validate that two values match (e.g., password confirmation).
   static String? match(String? value, String? otherValue,
-      {String? errorMessage}) {
+      {String? errorMessage,}) {
     if (value != otherValue) {
       return errorMessage ?? 'Değerler eşleşmiyor';
     }
