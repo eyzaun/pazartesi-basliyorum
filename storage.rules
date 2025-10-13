@@ -1,0 +1,149 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // ========================================================================
+    // Helper Functions
+    // ========================================================================
+    
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Check if user is the owner
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Check if file is an image
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+    
+    // Check file size (in bytes)
+    function isValidSize(maxSize) {
+      return request.resource.size <= maxSize;
+    }
+    
+    // Validate image type
+    function isValidImageType() {
+      return request.resource.contentType in [
+        'image/jpeg',
+        'image/png',
+        'image/jpg',
+        'image/webp',
+        'image/gif'
+      ];
+    }
+    
+    // ========================================================================
+    // Profile Photos
+    // Path: /users/{userId}/profile/{fileName}
+    // ========================================================================
+    
+    match /users/{userId}/profile/{fileName} {
+      // Allow read if:
+      // - File exists (public read for profile photos)
+      allow read: if true;
+      
+      // Allow write (create/update) if:
+      // - User is authenticated and is the owner
+      // - File is an image
+      // - File size is less than 5MB
+      // - File type is valid
+      allow write: if isAuthenticated()
+        && isOwner(userId)
+        && isImage()
+        && isValidSize(5 * 1024 * 1024) // 5MB
+        && isValidImageType();
+      
+      // Allow delete if:
+      // - User is authenticated and is the owner
+      allow delete: if isAuthenticated() && isOwner(userId);
+    }
+    
+    // ========================================================================
+    // Habit Attachments (optional for future features)
+    // Path: /habits/{userId}/{habitId}/{fileName}
+    // ========================================================================
+    
+    match /habits/{userId}/{habitId}/{fileName} {
+      // Allow read if:
+      // - User is authenticated and is the owner
+      allow read: if isAuthenticated() && isOwner(userId);
+      
+      // Allow write if:
+      // - User is authenticated and is the owner
+      // - File is an image
+      // - File size is less than 10MB
+      allow write: if isAuthenticated()
+        && isOwner(userId)
+        && isImage()
+        && isValidSize(10 * 1024 * 1024) // 10MB
+        && isValidImageType();
+      
+      // Allow delete if:
+      // - User is authenticated and is the owner
+      allow delete: if isAuthenticated() && isOwner(userId);
+    }
+    
+    // ========================================================================
+    // Habit Log Photos (for check-in photos)
+    // Path: /habit_logs/{userId}/{logId}/{fileName}
+    // ========================================================================
+    
+    match /habit_logs/{userId}/{logId}/{fileName} {
+      // Allow read if:
+      // - User is authenticated and is the owner
+      allow read: if isAuthenticated() && isOwner(userId);
+      
+      // Allow write if:
+      // - User is authenticated and is the owner
+      // - File is an image
+      // - File size is less than 5MB
+      allow write: if isAuthenticated()
+        && isOwner(userId)
+        && isImage()
+        && isValidSize(5 * 1024 * 1024) // 5MB
+        && isValidImageType();
+      
+      // Allow delete if:
+      // - User is authenticated and is the owner
+      allow delete: if isAuthenticated() && isOwner(userId);
+    }
+    
+    // ========================================================================
+    // Shared Content (for social features)
+    // Path: /shared/{userId}/{fileName}
+    // ========================================================================
+    
+    match /shared/{userId}/{fileName} {
+      // Allow read if:
+      // - User is authenticated
+      allow read: if isAuthenticated();
+      
+      // Allow write if:
+      // - User is authenticated and is the owner
+      // - File is an image
+      // - File size is less than 5MB
+      allow write: if isAuthenticated()
+        && isOwner(userId)
+        && isImage()
+        && isValidSize(5 * 1024 * 1024)
+        && isValidImageType();
+      
+      // Allow delete if:
+      // - User is authenticated and is the owner
+      allow delete: if isAuthenticated() && isOwner(userId);
+    }
+    
+    // ========================================================================
+    // Default: Deny all other access
+    // ========================================================================
+    
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

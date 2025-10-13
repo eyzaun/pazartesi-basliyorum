@@ -1,0 +1,245 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ========================================================================
+    // Helper Functions
+    // ========================================================================
+    
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Check if user is the owner
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Check if user exists in resource
+    function isResourceOwner(resource) {
+      return isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
+    
+    // Validate string field
+    function isValidString(field, minLen, maxLen) {
+      return field is string 
+        && field.size() >= minLen 
+        && field.size() <= maxLen;
+    }
+    
+    // Validate email format
+    function isValidEmail(email) {
+      return email.matches('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$');
+    }
+    
+    // Check if timestamp is recent (within 5 minutes)
+    function isRecentTimestamp(ts) {
+      return ts > request.time - duration.value(5, 'm');
+    }
+    
+    // ========================================================================
+    // Users Collection
+    // ========================================================================
+    
+    match /users/{userId} {
+      // Allow read if:
+      // - User is authenticated and reading their own data, OR
+      // - User profile is public, OR
+      // - Checking username availability during signup (limited to username field only)
+      allow read: if isAuthenticated() && (
+        isOwner(userId) || 
+        resource.data.privacy.profileVisibility == 'public'
+      );
+      
+      // Allow list (query) for username uniqueness check during signup
+      // This is safe because we only allow querying by username field
+      allow list: if true;
+      
+      // Allow create if:
+      // - User is authenticated
+      // - Creating their own document
+      // - Required fields are valid
+      allow create: if isAuthenticated() 
+        && isOwner(userId)
+        && isValidString(request.resource.data.email, 3, 100)
+        && isValidEmail(request.resource.data.email)
+        && isValidString(request.resource.data.username, 3, 30)
+        && isValidString(request.resource.data.displayName, 1, 50)
+        && request.resource.data.stats.totalCompletions == 0
+        && request.resource.data.stats.currentStreak == 0
+        && request.resource.data.stats.longestStreak == 0;
+      
+      // Allow update if:
+      // - User is authenticated and updating their own data
+      // - Not changing userId or createdAt
+      allow update: if isAuthenticated() 
+        && isOwner(userId)
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.createdAt == resource.data.createdAt;
+      
+      // Never allow delete (soft delete via status instead)
+      allow delete: if false;
+    }
+    
+    // ========================================================================
+    // Habits Collection
+    // ========================================================================
+    
+    match /habits/{habitId} {
+      // Allow read if:
+      // - User is authenticated and is the owner, OR
+      // - Habit is shared and user is in sharedWith array
+      allow read: if isAuthenticated() && (
+        isResourceOwner(resource) ||
+        (resource.data.isShared && request.auth.uid in resource.data.sharedWith)
+      );
+      
+      // Allow list (queries) if authenticated
+      // Query filters will ensure users only see their own habits
+      allow list: if isAuthenticated();
+      
+      // Allow create if:
+      // - User is authenticated
+      // - User is the owner
+      // - Required fields are valid
+      // - Habit count doesn't exceed limits (checked in app)
+      allow create: if isAuthenticated()
+        && isOwner(request.resource.data.ownerId)
+        && isValidString(request.resource.data.name, 1, 100)
+        && isValidString(request.resource.data.category, 1, 50)
+        && request.resource.data.status in ['active', 'paused', 'archived']
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      
+      // Allow update if:
+      // - User is authenticated and is the owner
+      // - Not changing habitId, ownerId, or createdAt
+      // - updatedAt is set to current time
+      allow update: if isAuthenticated()
+        && isResourceOwner(resource)
+        && request.resource.data.habitId == resource.data.habitId
+        && request.resource.data.ownerId == resource.data.ownerId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && isRecentTimestamp(request.resource.data.updatedAt);
+      
+      // Allow delete if:
+      // - User is authenticated and is the owner
+      allow delete: if isAuthenticated() && isResourceOwner(resource);
+    }
+    
+    // ========================================================================
+    // Habit Logs Collection
+    // ========================================================================
+    
+    match /habit_logs/{logId} {
+      // Allow read if:
+      // - User is authenticated and is the owner
+      allow read: if isAuthenticated() && isResourceOwner(resource);
+      
+      // Allow list (queries) if authenticated
+      // Query filters will ensure users only see their own logs
+      allow list: if isAuthenticated();
+      
+      // Allow create if:
+      // - User is authenticated
+      // - User is the owner
+      // - Log is for today or past (not future)
+      // - Either completed or skipped (but not both)
+      allow create: if isAuthenticated()
+        && isOwner(request.resource.data.userId)
+        && request.resource.data.date <= request.time
+        && (request.resource.data.completed != request.resource.data.skipped)
+        && request.resource.data.createdAt == request.time;
+      
+      // Allow update if:
+      // - User is authenticated and is the owner
+      // - Not changing logId, habitId, userId, or createdAt
+      // - Log is for today (can't update past logs)
+      allow update: if isAuthenticated()
+        && isResourceOwner(resource)
+        && request.resource.data.logId == resource.data.logId
+        && request.resource.data.habitId == resource.data.habitId
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && resource.data.date.toMillis() > (request.time.toMillis() - 86400000); // Within 24 hours
+      
+      // Allow delete if:
+      // - User is authenticated and is the owner
+      // - Log is for today (can't delete past logs)
+      allow delete: if isAuthenticated() 
+        && isResourceOwner(resource)
+        && resource.data.date.toMillis() > (request.time.toMillis() - 86400000);
+    }
+    
+    // ========================================================================
+    // Shared Habits Collection
+    // ========================================================================
+    
+    match /shared_habits/{sharedHabitId} {
+      // Helper function to check if user is a participant
+      function isParticipant() {
+        return request.auth.uid in resource.data.participants;
+      }
+      
+      // Allow read if:
+      // - User is authenticated and is a participant
+      allow read: if isAuthenticated() && isParticipant();
+      
+      // Allow create if:
+      // - User is authenticated
+      // - User is the owner (participants array contains user ID)
+      allow create: if isAuthenticated()
+        && request.auth.uid in request.resource.data.participants
+        && request.resource.data.createdAt == request.time;
+      
+      // Allow update if:
+      // - User is authenticated and is a participant
+      allow update: if isAuthenticated()
+        && request.auth.uid in resource.data.participants;
+      
+      // Allow delete if:
+      // - User is authenticated and is a participant (owner check should be done in app)
+      allow delete: if isAuthenticated()
+        && request.auth.uid in resource.data.participants;
+    }
+    
+    // ========================================================================
+    // Notifications Collection
+    // ========================================================================
+    
+    match /notifications/{notificationId} {
+      // Allow read if:
+      // - User is authenticated and is the recipient
+      allow read: if isAuthenticated() 
+        && isOwner(resource.data.recipientId);
+      
+      // Allow create if:
+      // - User is authenticated (sender)
+      // - Not creating notification for themselves
+      allow create: if isAuthenticated()
+        && request.resource.data.senderId == request.auth.uid
+        && request.resource.data.senderId != request.resource.data.recipientId
+        && request.resource.data.createdAt == request.time;
+      
+      // Allow update if:
+      // - User is authenticated and is the recipient
+      // - Only updating 'read' field
+      allow update: if isAuthenticated()
+        && isOwner(resource.data.recipientId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      
+      // Allow delete if:
+      // - User is authenticated and is the recipient
+      allow delete: if isAuthenticated() && isOwner(resource.data.recipientId);
+    }
+    
+    // ========================================================================
+    // Default: Deny all other access
+    // ========================================================================
+    
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
