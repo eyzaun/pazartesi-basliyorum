@@ -6,6 +6,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
 import 'core/routing/app_router.dart';
+import 'core/services/notification_service.dart';
+import 'core/services/push_notification_service.dart';
 import 'core/services/sync_queue_item.dart';
 import 'core/theme/app_theme.dart';
 import 'firebase_options.dart';
@@ -31,11 +33,33 @@ void main() async {
   runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends ConsumerWidget {
+class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends ConsumerState<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    _initializeServices();
+  }
+
+  Future<void> _initializeServices() async {
+    // Initialize notifications
+    final notificationService = ref.read(notificationServiceProvider);
+    await notificationService.initialize();
+    await notificationService.requestPermissions();
+
+    // Initialize push notifications
+    final pushNotificationService = ref.read(pushNotificationServiceProvider);
+    await pushNotificationService.initialize();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Pazartesi Başlıyorum',
       debugShowCheckedModeBanner: false,
