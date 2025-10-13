@@ -8,11 +8,17 @@ class HabitModel extends domain.Habit {
     required super.id,
     required super.userId,
     required super.name,
-    required super.category, required super.icon, required super.color, required super.frequency, required super.createdAt, required super.updatedAt, super.description,
+    required super.category,
+    required super.icon,
+    required super.color,
+    required super.frequency,
+    required super.createdAt,
+    required super.updatedAt,
+    super.description,
     super.isShared,
     super.status,
   });
-  
+
   /// Create HabitModel from domain entity.
   factory HabitModel.fromEntity(domain.Habit habit) {
     return HabitModel(
@@ -30,11 +36,11 @@ class HabitModel extends domain.Habit {
       updatedAt: habit.updatedAt,
     );
   }
-  
+
   /// Create HabitModel from Firestore document.
   factory HabitModel.fromFirestore(Map<String, dynamic> json) {
     final frequencyData = json['frequency'] as Map<String, dynamic>;
-    
+
     return HabitModel(
       id: json['habitId'] as String,
       userId: json['ownerId'] as String,
@@ -53,7 +59,7 @@ class HabitModel extends domain.Habit {
       updatedAt: (json['updatedAt'] as Timestamp).toDate(),
     );
   }
-  
+
   /// Convert HabitModel to Firestore map.
   Map<String, dynamic> toFirestore() {
     return {
@@ -75,7 +81,7 @@ class HabitModel extends domain.Habit {
       'updatedAt': FieldValue.serverTimestamp(),
     };
   }
-  
+
   /// Convert to domain entity.
   domain.Habit toEntity() {
     return domain.Habit(
@@ -93,7 +99,7 @@ class HabitModel extends domain.Habit {
       updatedAt: updatedAt,
     );
   }
-  
+
   @override
   HabitModel copyWith({
     String? id,

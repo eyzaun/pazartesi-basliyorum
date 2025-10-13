@@ -2,14 +2,14 @@ import 'package:equatable/equatable.dart';
 
 /// Domain entity representing a habit check-in log.
 class HabitLog extends Equatable {
-  
   const HabitLog({
     required this.id,
     required this.habitId,
     required this.userId,
     required this.date,
     required this.completed,
-    required this.createdAt, this.skipped = false,
+    required this.createdAt,
+    this.skipped = false,
     this.skipReason,
     this.quality,
     this.note,
@@ -26,7 +26,7 @@ class HabitLog extends Equatable {
   final String? note;
   final String? mood;
   final DateTime createdAt;
-  
+
   HabitLog copyWith({
     String? id,
     String? habitId,
@@ -54,7 +54,7 @@ class HabitLog extends Equatable {
       createdAt: createdAt ?? this.createdAt,
     );
   }
-  
+
   @override
   List<Object?> get props => [
         id,
@@ -110,7 +110,6 @@ extension LogQualityString on LogQuality {
 
 /// Habit statistics entity.
 class HabitStatistics extends Equatable {
-  
   const HabitStatistics({
     required this.habitId,
     required this.totalCompletions,
@@ -125,7 +124,7 @@ class HabitStatistics extends Equatable {
   final int longestStreak;
   final double completionRate;
   final DateTime? lastCompletedDate;
-  
+
   @override
   List<Object?> get props => [
         habitId,

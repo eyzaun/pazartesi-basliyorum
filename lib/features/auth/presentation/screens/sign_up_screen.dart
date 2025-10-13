@@ -25,7 +25,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   bool _obscureConfirmPassword = true;
   bool _agreedToTerms = false;
   String _passwordStrength = 'weak'; // weak, medium, strong
-  
+
   @override
   void dispose() {
     _usernameController.dispose();
@@ -34,34 +34,35 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     _confirmPasswordController.dispose();
     super.dispose();
   }
-  
+
   /// Sign up with email and password.
   Future<void> _signUpWithEmail() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     // Check terms agreement
     if (!_agreedToTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Devam etmek için kullanım koşullarını kabul etmelisiniz'),
+          content:
+              Text('Devam etmek için kullanım koşullarını kabul etmelisiniz'),
           backgroundColor: Colors.orange,
         ),
       );
       return;
     }
-    
+
     setState(() => _isLoading = true);
-    
+
     final result = await ref.read(authRepositoryProvider).signUpWithEmail(
-      _emailController.text.trim(),
-      _passwordController.text,
-      _usernameController.text.trim(),
-    );
-    
+          _emailController.text.trim(),
+          _passwordController.text,
+          _usernameController.text.trim(),
+        );
+
     setState(() => _isLoading = false);
-    
+
     if (!mounted) return;
-    
+
     result.when(
       success: (_) {
         Navigator.of(context).pushReplacementNamed(AppRouter.home);
@@ -76,17 +77,17 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       },
     );
   }
-  
+
   /// Sign up with Google.
   Future<void> _signUpWithGoogle() async {
     setState(() => _isLoading = true);
-    
+
     final result = await ref.read(authRepositoryProvider).signInWithGoogle();
-    
+
     setState(() => _isLoading = false);
-    
+
     if (!mounted) return;
-    
+
     result.when(
       success: (_) {
         Navigator.of(context).pushReplacementNamed(AppRouter.home);
@@ -101,16 +102,15 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       },
     );
   }
-  
+
   /// Calculate password strength.
   String _calculatePasswordStrength(String password) {
     if (password.isEmpty) return 'weak';
     if (password.length < 6) return 'weak';
-    
-    bool hasUppercase = password.contains(RegExp(r'[A-Z]'));
-    bool hasNumber = password.contains(RegExp(r'[0-9]'));
-    bool hasSpecialChar = password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
-    
+
+    final hasUppercase = password.contains(RegExp(r'[A-Z]'));
+    final hasNumber = password.contains(RegExp(r'[0-9]'));
+
     if (password.length >= 8 && hasUppercase && hasNumber) {
       return 'strong';
     } else if (password.length >= 6) {
@@ -118,7 +118,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     }
     return 'weak';
   }
-  
+
   /// Get password strength color.
   Color _getPasswordStrengthColor() {
     switch (_passwordStrength) {
@@ -130,7 +130,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         return Colors.red;
     }
   }
-  
+
   /// Get password strength text.
   String _getPasswordStrengthText() {
     switch (_passwordStrength) {
@@ -147,7 +147,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.signUp),
@@ -161,7 +161,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 32),
-                
+
                 // Welcome text
                 Text(
                   'Hesap oluştur 🎉',
@@ -179,7 +179,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 48),
-                
+
                 // Username Field
                 TextFormField(
                   controller: _usernameController,
@@ -205,7 +205,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Email Field
                 TextFormField(
                   controller: _emailController,
@@ -228,7 +228,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Password Field
                 TextFormField(
                   controller: _passwordController,
@@ -274,10 +274,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     children: [
                       Expanded(
                         child: LinearProgressIndicator(
-                          value: _passwordStrength == 'weak' 
-                              ? 0.33 
-                              : _passwordStrength == 'medium' 
-                                  ? 0.66 
+                          value: _passwordStrength == 'weak'
+                              ? 0.33
+                              : _passwordStrength == 'medium'
+                                  ? 0.66
                                   : 1.0,
                           backgroundColor: Colors.grey.shade200,
                           valueColor: AlwaysStoppedAnimation<Color>(
@@ -298,7 +298,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   ),
                 ],
                 const SizedBox(height: 16),
-                
+
                 // Confirm Password Field
                 TextFormField(
                   controller: _confirmPasswordController,
@@ -333,18 +333,20 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   },
                 ),
                 const SizedBox(height: 24),
-                
+
                 // Terms and Conditions Checkbox
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Checkbox(
                       value: _agreedToTerms,
-                      onChanged: _isLoading ? null : (value) {
-                        setState(() {
-                          _agreedToTerms = value ?? false;
-                        });
-                      },
+                      onChanged: _isLoading
+                          ? null
+                          : (value) {
+                              setState(() {
+                                _agreedToTerms = value ?? false;
+                              });
+                            },
                     ),
                     Expanded(
                       child: GestureDetector(
@@ -379,7 +381,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   ],
                 ),
                 const SizedBox(height: 24),
-                
+
                 // Sign Up Button
                 SizedBox(
                   width: double.infinity,
@@ -399,7 +401,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
                         : Text(
@@ -412,7 +415,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                
+
                 // Divider
                 Row(
                   children: [
@@ -428,7 +431,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   ],
                 ),
                 const SizedBox(height: 24),
-                
+
                 // Google Sign Up Button
                 SizedBox(
                   width: double.infinity,
@@ -461,7 +464,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                
+
                 // Sign In Link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -471,9 +474,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       style: theme.textTheme.bodyMedium,
                     ),
                     TextButton(
-                      onPressed: _isLoading ? null : () {
-                        Navigator.of(context).pushReplacementNamed(AppRouter.signIn);
-                      },
+                      onPressed: _isLoading
+                          ? null
+                          : () {
+                              Navigator.of(context)
+                                  .pushReplacementNamed(AppRouter.signIn);
+                            },
                       child: Text(
                         l10n.signIn,
                         style: const TextStyle(fontWeight: FontWeight.bold),

@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 
 /// Custom button for social sign-in providers.
 class SocialSignInButton extends StatelessWidget {
-  
   const SocialSignInButton({
-    required this.text, required this.onPressed, required this.provider, super.key,
+    required this.text,
+    required this.onPressed,
+    required this.provider,
+    super.key,
     this.isLoading = false,
   });
-  
+
   /// Factory for Google sign-in button.
   factory SocialSignInButton.google({
     required String text,
@@ -21,7 +23,7 @@ class SocialSignInButton extends StatelessWidget {
       isLoading: isLoading,
     );
   }
-  
+
   /// Factory for Apple sign-in button.
   factory SocialSignInButton.apple({
     required String text,
@@ -35,7 +37,7 @@ class SocialSignInButton extends StatelessWidget {
       isLoading: isLoading,
     );
   }
-  
+
   /// Factory for Facebook sign-in button.
   factory SocialSignInButton.facebook({
     required String text,
@@ -98,7 +100,7 @@ class SocialSignInButton extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildIcon() {
     switch (provider) {
       case SocialProvider.google:
@@ -128,13 +130,13 @@ enum SocialProvider {
     textColor: Color(0xFF1877F2),
     borderColor: Color(0xFF1877F2),
   );
-  
+
   const SocialProvider({
     required this.iconColor,
     required this.textColor,
     required this.borderColor,
   });
-  
+
   final Color iconColor;
   final Color textColor;
   final Color borderColor;

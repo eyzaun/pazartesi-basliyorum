@@ -5,7 +5,6 @@ import '../../../../l10n/app_localizations.dart';
 
 /// Custom email input field with validation.
 class EmailInputField extends StatelessWidget {
-  
   const EmailInputField({
     super.key,
     this.controller,
@@ -31,7 +30,7 @@ class EmailInputField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    
+
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
@@ -46,10 +45,11 @@ class EmailInputField extends StatelessWidget {
       autocorrect: false,
       onFieldSubmitted: onFieldSubmitted,
       onChanged: onChanged,
-      validator: validator ?? (value) => Validators.email(
-        value,
-        errorMessage: l10n.emailRequired,
-      ),
+      validator: validator ??
+          (value) => Validators.email(
+                value,
+                errorMessage: l10n.emailRequired,
+              ),
     );
   }
 }

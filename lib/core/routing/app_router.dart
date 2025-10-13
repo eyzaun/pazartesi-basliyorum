@@ -32,25 +32,25 @@ class AppRouter {
     switch (settings.name) {
       case splash:
         return MaterialPageRoute(builder: (_) => const SplashScreen());
-      
+
       case onboarding:
         return MaterialPageRoute(builder: (_) => const OnboardingScreen());
-        
+
       case welcome:
         return MaterialPageRoute(builder: (_) => const WelcomeScreen());
-        
+
       case signIn:
         return MaterialPageRoute(builder: (_) => const SignInScreen());
-        
+
       case signUp:
         return MaterialPageRoute(builder: (_) => const SignUpScreen());
-        
+
       case home:
         return MaterialPageRoute(builder: (_) => const HomeScreen());
-        
+
       case habitCreate:
         return MaterialPageRoute(builder: (_) => const CreateHabitScreen());
-        
+
       case habitDetail:
         final habitId = settings.arguments as String?;
         if (habitId == null) {
@@ -59,7 +59,7 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (_) => HabitDetailScreen(habitId: habitId),
         );
-        
+
       case habitEdit:
         final habitId = settings.arguments as String?;
         if (habitId == null) {
@@ -68,12 +68,12 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (_) => EditHabitScreen(habitId: habitId),
         );
-        
+
       default:
         return _errorRoute('No route defined for ${settings.name}');
     }
   }
-  
+
   /// Error route for undefined routes.
   static Route<dynamic> _errorRoute(String message) {
     return MaterialPageRoute(

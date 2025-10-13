@@ -2,12 +2,17 @@ import 'package:equatable/equatable.dart';
 
 /// Domain entity representing a habit.
 class Habit extends Equatable {
-  
   const Habit({
     required this.id,
     required this.userId,
     required this.name,
-    required this.category, required this.icon, required this.color, required this.frequency, required this.createdAt, required this.updatedAt, this.description,
+    required this.category,
+    required this.icon,
+    required this.color,
+    required this.frequency,
+    required this.createdAt,
+    required this.updatedAt,
+    this.description,
     this.isShared = false,
     this.status = HabitStatus.active,
   });
@@ -23,7 +28,7 @@ class Habit extends Equatable {
   final HabitStatus status;
   final DateTime createdAt;
   final DateTime updatedAt;
-  
+
   Habit copyWith({
     String? id,
     String? userId,
@@ -53,7 +58,7 @@ class Habit extends Equatable {
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
-  
+
   @override
   List<Object?> get props => [
         id,
@@ -73,12 +78,11 @@ class Habit extends Equatable {
 
 /// Habit frequency configuration.
 class HabitFrequency extends Equatable {
-  
   const HabitFrequency({
     required this.type,
     required this.config,
   });
-  
+
   /// Create daily frequency (every day).
   factory HabitFrequency.daily() {
     return const HabitFrequency(
@@ -86,7 +90,7 @@ class HabitFrequency extends Equatable {
       config: {'everyDay': true},
     );
   }
-  
+
   /// Create daily frequency (specific days).
   factory HabitFrequency.dailySpecific(List<String> days) {
     return HabitFrequency(
@@ -94,7 +98,7 @@ class HabitFrequency extends Equatable {
       config: {'specificDays': days},
     );
   }
-  
+
   /// Create weekly frequency.
   factory HabitFrequency.weekly(int timesPerWeek) {
     return HabitFrequency(
@@ -102,7 +106,7 @@ class HabitFrequency extends Equatable {
       config: {'timesPerWeek': timesPerWeek},
     );
   }
-  
+
   /// Create flexible frequency.
   factory HabitFrequency.flexible({
     required int minPerWeek,
@@ -118,7 +122,7 @@ class HabitFrequency extends Equatable {
   }
   final FrequencyType type;
   final Map<String, dynamic> config;
-  
+
   @override
   List<Object?> get props => [type, config];
 }

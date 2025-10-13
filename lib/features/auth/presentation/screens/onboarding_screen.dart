@@ -43,7 +43,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Future<void> _completeOnboarding() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboarding_seen', true);
-    
+
     if (!mounted) return;
     Navigator.of(context).pushReplacementNamed(AppRouter.welcome);
   }
@@ -55,14 +55,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      _completeOnboarding();
+      _completeOnboarding().ignore();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
@@ -98,7 +98,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 },
               ),
             ),
-            
+
             // Page Indicators
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 32),
@@ -110,7 +110,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
               ),
             ),
-            
+
             // Next/Start Button
             Padding(
               padding: const EdgeInsets.all(24),
@@ -154,7 +154,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             style: const TextStyle(fontSize: 120),
           ),
           const SizedBox(height: 48),
-          
+
           // Title
           Text(
             page.title,
@@ -165,7 +165,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
-          
+
           // Subtitle
           Text(
             page.subtitle,
@@ -181,7 +181,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Widget _buildIndicator(int index, ThemeData theme) {
     final isActive = index == _currentPage;
-    
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -190,7 +190,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       decoration: BoxDecoration(
         color: isActive
             ? theme.colorScheme.primary
-            : theme.colorScheme.primary.withOpacity(0.3),
+            : theme.colorScheme.primary.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(4),
       ),
     );
@@ -199,13 +199,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
 /// Model for onboarding page data.
 class OnboardingPage {
-  final String icon;
-  final String title;
-  final String subtitle;
-
   const OnboardingPage({
     required this.icon,
     required this.title,
     required this.subtitle,
   });
+  final String icon;
+  final String title;
+  final String subtitle;
 }

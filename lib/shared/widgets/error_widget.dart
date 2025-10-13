@@ -3,7 +3,6 @@ import '../../l10n/app_localizations.dart';
 
 /// Custom error widget with retry functionality.
 class CustomErrorWidget extends StatelessWidget {
-  
   const CustomErrorWidget({
     super.key,
     this.message,
@@ -18,7 +17,7 @@ class CustomErrorWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -57,7 +56,6 @@ class CustomErrorWidget extends StatelessWidget {
 
 /// Empty state widget.
 class EmptyStateWidget extends StatelessWidget {
-  
   const EmptyStateWidget({
     super.key,
     this.title,
@@ -75,7 +73,7 @@ class EmptyStateWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),

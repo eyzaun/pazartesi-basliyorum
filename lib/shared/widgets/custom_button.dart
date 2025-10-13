@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 /// Custom button widget with loading state support.
 class CustomButton extends StatelessWidget {
-  
   const CustomButton({
-    required this.text, super.key,
+    required this.text,
+    super.key,
     this.onPressed,
     this.isLoading = false,
     this.isOutlined = false,
@@ -23,7 +23,7 @@ class CustomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     if (isOutlined) {
       return OutlinedButton(
         onPressed: isLoading ? null : onPressed,
@@ -33,7 +33,7 @@ class CustomButton extends StatelessWidget {
         child: _buildContent(),
       );
     }
-    
+
     return ElevatedButton(
       onPressed: isLoading ? null : onPressed,
       style: ElevatedButton.styleFrom(
@@ -43,7 +43,7 @@ class CustomButton extends StatelessWidget {
       child: _buildContent(),
     );
   }
-  
+
   Widget _buildContent() {
     if (isLoading) {
       return const SizedBox(
@@ -55,7 +55,7 @@ class CustomButton extends StatelessWidget {
         ),
       );
     }
-    
+
     if (icon != null) {
       return Row(
         mainAxisSize: MainAxisSize.min,
@@ -66,7 +66,7 @@ class CustomButton extends StatelessWidget {
         ],
       );
     }
-    
+
     return Text(text);
   }
 }

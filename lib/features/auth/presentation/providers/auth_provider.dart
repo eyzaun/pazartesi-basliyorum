@@ -27,7 +27,8 @@ final firestoreProvider = Provider<FirebaseFirestore>((ref) {
 final googleSignInProvider = Provider<GoogleSignIn>((ref) {
   return GoogleSignIn(
     // Web client ID for Google Sign In
-    clientId: '167069643931-okbnjkorvbqfpgkjrp2uqth58klneian.apps.googleusercontent.com',
+    clientId:
+        '167069643931-okbnjkorvbqfpgkjrp2uqth58klneian.apps.googleusercontent.com',
   );
 });
 

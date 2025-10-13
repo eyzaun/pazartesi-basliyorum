@@ -11,7 +11,6 @@ import '../providers/habits_provider.dart';
 
 /// Screen for editing an existing habit.
 class EditHabitScreen extends ConsumerStatefulWidget {
-  
   const EditHabitScreen({required this.habitId, super.key});
   final String habitId;
 
@@ -23,23 +22,30 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
-  
+
   String _selectedCategory = AppConstants.categories.first;
-  String _selectedIcon = AppConstants.categoryIcons[AppConstants.categories.first]!;
+  String _selectedIcon =
+      AppConstants.categoryIcons[AppConstants.categories.first]!;
   String _selectedColor = '#6C63FF';
   FrequencyType _frequencyType = FrequencyType.daily;
   bool _everyDay = true;
   final List<String> _selectedDays = [];
   int _timesPerWeek = 3;
   HabitStatus _status = HabitStatus.active;
-  
+
   bool _isInitialized = false;
-  
+
   final List<String> _colors = [
-    '#6C63FF', '#FF6B6B', '#4ECDC4', '#FFD93D',
-    '#95E1D3', '#F38181', '#AA96DA', '#FCBAD3',
+    '#6C63FF',
+    '#FF6B6B',
+    '#4ECDC4',
+    '#FFD93D',
+    '#95E1D3',
+    '#F38181',
+    '#AA96DA',
+    '#FCBAD3',
   ];
-  
+
   final List<Map<String, String>> _daysOfWeek = [
     {'value': 'mon', 'label': 'Pzt'},
     {'value': 'tue', 'label': 'Sal'},
@@ -49,17 +55,17 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
     {'value': 'sat', 'label': 'Cmt'},
     {'value': 'sun', 'label': 'Paz'},
   ];
-  
+
   @override
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
-  
+
   void _initializeForm(Habit habit) {
     if (_isInitialized) return;
-    
+
     _nameController.text = habit.name;
     _descriptionController.text = habit.description ?? '';
     _selectedCategory = habit.category;
@@ -67,7 +73,7 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
     _selectedColor = habit.color;
     _frequencyType = habit.frequency.type;
     _status = habit.status;
-    
+
     final config = habit.frequency.config;
     if (_frequencyType == FrequencyType.daily) {
       _everyDay = config['everyDay'] == true;
@@ -77,24 +83,23 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
     } else if (_frequencyType == FrequencyType.weekly) {
       _timesPerWeek = config['timesPerWeek'] ?? 3;
     }
-    
+
     _isInitialized = true;
   }
-  
+
   Future<void> _updateHabit(Habit originalHabit) async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     final Map<String, dynamic> frequencyConfig;
     if (_frequencyType == FrequencyType.daily) {
-      frequencyConfig = _everyDay
-          ? {'everyDay': true}
-          : {'specificDays': _selectedDays};
+      frequencyConfig =
+          _everyDay ? {'everyDay': true} : {'specificDays': _selectedDays};
     } else if (_frequencyType == FrequencyType.weekly) {
       frequencyConfig = {'timesPerWeek': _timesPerWeek};
     } else {
       frequencyConfig = {'everyDay': true};
     }
-    
+
     final updatedHabit = originalHabit.copyWith(
       name: _nameController.text.trim(),
       description: _descriptionController.text.trim().isEmpty
@@ -110,9 +115,10 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
       status: _status,
       updatedAt: DateTime.now(),
     );
-    
-    final success = await ref.read(habitActionProvider.notifier).updateHabit(updatedHabit);
-    
+
+    final success =
+        await ref.read(habitActionProvider.notifier).updateHabit(updatedHabit);
+
     if (success && mounted) {
       context.showSuccessSnackBar('Alışkanlık güncellendi');
       Navigator.of(context).pop(true);
@@ -128,7 +134,7 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
     final theme = Theme.of(context);
     final habitAsync = ref.watch(habitProvider(widget.habitId));
     final actionState = ref.watch(habitActionProvider);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.editHabit),
@@ -140,9 +146,9 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
               message: 'Alışkanlık bulunamadı',
             );
           }
-          
+
           _initializeForm(habit);
-          
+
           return Form(
             key: _formKey,
             child: ListView(
@@ -192,7 +198,7 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Icon and Color
                 Card(
                   child: Padding(
@@ -211,7 +217,8 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
                           child: Container(
                             padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
-                              color: _getColorFromHex(_selectedColor).withValues(alpha: 0.1),
+                              color: _getColorFromHex(_selectedColor)
+                                  .withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Text(
@@ -229,7 +236,8 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
                           children: _colors.map((color) {
                             final isSelected = color == _selectedColor;
                             return InkWell(
-                              onTap: () => setState(() => _selectedColor = color),
+                              onTap: () =>
+                                  setState(() => _selectedColor = color),
                               borderRadius: BorderRadius.circular(20),
                               child: Container(
                                 width: 40,
@@ -238,12 +246,14 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
                                   color: _getColorFromHex(color),
                                   shape: BoxShape.circle,
                                   border: isSelected
-                                      ? Border.all(color: Colors.white, width: 3)
+                                      ? Border.all(
+                                          color: Colors.white, width: 3)
                                       : null,
                                   boxShadow: isSelected
                                       ? [
                                           BoxShadow(
-                                            color: _getColorFromHex(color).withValues(alpha: 0.5),
+                                            color: _getColorFromHex(color)
+                                                .withValues(alpha: 0.5),
                                             blurRadius: 8,
                                             spreadRadius: 2,
                                           ),
@@ -251,7 +261,8 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
                                       : null,
                                 ),
                                 child: isSelected
-                                    ? const Icon(Icons.check, color: Colors.white, size: 20)
+                                    ? const Icon(Icons.check,
+                                        color: Colors.white, size: 20)
                                     : null,
                               ),
                             );
@@ -262,7 +273,7 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Name
                 TextFormField(
                   controller: _nameController,
@@ -279,7 +290,7 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Category
                 DropdownButtonFormField<String>(
                   initialValue: _selectedCategory,
@@ -309,7 +320,7 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Description
                 TextFormField(
                   controller: _descriptionController,
@@ -322,7 +333,7 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
                   maxLength: AppConstants.maxDescriptionLength,
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Frequency
                 Card(
                   child: Padding(
@@ -351,7 +362,8 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
                             ),
                           ],
                           selected: {_frequencyType},
-                          onSelectionChanged: (Set<FrequencyType> newSelection) {
+                          onSelectionChanged:
+                              (Set<FrequencyType> newSelection) {
                             setState(() {
                               _frequencyType = newSelection.first;
                             });
@@ -373,7 +385,8 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
                               spacing: 8,
                               runSpacing: 8,
                               children: _daysOfWeek.map((day) {
-                                final isSelected = _selectedDays.contains(day['value']);
+                                final isSelected =
+                                    _selectedDays.contains(day['value']);
                                 return FilterChip(
                                   label: Text(day['label']!),
                                   selected: isSelected,
@@ -414,10 +427,11 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                
+
                 // Update Button
                 ElevatedButton(
-                  onPressed: actionState.isLoading ? null : () => _updateHabit(habit),
+                  onPressed:
+                      actionState.isLoading ? null : () => _updateHabit(habit),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _getColorFromHex(_selectedColor),
                     foregroundColor: Colors.white,
@@ -429,7 +443,8 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         )
                       : const Text(
@@ -452,7 +467,7 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
       ),
     );
   }
-  
+
   Color _getColorFromHex(String hexColor) {
     try {
       final hex = hexColor.replaceAll('#', '');

@@ -1,7 +1,6 @@
 /// Base exception class for the application.
 /// Exceptions are thrown by data sources and caught by repositories.
 class AppException implements Exception {
-  
   const AppException(
     this.message, {
     this.code,
@@ -10,9 +9,10 @@ class AppException implements Exception {
   final String message;
   final String? code;
   final dynamic originalException;
-  
+
   @override
-  String toString() => 'AppException: $message${code != null ? " (Code: $code)" : ""}';
+  String toString() =>
+      'AppException: $message${code != null ? " (Code: $code)" : ""}';
 }
 
 // ============================================================================
@@ -21,19 +21,19 @@ class AppException implements Exception {
 
 /// Exception thrown when there's no internet connection.
 class NetworkException extends AppException {
-  const NetworkException([String? message]) 
+  const NetworkException([String? message])
       : super(message ?? 'No internet connection', code: 'NETWORK_ERROR');
 }
 
 /// Exception thrown when request times out.
 class TimeoutException extends AppException {
-  const TimeoutException([String? message]) 
+  const TimeoutException([String? message])
       : super(message ?? 'Request timeout', code: 'TIMEOUT');
 }
 
 /// Exception thrown when server returns an error.
 class ServerException extends AppException {
-  const ServerException([String? message]) 
+  const ServerException([String? message])
       : super(message ?? 'Server error', code: 'SERVER_ERROR');
 }
 
@@ -43,13 +43,13 @@ class ServerException extends AppException {
 
 /// Exception thrown when cache operation fails.
 class CacheException extends AppException {
-  const CacheException([String? message]) 
+  const CacheException([String? message])
       : super(message ?? 'Cache error', code: 'CACHE_ERROR');
 }
 
 /// Exception thrown when cached data is not found.
 class CacheNotFoundException extends CacheException {
-  const CacheNotFoundException([String? message]) 
+  const CacheNotFoundException([String? message])
       : super(message ?? 'Cache not found');
 }
 
@@ -59,32 +59,28 @@ class CacheNotFoundException extends CacheException {
 
 /// Exception thrown during database operations.
 class DatabaseException extends AppException {
-  const DatabaseException([String? message]) 
+  const DatabaseException([String? message])
       : super(message ?? 'Database error', code: 'DATABASE_ERROR');
 }
 
 /// Exception thrown when database query fails.
 class QueryException extends DatabaseException {
-  const QueryException([String? message]) 
-      : super(message ?? 'Query failed');
+  const QueryException([String? message]) : super(message ?? 'Query failed');
 }
 
 /// Exception thrown when database insert fails.
 class InsertException extends DatabaseException {
-  const InsertException([String? message]) 
-      : super(message ?? 'Insert failed');
+  const InsertException([String? message]) : super(message ?? 'Insert failed');
 }
 
 /// Exception thrown when database update fails.
 class UpdateException extends DatabaseException {
-  const UpdateException([String? message]) 
-      : super(message ?? 'Update failed');
+  const UpdateException([String? message]) : super(message ?? 'Update failed');
 }
 
 /// Exception thrown when database delete fails.
 class DeleteException extends DatabaseException {
-  const DeleteException([String? message]) 
-      : super(message ?? 'Delete failed');
+  const DeleteException([String? message]) : super(message ?? 'Delete failed');
 }
 
 // ============================================================================
@@ -98,25 +94,25 @@ class AuthException extends AppException {
 
 /// Exception thrown when user is not authenticated.
 class UnauthenticatedException extends AuthException {
-  const UnauthenticatedException() 
+  const UnauthenticatedException()
       : super('User not authenticated', code: 'UNAUTHENTICATED');
 }
 
 /// Exception thrown when credentials are invalid.
 class InvalidCredentialsException extends AuthException {
-  const InvalidCredentialsException() 
+  const InvalidCredentialsException()
       : super('Invalid credentials', code: 'INVALID_CREDENTIALS');
 }
 
 /// Exception thrown when user already exists.
 class UserAlreadyExistsException extends AuthException {
-  const UserAlreadyExistsException() 
+  const UserAlreadyExistsException()
       : super('User already exists', code: 'USER_EXISTS');
 }
 
 /// Exception thrown when user is not found.
 class UserNotFoundException extends AuthException {
-  const UserNotFoundException() 
+  const UserNotFoundException()
       : super('User not found', code: 'USER_NOT_FOUND');
 }
 
@@ -131,13 +127,13 @@ class ValidationException extends AppException {
 
 /// Exception thrown when required field is missing.
 class MissingFieldException extends ValidationException {
-  const MissingFieldException(String fieldName) 
+  const MissingFieldException(String fieldName)
       : super('Missing required field: $fieldName', code: 'MISSING_FIELD');
 }
 
 /// Exception thrown when field format is invalid.
 class InvalidFormatException extends ValidationException {
-  const InvalidFormatException(String fieldName) 
+  const InvalidFormatException(String fieldName)
       : super('Invalid format for field: $fieldName', code: 'INVALID_FORMAT');
 }
 
@@ -147,13 +143,13 @@ class InvalidFormatException extends ValidationException {
 
 /// Exception thrown when user lacks permission.
 class PermissionException extends AppException {
-  const PermissionException([String? message]) 
+  const PermissionException([String? message])
       : super(message ?? 'Permission denied', code: 'PERMISSION_DENIED');
 }
 
 /// Exception thrown when resource is not found.
 class NotFoundException extends AppException {
-  const NotFoundException([String? message]) 
+  const NotFoundException([String? message])
       : super(message ?? 'Resource not found', code: 'NOT_FOUND');
 }
 
@@ -168,20 +164,22 @@ class FileException extends AppException {
 
 /// Exception thrown when file is not found.
 class FileNotFoundException extends FileException {
-  const FileNotFoundException([String? filePath]) 
-      : super('File not found${filePath != null ? ": $filePath" : ""}', 
-              code: 'FILE_NOT_FOUND',);
+  const FileNotFoundException([String? filePath])
+      : super(
+          'File not found${filePath != null ? ": $filePath" : ""}',
+          code: 'FILE_NOT_FOUND',
+        );
 }
 
 /// Exception thrown when file read fails.
 class FileReadException extends FileException {
-  const FileReadException([String? message]) 
+  const FileReadException([String? message])
       : super(message ?? 'Failed to read file', code: 'FILE_READ_ERROR');
 }
 
 /// Exception thrown when file write fails.
 class FileWriteException extends FileException {
-  const FileWriteException([String? message]) 
+  const FileWriteException([String? message])
       : super(message ?? 'Failed to write file', code: 'FILE_WRITE_ERROR');
 }
 
@@ -191,14 +189,13 @@ class FileWriteException extends FileException {
 
 /// Exception thrown during synchronization.
 class SyncException extends AppException {
-  const SyncException([String? message]) 
+  const SyncException([String? message])
       : super(message ?? 'Synchronization failed', code: 'SYNC_ERROR');
 }
 
 /// Exception thrown when sync conflict occurs.
 class SyncConflictException extends SyncException {
-  const SyncConflictException() 
-      : super('Sync conflict detected');
+  const SyncConflictException() : super('Sync conflict detected');
 }
 
 // ============================================================================
@@ -220,6 +217,6 @@ String getExceptionMessage(Exception exception, {String? defaultMessage}) {
   } else if (exception is AuthException) {
     return 'Kimlik doğrulama hatası';
   }
-  
+
   return defaultMessage ?? 'Beklenmeyen bir hata oluştu';
 }

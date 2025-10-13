@@ -10,13 +10,14 @@ class HabitLogModel extends domain.HabitLog {
     required super.userId,
     required super.date,
     required super.completed,
-    required super.createdAt, super.skipped,
+    required super.createdAt,
+    super.skipped,
     super.skipReason,
     super.quality,
     super.note,
     super.mood,
   });
-  
+
   /// Create HabitLogModel from domain entity.
   factory HabitLogModel.fromEntity(domain.HabitLog log) {
     return HabitLogModel(
@@ -33,7 +34,7 @@ class HabitLogModel extends domain.HabitLog {
       createdAt: log.createdAt,
     );
   }
-  
+
   /// Create HabitLogModel from Firestore document.
   factory HabitLogModel.fromFirestore(Map<String, dynamic> json) {
     return HabitLogModel(
@@ -50,7 +51,7 @@ class HabitLogModel extends domain.HabitLog {
       createdAt: (json['createdAt'] as Timestamp).toDate(),
     );
   }
-  
+
   /// Convert HabitLogModel to Firestore map.
   Map<String, dynamic> toFirestore() {
     return {
@@ -67,7 +68,7 @@ class HabitLogModel extends domain.HabitLog {
       'createdAt': FieldValue.serverTimestamp(),
     };
   }
-  
+
   /// Convert to domain entity.
   domain.HabitLog toEntity() {
     return domain.HabitLog(
@@ -84,7 +85,7 @@ class HabitLogModel extends domain.HabitLog {
       createdAt: createdAt,
     );
   }
-  
+
   @override
   HabitLogModel copyWith({
     String? id,

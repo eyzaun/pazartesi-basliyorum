@@ -4,7 +4,7 @@ class AppTheme {
   // Primary Colors
   static const primaryColor = Color(0xFF6C63FF);
   static const secondaryColor = Color(0xFF03DAC6);
-  
+
   // Light Theme
   static ThemeData get lightTheme {
     return ThemeData(
@@ -14,7 +14,7 @@ class AppTheme {
         seedColor: primaryColor,
       ),
       scaffoldBackgroundColor: Colors.white,
-      
+
       // AppBar Theme
       appBarTheme: const AppBarTheme(
         elevation: 0,
@@ -23,7 +23,7 @@ class AppTheme {
         foregroundColor: Colors.black87,
         iconTheme: IconThemeData(color: Colors.black87),
       ),
-      
+
       // Card Theme
       cardTheme: CardThemeData(
         elevation: 2,
@@ -32,7 +32,7 @@ class AppTheme {
         ),
         color: Colors.white,
       ),
-      
+
       // Input Decoration Theme
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -62,7 +62,7 @@ class AppTheme {
           borderSide: const BorderSide(color: Colors.red, width: 2),
         ),
       ),
-      
+
       // Elevated Button Theme
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -74,7 +74,7 @@ class AppTheme {
           minimumSize: const Size(0, 48),
         ),
       ),
-      
+
       // Outlined Button Theme
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
@@ -85,7 +85,7 @@ class AppTheme {
           minimumSize: const Size(0, 48),
         ),
       ),
-      
+
       // Text Button Theme
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
@@ -97,7 +97,7 @@ class AppTheme {
       ),
     );
   }
-  
+
   // Dark Theme
   static ThemeData get darkTheme {
     return ThemeData(
@@ -108,7 +108,7 @@ class AppTheme {
         brightness: Brightness.dark,
       ),
       scaffoldBackgroundColor: const Color(0xFF121212),
-      
+
       // AppBar Theme
       appBarTheme: const AppBarTheme(
         elevation: 0,
@@ -117,7 +117,7 @@ class AppTheme {
         foregroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.white),
       ),
-      
+
       // Card Theme
       cardTheme: CardThemeData(
         elevation: 2,
@@ -126,7 +126,7 @@ class AppTheme {
         ),
         color: const Color(0xFF1E1E1E),
       ),
-      
+
       // Input Decoration Theme
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -156,7 +156,7 @@ class AppTheme {
           borderSide: const BorderSide(color: Colors.red, width: 2),
         ),
       ),
-      
+
       // Elevated Button Theme
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -168,7 +168,7 @@ class AppTheme {
           minimumSize: const Size(0, 48),
         ),
       ),
-      
+
       // Outlined Button Theme
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
@@ -179,7 +179,7 @@ class AppTheme {
           minimumSize: const Size(0, 48),
         ),
       ),
-      
+
       // Text Button Theme
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 /// Custom text field widget with common configurations.
 class CustomTextField extends StatefulWidget {
-  
   const CustomTextField({
     super.key,
     this.controller,
@@ -45,7 +44,7 @@ class CustomTextField extends StatefulWidget {
 
 class _CustomTextFieldState extends State<CustomTextField> {
   bool _obscureText = true;
-  
+
   @override
   void initState() {
     super.initState();
@@ -60,9 +59,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         labelText: widget.labelText,
         hintText: widget.hintText,
         helperText: widget.helperText,
-        prefixIcon: widget.prefixIcon != null
-            ? Icon(widget.prefixIcon)
-            : null,
+        prefixIcon: widget.prefixIcon != null ? Icon(widget.prefixIcon) : null,
         suffixIcon: _buildSuffixIcon(),
       ),
       obscureText: widget.obscureText && _obscureText,
@@ -76,7 +73,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       maxLength: widget.maxLength,
     );
   }
-  
+
   Widget? _buildSuffixIcon() {
     if (widget.obscureText) {
       return IconButton(
@@ -92,14 +89,14 @@ class _CustomTextFieldState extends State<CustomTextField> {
         },
       );
     }
-    
+
     if (widget.suffixIcon != null) {
       return IconButton(
         icon: Icon(widget.suffixIcon),
         onPressed: widget.onSuffixIconPressed,
       );
     }
-    
+
     return null;
   }
 }

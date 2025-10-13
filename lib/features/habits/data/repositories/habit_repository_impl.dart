@@ -3,27 +3,28 @@ import 'package:uuid/uuid.dart';
 import '../../../../shared/models/result.dart';
 import '../../domain/entities/habit.dart';
 import '../../domain/entities/habit_log.dart';
+import '../../domain/entities/streak_recovery.dart';
 import '../../domain/repositories/habit_repository.dart';
 import '../datasources/habit_remote_datasource.dart';
 import '../models/habit_log_model.dart';
 import '../models/habit_model.dart';
+import '../models/streak_recovery_model.dart';
 
 /// Implementation of HabitRepository using Firebase only.
 /// Simple and straightforward - all data stored in Firestore.
 class HabitRepositoryImpl implements HabitRepository {
-  
   HabitRepositoryImpl({
     required this.remoteDataSource,
     required this.uuid,
   });
-  
+
   final HabitRemoteDataSource remoteDataSource;
   final Uuid uuid;
-  
+
   // ========================================================================
   // Habit CRUD Operations
   // ========================================================================
-  
+
   @override
   Future<Result<Habit>> createHabit(Habit habit) async {
     try {
@@ -34,7 +35,7 @@ class HabitRepositoryImpl implements HabitRepository {
       return Failure('Alışkanlık oluşturulamadı: ${e.toString()}');
     }
   }
-  
+
   @override
   Future<Result<List<Habit>>> getHabits(String userId) async {
     try {
@@ -44,7 +45,7 @@ class HabitRepositoryImpl implements HabitRepository {
       return Failure('Alışkanlıklar alınamadı: ${e.toString()}');
     }
   }
-  
+
   @override
   Future<Result<List<Habit>>> getActiveHabits(String userId) async {
     try {
@@ -54,22 +55,22 @@ class HabitRepositoryImpl implements HabitRepository {
       return Failure('Aktif alışkanlıklar alınamadı: ${e.toString()}');
     }
   }
-  
+
   @override
   Future<Result<Habit>> getHabitById(String habitId) async {
     try {
       final habit = await remoteDataSource.getHabitById(habitId);
-      
+
       if (habit == null) {
         return const Failure('Alışkanlık bulunamadı');
       }
-      
+
       return Success(habit.toEntity());
     } catch (e) {
       return Failure('Alışkanlık alınamadı: ${e.toString()}');
     }
   }
-  
+
   @override
   Future<Result<Habit>> updateHabit(Habit habit) async {
     try {
@@ -80,7 +81,7 @@ class HabitRepositoryImpl implements HabitRepository {
       return Failure('Alışkanlık güncellenemedi: ${e.toString()}');
     }
   }
-  
+
   @override
   Future<Result<void>> deleteHabit(String habitId) async {
     try {
@@ -90,7 +91,7 @@ class HabitRepositoryImpl implements HabitRepository {
       return Failure('Alışkanlık silinemedi: ${e.toString()}');
     }
   }
-  
+
   @override
   Future<Result<Habit>> changeHabitStatus(
     String habitId,
@@ -98,26 +99,26 @@ class HabitRepositoryImpl implements HabitRepository {
   ) async {
     try {
       final habit = await remoteDataSource.getHabitById(habitId);
-      
+
       if (habit == null) {
         return const Failure('Alışkanlık bulunamadı');
       }
-      
+
       final updatedHabit = habit.copyWith(
         status: status,
         updatedAt: DateTime.now(),
       );
-      
+
       return await updateHabit(updatedHabit.toEntity());
     } catch (e) {
       return Failure('Durum değiştirilemedi: ${e.toString()}');
     }
   }
-  
+
   // ========================================================================
   // Habit Log Operations
   // ========================================================================
-  
+
   @override
   Future<Result<HabitLog>> completeHabit({
     required String habitId,
@@ -128,7 +129,7 @@ class HabitRepositoryImpl implements HabitRepository {
     try {
       final now = DateTime.now();
       final logId = uuid.v4();
-      
+
       final log = HabitLogModel(
         id: logId,
         habitId: habitId,
@@ -139,24 +140,25 @@ class HabitRepositoryImpl implements HabitRepository {
         note: note,
         createdAt: now,
       );
-      
+
       await remoteDataSource.upsertHabitLog(log);
       return Success(log.toEntity());
     } catch (e) {
       return Failure('Tamamlanamadı: ${e.toString()}');
     }
   }
-  
+
   @override
   Future<Result<HabitLog>> skipHabit({
     required String habitId,
     required String userId,
     required String skipReason,
+    String? note,
   }) async {
     try {
       final now = DateTime.now();
       final logId = uuid.v4();
-      
+
       final log = HabitLogModel(
         id: logId,
         habitId: habitId,
@@ -165,40 +167,41 @@ class HabitRepositoryImpl implements HabitRepository {
         completed: false,
         skipped: true,
         skipReason: skipReason,
+        note: note,
         createdAt: now,
       );
-      
+
       await remoteDataSource.upsertHabitLog(log);
       return Success(log.toEntity());
     } catch (e) {
       return Failure('Atlanamadı: ${e.toString()}');
     }
   }
-  
+
   @override
   Future<Result<void>> undoCheckIn(String habitId, String userId) async {
     try {
       final now = DateTime.now();
       final logs = await remoteDataSource.getLogsForHabit(habitId);
-      
+
       // Find today's log
       final todayLog = logs.where((log) {
         return log.date.year == now.year &&
-               log.date.month == now.month &&
-               log.date.day == now.day;
+            log.date.month == now.month &&
+            log.date.day == now.day;
       }).firstOrNull;
-      
+
       if (todayLog == null) {
         return const Failure('Bugün için kayıt bulunamadı');
       }
-      
+
       await remoteDataSource.deleteHabitLog(todayLog.id);
       return const Success(null);
     } catch (e) {
       return Failure('Geri alınamadı: ${e.toString()}');
     }
   }
-  
+
   @override
   Future<Result<List<HabitLog>>> getLogsForHabit(String habitId) async {
     try {
@@ -208,7 +211,7 @@ class HabitRepositoryImpl implements HabitRepository {
       return Failure('Kayıtlar alınamadı: ${e.toString()}');
     }
   }
-  
+
   @override
   Future<Result<HabitLog?>> getLogForDate(
     String habitId,
@@ -216,19 +219,19 @@ class HabitRepositoryImpl implements HabitRepository {
   ) async {
     try {
       final logs = await remoteDataSource.getLogsForHabit(habitId);
-      
+
       final log = logs.where((l) {
         return l.date.year == date.year &&
-               l.date.month == date.month &&
-               l.date.day == date.day;
+            l.date.month == date.month &&
+            l.date.day == date.day;
       }).firstOrNull;
-      
+
       return Success(log?.toEntity());
     } catch (e) {
       return Failure('Kayıt alınamadı: ${e.toString()}');
     }
   }
-  
+
   @override
   Future<Result<List<HabitLog>>> getTodayLogs(String userId) async {
     try {
@@ -238,21 +241,21 @@ class HabitRepositoryImpl implements HabitRepository {
       return Failure('Bugünün kayıtları alınamadı: ${e.toString()}');
     }
   }
-  
+
   // ========================================================================
   // Statistics Operations
   // ========================================================================
-  
+
   @override
   Future<Result<HabitStatistics>> getHabitStatistics(String habitId) async {
     try {
       final logs = await remoteDataSource.getLogsForHabit(habitId);
       final completedLogs = logs.where((l) => l.completed).toList();
-      
+
       final completionCount = completedLogs.length;
       final currentStreak = _calculateCurrentStreak(completedLogs);
       final longestStreak = _calculateLongestStreak(completedLogs);
-      
+
       final stats = HabitStatistics(
         habitId: habitId,
         totalCompletions: completionCount,
@@ -260,13 +263,13 @@ class HabitRepositoryImpl implements HabitRepository {
         longestStreak: longestStreak,
         completionRate: 0, // TODO: Calculate based on frequency
       );
-      
+
       return Success(stats);
     } catch (e) {
       return Failure('İstatistikler alınamadı: ${e.toString()}');
     }
   }
-  
+
   @override
   Future<Result<int>> getCompletionCount(String habitId) async {
     try {
@@ -277,7 +280,7 @@ class HabitRepositoryImpl implements HabitRepository {
       return Failure('Tamamlanma sayısı alınamadı: ${e.toString()}');
     }
   }
-  
+
   @override
   Future<Result<int>> getCurrentStreak(String habitId) async {
     try {
@@ -289,47 +292,47 @@ class HabitRepositoryImpl implements HabitRepository {
       return Failure('Seri alınamadı: ${e.toString()}');
     }
   }
-  
+
   // ========================================================================
   // Helper Methods
   // ========================================================================
-  
+
   int _calculateCurrentStreak(List<HabitLogModel> logs) {
     if (logs.isEmpty) return 0;
-    
+
     // Sort by date descending
-    final sortedLogs = logs.toList()
-      ..sort((a, b) => b.date.compareTo(a.date));
-    
+    final sortedLogs = logs.toList()..sort((a, b) => b.date.compareTo(a.date));
+
     var streak = 0;
     var currentDate = DateTime.now();
-    
+
     for (final log in sortedLogs) {
       final logDate = DateTime(log.date.year, log.date.month, log.date.day);
-      final checkDate = DateTime(currentDate.year, currentDate.month, currentDate.day);
-      
-      if (logDate.isAtSameMomentAs(checkDate) || 
-          logDate.isAtSameMomentAs(checkDate.subtract(const Duration(days: 1)))) {
+      final checkDate =
+          DateTime(currentDate.year, currentDate.month, currentDate.day);
+
+      if (logDate.isAtSameMomentAs(checkDate) ||
+          logDate
+              .isAtSameMomentAs(checkDate.subtract(const Duration(days: 1)))) {
         streak++;
         currentDate = log.date.subtract(const Duration(days: 1));
       } else {
         break;
       }
     }
-    
+
     return streak;
   }
-  
+
   int _calculateLongestStreak(List<HabitLogModel> logs) {
     if (logs.isEmpty) return 0;
-    
+
     // Sort by date
-    final sortedLogs = logs.toList()
-      ..sort((a, b) => a.date.compareTo(b.date));
-    
+    final sortedLogs = logs.toList()..sort((a, b) => a.date.compareTo(b.date));
+
     var longestStreak = 1;
     var currentStreak = 1;
-    
+
     for (var i = 1; i < sortedLogs.length; i++) {
       final prevDate = DateTime(
         sortedLogs[i - 1].date.year,
@@ -341,35 +344,143 @@ class HabitRepositoryImpl implements HabitRepository {
         sortedLogs[i].date.month,
         sortedLogs[i].date.day,
       );
-      
+
       if (currDate.difference(prevDate).inDays == 1) {
         currentStreak++;
-        longestStreak = currentStreak > longestStreak ? currentStreak : longestStreak;
+        longestStreak =
+            currentStreak > longestStreak ? currentStreak : longestStreak;
       } else {
         currentStreak = 1;
       }
     }
-    
+
     return longestStreak;
   }
-  
+
+  // ========================================================================
+  // Streak Recovery Operations
+  // ========================================================================
+
+  @override
+  Future<Result<void>> useStreakRecovery({
+    required String habitId,
+    required String userId,
+    required DateTime missedDate,
+  }) async {
+    try {
+      // Check eligibility first
+      final eligibilityResult = await checkRecoveryEligibility(
+        habitId: habitId,
+        userId: userId,
+        missedDate: missedDate,
+      );
+
+      switch (eligibilityResult) {
+        case Failure<StreakRecoveryEligibility>(:final message):
+          return Failure(message);
+        case Success<StreakRecoveryEligibility>(:final data):
+          if (!data.canRecover) {
+            return Failure(data.reason);
+          }
+        // Continue with recovery process
+      }
+
+      // Create recovery record
+      final recoveryId = uuid.v4();
+      final recovery = StreakRecoveryModel(
+        id: recoveryId,
+        habitId: habitId,
+        userId: userId,
+        recoveredDate: missedDate,
+        usedAt: DateTime.now(),
+      );
+
+      await remoteDataSource.createStreakRecovery(recovery);
+
+      // Create a completed log for the missed date
+      final log = HabitLogModel(
+        id: uuid.v4(),
+        habitId: habitId,
+        userId: userId,
+        date: missedDate,
+        completed: true,
+        quality: LogQuality.good, // Default quality for recovery
+        note: '🔄 Seri kurtarma kullanıldı',
+        createdAt: DateTime.now(),
+      );
+
+      await remoteDataSource.createHabitLog(log);
+
+      return const Success(null);
+    } catch (e) {
+      return Failure('Seri kurtarılamadı: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<Result<List<StreakRecovery>>> getRecentRecoveries({
+    required String habitId,
+    required String userId,
+  }) async {
+    try {
+      final recoveries = await remoteDataSource.getRecentRecoveries(
+        habitId: habitId,
+        userId: userId,
+      );
+      return Success(recoveries.map((r) => r.toEntity()).toList());
+    } catch (e) {
+      return Failure('Kurtarma kayıtları alınamadı: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<Result<StreakRecoveryEligibility>> checkRecoveryEligibility({
+    required String habitId,
+    required String userId,
+    required DateTime missedDate,
+  }) async {
+    try {
+      // Get recent recoveries
+      final recoveriesResult = await getRecentRecoveries(
+        habitId: habitId,
+        userId: userId,
+      );
+
+      final recoveries = switch (recoveriesResult) {
+        Failure<List<StreakRecovery>>(:final message) =>
+          throw Exception(message),
+        Success<List<StreakRecovery>>(:final data) => data,
+      };
+
+      // Check eligibility
+      final eligibility = StreakRecoveryChecker.checkEligibility(
+        missedDate: missedDate,
+        recentRecoveries: recoveries,
+      );
+
+      return Success(eligibility);
+    } catch (e) {
+      return Failure('Kurtarma uygunluğu kontrol edilemedi: ${e.toString()}');
+    }
+  }
+
   // ========================================================================
   // Sync Operations (No-op in Firebase-only version)
   // ========================================================================
-  
+
   @override
   Future<Result<void>> syncWithFirebase() async {
     // No sync needed - everything is already in Firebase
     return const Success(null);
   }
-  
+
   @override
   Stream<List<Habit>> watchHabits(String userId) {
     return remoteDataSource
         .watchHabits(userId)
         .map((habits) => habits.map((h) => h.toEntity()).toList());
   }
-  
+
   @override
   Stream<List<HabitLog>> watchTodayLogs(String userId) {
     return remoteDataSource

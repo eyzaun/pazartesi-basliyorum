@@ -3,13 +3,16 @@ import '../../domain/entities/habit.dart';
 
 /// Widget for selecting habit frequency.
 class FrequencySelector extends StatefulWidget {
-  
   const FrequencySelector({
-    required this.initialType, required this.initialConfig, required this.onChanged, super.key,
+    required this.initialType,
+    required this.initialConfig,
+    required this.onChanged,
+    super.key,
   });
   final FrequencyType initialType;
   final Map<String, dynamic> initialConfig;
-  final void Function(FrequencyType type, Map<String, dynamic> config) onChanged;
+  final void Function(FrequencyType type, Map<String, dynamic> config)
+      onChanged;
 
   @override
   State<FrequencySelector> createState() => _FrequencySelectorState();
@@ -22,7 +25,7 @@ class _FrequencySelectorState extends State<FrequencySelector> {
   late int _timesPerWeek;
   late int _minPerWeek;
   late int _targetPerWeek;
-  
+
   final List<Map<String, String>> _daysOfWeek = [
     {'value': 'mon', 'label': 'Pzt', 'fullName': 'Pazartesi'},
     {'value': 'tue', 'label': 'Sal', 'fullName': 'Salı'},
@@ -32,26 +35,26 @@ class _FrequencySelectorState extends State<FrequencySelector> {
     {'value': 'sat', 'label': 'Cmt', 'fullName': 'Cumartesi'},
     {'value': 'sun', 'label': 'Paz', 'fullName': 'Pazar'},
   ];
-  
+
   @override
   void initState() {
     super.initState();
     _type = widget.initialType;
     _everyDay = widget.initialConfig['everyDay'] == true;
-    _selectedDays = List<String>.from(widget.initialConfig['specificDays'] ?? []);
+    _selectedDays =
+        List<String>.from(widget.initialConfig['specificDays'] ?? []);
     _timesPerWeek = widget.initialConfig['timesPerWeek'] ?? 3;
     _minPerWeek = widget.initialConfig['minPerWeek'] ?? 2;
     _targetPerWeek = widget.initialConfig['targetPerWeek'] ?? 5;
   }
-  
+
   void _notifyChange() {
     Map<String, dynamic> config;
-    
+
     switch (_type) {
       case FrequencyType.daily:
-        config = _everyDay
-            ? {'everyDay': true}
-            : {'specificDays': _selectedDays};
+        config =
+            _everyDay ? {'everyDay': true} : {'specificDays': _selectedDays};
         break;
       case FrequencyType.weekly:
         config = {'timesPerWeek': _timesPerWeek};
@@ -66,14 +69,14 @@ class _FrequencySelectorState extends State<FrequencySelector> {
         };
         break;
     }
-    
+
     widget.onChanged(_type, config);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -87,7 +90,7 @@ class _FrequencySelectorState extends State<FrequencySelector> {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // Frequency type selector
             SegmentedButton<FrequencyType>(
               segments: const [
@@ -116,7 +119,7 @@ class _FrequencySelectorState extends State<FrequencySelector> {
               },
             ),
             const SizedBox(height: 20),
-            
+
             // Configuration options based on type
             if (_type == FrequencyType.daily) ..._buildDailyOptions(),
             if (_type == FrequencyType.weekly) ..._buildWeeklyOptions(),
@@ -126,7 +129,7 @@ class _FrequencySelectorState extends State<FrequencySelector> {
       ),
     );
   }
-  
+
   List<Widget> _buildDailyOptions() {
     return [
       SwitchListTile(
@@ -183,7 +186,7 @@ class _FrequencySelectorState extends State<FrequencySelector> {
       ],
     ];
   }
-  
+
   List<Widget> _buildWeeklyOptions() {
     return [
       Text(
@@ -206,12 +209,12 @@ class _FrequencySelectorState extends State<FrequencySelector> {
       Text(
         'Haftalık hedef: Haftada $_timesPerWeek gün yapmanız gerekiyor',
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-          fontStyle: FontStyle.italic,
-        ),
+              fontStyle: FontStyle.italic,
+            ),
       ),
     ];
   }
-  
+
   List<Widget> _buildFlexibleOptions() {
     return [
       Text(

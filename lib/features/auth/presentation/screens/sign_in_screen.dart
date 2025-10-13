@@ -20,29 +20,29 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _obscurePassword = true;
-  
+
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
-  
+
   /// Sign in with email and password.
   Future<void> _signInWithEmail() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     setState(() => _isLoading = true);
-    
+
     final result = await ref.read(authRepositoryProvider).signInWithEmail(
-      _emailController.text.trim(),
-      _passwordController.text,
-    );
-    
+          _emailController.text.trim(),
+          _passwordController.text,
+        );
+
     setState(() => _isLoading = false);
-    
+
     if (!mounted) return;
-    
+
     result.when(
       success: (_) {
         Navigator.of(context).pushReplacementNamed(AppRouter.home);
@@ -57,17 +57,17 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       },
     );
   }
-  
+
   /// Sign in with Google.
   Future<void> _signInWithGoogle() async {
     setState(() => _isLoading = true);
-    
+
     final result = await ref.read(authRepositoryProvider).signInWithGoogle();
-    
+
     setState(() => _isLoading = false);
-    
+
     if (!mounted) return;
-    
+
     result.when(
       success: (_) {
         Navigator.of(context).pushReplacementNamed(AppRouter.home);
@@ -82,12 +82,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       },
     );
   }
-  
+
   /// Show forgot password dialog.
   Future<void> _showForgotPasswordDialog() async {
     final emailController = TextEditingController();
     final formKey = GlobalKey<FormState>();
-    
+
     return showDialog(
       context: context,
       builder: (context) {
@@ -133,22 +133,24 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             ElevatedButton(
               onPressed: () async {
                 if (!formKey.currentState!.validate()) return;
-                
+
                 // Show loading
                 Navigator.of(context).pop();
-                
+
                 // Call Firebase password reset
-                final result = await ref.read(authRepositoryProvider).resetPassword(
-                  emailController.text.trim(),
-                );
-                
+                final result =
+                    await ref.read(authRepositoryProvider).resetPassword(
+                          emailController.text.trim(),
+                        );
+
                 if (!mounted) return;
-                
+
                 result.when(
                   success: (_) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Şifre sıfırlama linki gönderildi! E-postanızı kontrol edin.'),
+                        content: Text(
+                            'Şifre sıfırlama linki gönderildi! E-postanızı kontrol edin.'),
                         backgroundColor: Colors.green,
                       ),
                     );
@@ -175,7 +177,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.signIn),
@@ -189,7 +191,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 32),
-                
+
                 // Welcome text
                 Text(
                   'Tekrar hoş geldin! 👋',
@@ -207,7 +209,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 48),
-                
+
                 // Email Field
                 TextFormField(
                   controller: _emailController,
@@ -230,7 +232,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Password Field
                 TextFormField(
                   controller: _passwordController,
@@ -265,7 +267,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   },
                 ),
                 const SizedBox(height: 8),
-                
+
                 // Forgot Password
                 Align(
                   alignment: Alignment.centerRight,
@@ -275,7 +277,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                
+
                 // Sign In Button
                 SizedBox(
                   width: double.infinity,
@@ -295,7 +297,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
                         : Text(
@@ -308,7 +311,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                
+
                 // Divider
                 Row(
                   children: [
@@ -324,7 +327,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   ],
                 ),
                 const SizedBox(height: 24),
-                
+
                 // Google Sign In Button
                 SizedBox(
                   width: double.infinity,
@@ -357,7 +360,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                
+
                 // Sign Up Link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -367,9 +370,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       style: theme.textTheme.bodyMedium,
                     ),
                     TextButton(
-                      onPressed: _isLoading ? null : () {
-                        Navigator.of(context).pushReplacementNamed(AppRouter.signUp);
-                      },
+                      onPressed: _isLoading
+                          ? null
+                          : () {
+                              Navigator.of(context)
+                                  .pushReplacementNamed(AppRouter.signUp);
+                            },
                       child: Text(
                         l10n.signUp,
                         style: const TextStyle(fontWeight: FontWeight.bold),

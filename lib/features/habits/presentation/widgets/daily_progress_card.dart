@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 /// Card showing daily progress overview with stats.
 class DailyProgressCard extends StatelessWidget {
   const DailyProgressCard({
-    super.key,
     required this.completedCount,
     required this.totalCount,
     required this.currentStreak,
+    super.key,
     this.onTap,
   });
 
@@ -43,7 +43,7 @@ class DailyProgressCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              
+
               // Progress Circle & Stats
               Row(
                 children: [
@@ -59,7 +59,7 @@ class DailyProgressCard extends StatelessWidget {
                           width: 100,
                           height: 100,
                           child: CircularProgressIndicator(
-                            value: 1.0,
+                            value: 1,
                             strokeWidth: 8,
                             color: Colors.grey.shade200,
                           ),
@@ -96,7 +96,7 @@ class DailyProgressCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 24),
-                  
+
                   // Stats
                   Expanded(
                     child: Column(
@@ -118,7 +118,7 @@ class DailyProgressCard extends StatelessWidget {
                           ),
                         ],
                         const SizedBox(height: 12),
-                        
+
                         // Streak indicator
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -158,7 +158,7 @@ class DailyProgressCard extends StatelessWidget {
                   ),
                 ],
               ),
-              
+
               // Completion message
               if (progress == 1.0 && totalCount > 0) ...[
                 const SizedBox(height: 16),

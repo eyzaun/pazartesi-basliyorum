@@ -1,7 +1,7 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:fl_chart/fl_chart.dart';
 
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/utils/extensions.dart';
@@ -14,7 +14,6 @@ import '../providers/habits_provider.dart';
 
 /// Detailed view of a habit showing statistics and history with tabbed navigation.
 class HabitDetailScreen extends ConsumerStatefulWidget {
-  
   const HabitDetailScreen({required this.habitId, super.key});
   final String habitId;
 
@@ -32,7 +31,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -44,7 +43,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
   @override
   Widget build(BuildContext context) {
     final habitAsync = ref.watch(habitProvider(widget.habitId));
-    
+
     return habitAsync.when(
       data: (habit) {
         if (habit == null) {
@@ -56,7 +55,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
             ),
           );
         }
-        
+
         return Scaffold(
           body: NestedScrollView(
             headerSliverBuilder: (context, innerBoxIsScrolled) {
@@ -65,7 +64,6 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
                 SliverAppBar(
                   expandedHeight: 200,
                   pinned: true,
-                  floating: false,
                   actions: [
                     IconButton(
                       icon: const Icon(Icons.edit),
@@ -93,7 +91,8 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
                           end: Alignment.bottomRight,
                           colors: [
                             _getColorFromHex(habit.color),
-                            _getColorFromHex(habit.color).withValues(alpha: 0.6),
+                            _getColorFromHex(habit.color)
+                                .withValues(alpha: 0.6),
                           ],
                         ),
                       ),
@@ -112,6 +111,9 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
                       Tab(icon: Icon(Icons.info_outline), text: 'Genel'),
                       Tab(icon: Icon(Icons.calendar_month), text: 'Takvim'),
                       Tab(icon: Icon(Icons.bar_chart), text: 'Grafik'),
+                      Tab(
+                          icon: Icon(Icons.analytics_outlined),
+                          text: 'İstatistik'),
                     ],
                   ),
                 ),
@@ -123,6 +125,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
                 _buildGeneralTab(habit),
                 _buildCalendarTab(habit),
                 _buildChartTab(habit),
+                _buildStatisticsTab(habit),
               ],
             ),
           ),
@@ -140,14 +143,14 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
       ),
     );
   }
-  
+
   // ============================================================================
   // TAB 1: General Info
   // ============================================================================
-  
+
   Widget _buildGeneralTab(Habit habit) {
     final theme = Theme.of(context);
-    
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -156,7 +159,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
           // Statistics Cards
           _buildStatisticsSection(habit),
           const SizedBox(height: 24),
-          
+
           // Habit Details
           Text(
             'Alışkanlık Detayları',
@@ -165,7 +168,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
             ),
           ),
           const SizedBox(height: 12),
-          
+
           _buildInfoCard(
             icon: Icons.category_outlined,
             label: 'Kategori',
@@ -173,7 +176,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
             color: Colors.blue,
           ),
           const SizedBox(height: 8),
-          
+
           if (habit.description != null && habit.description!.isNotEmpty) ...[
             _buildInfoCard(
               icon: Icons.description_outlined,
@@ -183,7 +186,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
             ),
             const SizedBox(height: 8),
           ],
-          
+
           _buildInfoCard(
             icon: Icons.repeat,
             label: 'Sıklık',
@@ -191,7 +194,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
             color: Colors.orange,
           ),
           const SizedBox(height: 8),
-          
+
           _buildInfoCard(
             icon: Icons.calendar_today,
             label: 'Oluşturulma Tarihi',
@@ -199,7 +202,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
             color: Colors.purple,
           ),
           const SizedBox(height: 24),
-          
+
           // Recent Activity
           Text(
             'Son Aktiviteler',
@@ -213,7 +216,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
       ),
     );
   }
-  
+
   Widget _buildInfoCard({
     required IconData icon,
     required String label,
@@ -261,7 +264,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
       ),
     );
   }
-  
+
   String _getFrequencyText(HabitFrequency frequency) {
     switch (frequency.type) {
       case FrequencyType.daily:
@@ -281,27 +284,28 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
         return 'Özel';
     }
   }
-  
+
   Widget _buildRecentActivityList(Habit habit) {
     final logsAsync = ref.watch(
       FutureProvider<List<HabitLog>>((ref) async {
-        final result = await ref.read(habitRepositoryProvider).getLogsForHabit(habit.id);
+        final result =
+            await ref.read(habitRepositoryProvider).getLogsForHabit(habit.id);
         if (result is Success<List<HabitLog>>) {
           return result.data.take(5).toList();
         }
         return [];
       }).future,
     );
-    
+
     return FutureBuilder<List<HabitLog>>(
       future: logsAsync,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-        
+
         final logs = snapshot.data ?? [];
-        
+
         if (logs.isEmpty) {
           return const Card(
             child: Padding(
@@ -312,34 +316,35 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
             ),
           );
         }
-        
+
         return Column(
           children: logs.map((log) {
             return Card(
               margin: const EdgeInsets.only(bottom: 8),
               child: ListTile(
                 leading: CircleAvatar(
-                  backgroundColor: log.completed 
-                      ? Colors.green[100] 
-                      : Colors.orange[100],
+                  backgroundColor:
+                      log.completed ? Colors.green[100] : Colors.orange[100],
                   child: Icon(
                     log.completed ? Icons.check : Icons.skip_next,
-                    color: log.completed ? Colors.green[700] : Colors.orange[700],
+                    color:
+                        log.completed ? Colors.green[700] : Colors.orange[700],
                   ),
                 ),
                 title: Text(log.date.toFormattedDate()),
-                subtitle: log.note != null 
-                    ? Text(log.note!, maxLines: 1, overflow: TextOverflow.ellipsis)
+                subtitle: log.note != null
+                    ? Text(log.note!,
+                        maxLines: 1, overflow: TextOverflow.ellipsis)
                     : log.skipped && log.skipReason != null
                         ? Text('Atlandı: ${log.skipReason}')
                         : null,
                 trailing: log.quality != null
                     ? Chip(
                         label: Text(
-                          log.quality == LogQuality.excellent 
-                              ? 'Mükemmel' 
-                              : log.quality == LogQuality.good 
-                                  ? 'İyi' 
+                          log.quality == LogQuality.excellent
+                              ? 'Mükemmel'
+                              : log.quality == LogQuality.good
+                                  ? 'İyi'
                                   : 'Minimal',
                           style: const TextStyle(fontSize: 11),
                         ),
@@ -357,11 +362,11 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
       },
     );
   }
-  
+
   // ============================================================================
   // TAB 2: Calendar
   // ============================================================================
-  
+
   Widget _buildCalendarTab(Habit habit) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -379,11 +384,12 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
       ),
     );
   }
-  
+
   Widget _buildDayDetails(Habit habit, DateTime day) {
     final logsAsync = ref.watch(
       FutureProvider<HabitLog?>((ref) async {
-        final result = await ref.read(habitRepositoryProvider).getLogsForHabit(habit.id);
+        final result =
+            await ref.read(habitRepositoryProvider).getLogsForHabit(habit.id);
         if (result is Success<List<HabitLog>>) {
           return result.data.firstWhere(
             (log) => isSameDay(log.date, day),
@@ -393,7 +399,6 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
               userId: '',
               date: day,
               completed: false,
-              skipped: false,
               createdAt: DateTime.now(),
             ),
           );
@@ -401,7 +406,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
         return null;
       }).future,
     );
-    
+
     return FutureBuilder<HabitLog?>(
       future: logsAsync,
       builder: (context, snapshot) {
@@ -413,9 +418,9 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
             ),
           );
         }
-        
+
         final log = snapshot.data;
-        
+
         if (log == null || log.id.isEmpty) {
           return Card(
             child: Padding(
@@ -423,9 +428,10 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
               child: Center(
                 child: Column(
                   children: [
-                    Icon(Icons.calendar_today_outlined, 
-                      size: 48, 
-                      color: Colors.grey[400]
+                    Icon(
+                      Icons.calendar_today_outlined,
+                      size: 48,
+                      color: Colors.grey[400],
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -438,7 +444,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
             ),
           );
         }
-        
+
         return Card(
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -448,12 +454,14 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
                 Row(
                   children: [
                     CircleAvatar(
-                      backgroundColor: log.completed 
-                          ? Colors.green[100] 
+                      backgroundColor: log.completed
+                          ? Colors.green[100]
                           : Colors.orange[100],
                       child: Icon(
                         log.completed ? Icons.check : Icons.skip_next,
-                        color: log.completed ? Colors.green[700] : Colors.orange[700],
+                        color: log.completed
+                            ? Colors.green[700]
+                            : Colors.orange[700],
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -471,7 +479,9 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
                           Text(
                             log.completed ? 'Tamamlandı' : 'Atlandı',
                             style: TextStyle(
-                              color: log.completed ? Colors.green[700] : Colors.orange[700],
+                              color: log.completed
+                                  ? Colors.green[700]
+                                  : Colors.orange[700],
                             ),
                           ),
                         ],
@@ -480,10 +490,10 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
                     if (log.quality != null)
                       Chip(
                         label: Text(
-                          log.quality == LogQuality.excellent 
-                              ? 'Mükemmel' 
-                              : log.quality == LogQuality.good 
-                                  ? 'İyi' 
+                          log.quality == LogQuality.excellent
+                              ? 'Mükemmel'
+                              : log.quality == LogQuality.good
+                                  ? 'İyi'
                                   : 'Minimal',
                         ),
                         backgroundColor: log.quality == LogQuality.excellent
@@ -531,31 +541,32 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
       },
     );
   }
-  
+
   // ============================================================================
   // TAB 3: Chart
   // ============================================================================
-  
+
   Widget _buildChartTab(Habit habit) {
     final logsAsync = ref.watch(
       FutureProvider<List<HabitLog>>((ref) async {
-        final result = await ref.read(habitRepositoryProvider).getLogsForHabit(habit.id);
+        final result =
+            await ref.read(habitRepositoryProvider).getLogsForHabit(habit.id);
         if (result is Success<List<HabitLog>>) {
           return result.data;
         }
         return [];
       }).future,
     );
-    
+
     return FutureBuilder<List<HabitLog>>(
       future: logsAsync,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-        
+
         final logs = snapshot.data ?? [];
-        
+
         if (logs.isEmpty) {
           return Center(
             child: Padding(
@@ -572,9 +583,9 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
                   Text(
                     'Henüz veri yok',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey[600],
-                    ),
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[600],
+                        ),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -587,7 +598,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
             ),
           );
         }
-        
+
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -597,8 +608,8 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
               Text(
                 '30 Günlük Trend',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               const SizedBox(height: 12),
               Card(
@@ -608,13 +619,13 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // Weekly Comparison Chart
               Text(
                 'Haftalık Karşılaştırma',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               const SizedBox(height: 12),
               Card(
@@ -624,13 +635,13 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // Statistics Summary
               Text(
                 'İstatistikler',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               const SizedBox(height: 12),
               _buildStatsSummary(logs),
@@ -640,15 +651,15 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
       },
     );
   }
-  
+
   Widget _buildLineChart(List<HabitLog> logs, Habit habit) {
     // Get last 30 days
     final now = DateTime.now();
     final thirtyDaysAgo = now.subtract(const Duration(days: 29));
-    
+
     // Create data points for last 30 days
     final dataPoints = <FlSpot>[];
-    for (int i = 0; i < 30; i++) {
+    for (var i = 0; i < 30; i++) {
       final date = thirtyDaysAgo.add(Duration(days: i));
       final log = logs.firstWhere(
         (l) => isSameDay(l.date, date),
@@ -658,21 +669,19 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
           userId: '',
           date: date,
           completed: false,
-          skipped: false,
           createdAt: DateTime.now(),
         ),
       );
-      
+
       // 1 for completed, 0 for not completed
       dataPoints.add(FlSpot(i.toDouble(), log.completed ? 1 : 0));
     }
-    
+
     return SizedBox(
       height: 200,
       child: LineChart(
         LineChartData(
           gridData: FlGridData(
-            show: true,
             drawVerticalLine: false,
             horizontalInterval: 1,
             getDrawingHorizontalLine: (value) {
@@ -683,13 +692,8 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
             },
           ),
           titlesData: FlTitlesData(
-            show: true,
-            rightTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            topTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
+            rightTitles: const AxisTitles(),
+            topTitles: const AxisTitles(),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -716,8 +720,12 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
                 interval: 1,
                 reservedSize: 40,
                 getTitlesWidget: (value, meta) {
-                  if (value == 0) return const Text('❌', style: TextStyle(fontSize: 12));
-                  if (value == 1) return const Text('✅', style: TextStyle(fontSize: 12));
+                  if (value == 0) {
+                    return const Text('❌', style: TextStyle(fontSize: 12));
+                  }
+                  if (value == 1) {
+                    return const Text('✅', style: TextStyle(fontSize: 12));
+                  }
                   return const Text('');
                 },
               ),
@@ -739,12 +747,10 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
               barWidth: 3,
               isStrokeCapRound: true,
               dotData: FlDotData(
-                show: true,
                 getDotPainter: (spot, percent, barData, index) {
                   return FlDotCirclePainter(
                     radius: 3,
                     color: spot.y == 1 ? Colors.green : Colors.red,
-                    strokeWidth: 0,
                   );
                 },
               ),
@@ -759,7 +765,8 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
               tooltipRoundedRadius: 8,
               getTooltipItems: (touchedSpots) {
                 return touchedSpots.map((spot) {
-                  final date = thirtyDaysAgo.add(Duration(days: spot.x.toInt()));
+                  final date =
+                      thirtyDaysAgo.add(Duration(days: spot.x.toInt()));
                   final status = spot.y == 1 ? '✅ Tamamlandı' : '❌ Yapılmadı';
                   return LineTooltipItem(
                     '${date.day}/${date.month}\n$status',
@@ -777,31 +784,35 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
       ),
     );
   }
-  
+
   Widget _buildBarChart(List<HabitLog> logs) {
     // Group by week (last 4 weeks)
     final now = DateTime.now();
     final weekData = <int, int>{};
-    
-    for (int i = 0; i < 4; i++) {
-      final weekStart = now.subtract(Duration(days: (3 - i) * 7 + now.weekday - 1));
+
+    for (var i = 0; i < 4; i++) {
+      final weekStart =
+          now.subtract(Duration(days: (3 - i) * 7 + now.weekday - 1));
       final weekEnd = weekStart.add(const Duration(days: 6));
-      
+
       final completedCount = logs.where((log) {
         return log.completed &&
             log.date.isAfter(weekStart.subtract(const Duration(days: 1))) &&
             log.date.isBefore(weekEnd.add(const Duration(days: 1)));
       }).length;
-      
+
       weekData[i] = completedCount;
     }
-    
+
     return SizedBox(
       height: 200,
       child: BarChart(
         BarChartData(
           alignment: BarChartAlignment.spaceAround,
-          maxY: (weekData.values.isEmpty ? 7 : weekData.values.reduce((a, b) => a > b ? a : b) + 2).toDouble(),
+          maxY: (weekData.values.isEmpty
+                  ? 7
+                  : weekData.values.reduce((a, b) => a > b ? a : b) + 2)
+              .toDouble(),
           barTouchData: BarTouchData(
             touchTooltipData: BarTouchTooltipData(
               tooltipRoundedRadius: 8,
@@ -817,18 +828,18 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
             ),
           ),
           titlesData: FlTitlesData(
-            show: true,
-            rightTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            topTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
+            rightTitles: const AxisTitles(),
+            topTitles: const AxisTitles(),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
-                  const weeks = ['4 hafta önce', '3 hafta önce', '2 hafta önce', 'Bu hafta'];
+                  const weeks = [
+                    '4 hafta önce',
+                    '3 hafta önce',
+                    '2 hafta önce',
+                    'Bu hafta'
+                  ];
                   if (value.toInt() >= 0 && value.toInt() < weeks.length) {
                     return Padding(
                       padding: const EdgeInsets.only(top: 8),
@@ -875,7 +886,8 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
                   toY: entry.value.toDouble(),
                   color: Colors.blue,
                   width: 40,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(6)),
                   gradient: LinearGradient(
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
@@ -892,25 +904,32 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
       ),
     );
   }
-  
+
   Widget _buildStatsSummary(List<HabitLog> logs) {
     final completedLogs = logs.where((l) => l.completed).toList();
     final totalDays = logs.length;
     final completedDays = completedLogs.length;
-    final completionRate = totalDays > 0 ? (completedDays / totalDays * 100).toStringAsFixed(1) : '0.0';
-    
+    final completionRate = totalDays > 0
+        ? (completedDays / totalDays * 100).toStringAsFixed(1)
+        : '0.0';
+
     // Calculate average quality
     final qualityLogs = completedLogs.where((l) => l.quality != null).toList();
     final avgQuality = qualityLogs.isEmpty
         ? 'N/A'
         : (qualityLogs.map((l) {
-            switch (l.quality!) {
-              case LogQuality.excellent: return 3;
-              case LogQuality.good: return 2;
-              case LogQuality.minimal: return 1;
-            }
-          }).reduce((a, b) => a + b) / qualityLogs.length).toStringAsFixed(1);
-    
+                  switch (l.quality!) {
+                    case LogQuality.excellent:
+                      return 3;
+                    case LogQuality.good:
+                      return 2;
+                    case LogQuality.minimal:
+                      return 1;
+                  }
+                }).reduce((a, b) => a + b) /
+                qualityLogs.length)
+            .toStringAsFixed(1);
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -948,7 +967,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
       ),
     );
   }
-  
+
   Widget _buildStatRow({
     required IconData icon,
     required String label,
@@ -985,14 +1004,14 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
       ],
     );
   }
-  
+
   // ============================================================================
   // Shared Widgets
   // ============================================================================
-  
+
   Widget _buildStatisticsSection(Habit habit) {
     final statsAsync = ref.watch(habitStatisticsProvider(habit.id));
-    
+
     return statsAsync.when(
       data: (stats) {
         return Row(
@@ -1033,7 +1052,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
       error: (error, stack) => const SizedBox(),
     );
   }
-  
+
   Widget _buildStatCard({
     required IconData icon,
     required String value,
@@ -1064,15 +1083,16 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
       ),
     );
   }
-  
+
   Widget _buildCalendar(Habit habit) {
     final logsAsync = ref.watch(
       FutureProvider<List<HabitLog>>((ref) async {
-        final result = await ref.read(habitRepositoryProvider).getLogsForHabit(habit.id);
+        final result =
+            await ref.read(habitRepositoryProvider).getLogsForHabit(habit.id);
         return result is Success<List<HabitLog>> ? result.data : [];
       }).future,
     );
-    
+
     return FutureBuilder<List<HabitLog>>(
       future: logsAsync,
       builder: (context, snapshot) {
@@ -1081,7 +1101,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
             .where((log) => log.completed)
             .map((log) => DateTime(log.date.year, log.date.month, log.date.day))
             .toSet();
-        
+
         return TableCalendar(
           firstDay: habit.createdAt,
           lastDay: DateTime.now().add(const Duration(days: 365)),
@@ -1131,7 +1151,503 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
       },
     );
   }
-  
+
+  /// Statistics tab showing quality distribution, streak info, and notes history.
+  Widget _buildStatisticsTab(Habit habit) {
+    final logsAsync = ref.watch(
+      FutureProvider<List<HabitLog>>((ref) async {
+        final result =
+            await ref.read(habitRepositoryProvider).getLogsForHabit(habit.id);
+        return result is Success<List<HabitLog>> ? result.data : [];
+      }).future,
+    );
+
+    return FutureBuilder<List<HabitLog>>(
+      future: logsAsync,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: LoadingIndicator());
+        }
+
+        final logs = snapshot.data ?? [];
+        final completedLogs = logs.where((l) => l.completed).toList();
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Quality distribution
+              _buildQualityDistributionCard(completedLogs),
+              const SizedBox(height: 16),
+
+              // Streak information
+              _buildStreakInfoCard(completedLogs, habit),
+              const SizedBox(height: 16),
+
+              // Completion calendar mini view
+              _buildCompletionCalendarCard(completedLogs),
+              const SizedBox(height: 16),
+
+              // Notes history
+              _buildNotesHistoryCard(completedLogs),
+              const SizedBox(height: 80),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildQualityDistributionCard(List<HabitLog> logs) {
+    final theme = Theme.of(context);
+
+    if (logs.isEmpty) {
+      return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Kalite Dağılımı',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 40),
+              const Center(child: Text('Henüz veri yok')),
+              const SizedBox(height: 40),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Count quality levels
+    var excellent = 0;
+    var good = 0;
+    var minimal = 0;
+
+    for (final log in logs) {
+      if (log.quality == LogQuality.excellent) {
+        excellent++;
+      } else if (log.quality == LogQuality.good) {
+        good++;
+      } else if (log.quality == LogQuality.minimal) {
+        minimal++;
+      }
+    }
+
+    final total = excellent + good + minimal;
+    if (total == 0) {
+      return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Kalite Dağılımı',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 40),
+              const Center(child: Text('Henüz kalite verisi yok')),
+              const SizedBox(height: 40),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Kalite Dağılımı',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildQualityBar(
+              label: 'Mükemmel',
+              emoji: '😊',
+              count: excellent,
+              total: total,
+              color: const Color(0xFF6C63FF),
+            ),
+            const SizedBox(height: 12),
+            _buildQualityBar(
+              label: 'İyi',
+              emoji: '🙂',
+              count: good,
+              total: total,
+              color: const Color(0xFF4ECDC4),
+            ),
+            const SizedBox(height: 12),
+            _buildQualityBar(
+              label: 'Kötü',
+              emoji: '😐',
+              count: minimal,
+              total: total,
+              color: const Color(0xFFFFE66D),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQualityBar({
+    required String label,
+    required String emoji,
+    required int count,
+    required int total,
+    required Color color,
+  }) {
+    final percentage = total > 0 ? (count / total * 100).round() : 0;
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(emoji, style: const TextStyle(fontSize: 20)),
+            const SizedBox(width: 8),
+            Text(label, style: theme.textTheme.bodyLarge),
+            const Spacer(),
+            Text(
+              '$count ($percentage%)',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        LinearProgressIndicator(
+          value: total > 0 ? count / total : 0,
+          backgroundColor: Colors.grey[200],
+          valueColor: AlwaysStoppedAnimation<Color>(color),
+          minHeight: 8,
+          borderRadius: BorderRadius.circular(4),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStreakInfoCard(List<HabitLog> logs, Habit habit) {
+    final theme = Theme.of(context);
+    final sortedLogs = logs.where((l) => l.completed).toList()
+      ..sort((a, b) => b.date.compareTo(a.date));
+
+    // Calculate current streak
+    var currentStreak = 0;
+    var currentDate = DateTime.now();
+
+    for (final log in sortedLogs) {
+      final logDate = DateTime(log.date.year, log.date.month, log.date.day);
+      final checkDate =
+          DateTime(currentDate.year, currentDate.month, currentDate.day);
+
+      if (logDate.isAtSameMomentAs(checkDate) ||
+          logDate
+              .isAtSameMomentAs(checkDate.subtract(const Duration(days: 1)))) {
+        currentStreak++;
+        currentDate = log.date.subtract(const Duration(days: 1));
+      } else {
+        break;
+      }
+    }
+
+    // Calculate longest streak
+    var longestStreak = 0;
+    var tempStreak = 0;
+    DateTime? lastDate;
+
+    final completedLogs = logs.where((l) => l.completed).toList()
+      ..sort((a, b) => a.date.compareTo(b.date));
+
+    for (final log in completedLogs) {
+      final logDate = DateTime(log.date.year, log.date.month, log.date.day);
+
+      if (lastDate == null || logDate.difference(lastDate).inDays == 1) {
+        tempStreak++;
+        longestStreak = tempStreak > longestStreak ? tempStreak : longestStreak;
+      } else if (logDate.difference(lastDate).inDays > 1) {
+        tempStreak = 1;
+      }
+
+      lastDate = logDate;
+    }
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Seri Bilgileri',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildStreakStat(
+                    icon: Icons.local_fire_department,
+                    label: 'Mevcut Seri',
+                    value: '$currentStreak gün',
+                    color: Colors.orange,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildStreakStat(
+                    icon: Icons.emoji_events,
+                    label: 'En Uzun Seri',
+                    value: '$longestStreak gün',
+                    color: Colors.amber,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildStreakStat(
+                    icon: Icons.check_circle,
+                    label: 'Toplam',
+                    value: '${logs.where((l) => l.completed).length}',
+                    color: Colors.green,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildStreakStat(
+                    icon: Icons.calendar_today,
+                    label: 'Başlangıç',
+                    value: _formatDate(habit.createdAt),
+                    color: Colors.blue,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStreakStat({
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+  }) {
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 32),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            label,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: Colors.grey[600],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCompletionCalendarCard(List<HabitLog> logs) {
+    final theme = Theme.of(context);
+    final now = DateTime.now();
+
+    // Last 30 days
+    final days = <Widget>[];
+    for (var i = 29; i >= 0; i--) {
+      final date = now.subtract(Duration(days: i));
+      final normalizedDate = DateTime(date.year, date.month, date.day);
+      final hasLog = logs.any((log) {
+        final logDate = DateTime(log.date.year, log.date.month, log.date.day);
+        return logDate.isAtSameMomentAs(normalizedDate) && log.completed;
+      });
+
+      days.add(
+        Tooltip(
+          message: '${date.day}/${date.month}',
+          child: Container(
+            width: 24,
+            height: 24,
+            margin: const EdgeInsets.all(2),
+            decoration: BoxDecoration(
+              color: hasLog ? Colors.green[400] : Colors.grey[200],
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(
+                color: Colors.grey[300]!,
+                width: 1,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Son 30 Gün',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              children: days,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNotesHistoryCard(List<HabitLog> logs) {
+    final theme = Theme.of(context);
+    final logsWithNotes = logs
+        .where((log) => log.note != null && log.note!.isNotEmpty)
+        .toList()
+      ..sort((a, b) => b.date.compareTo(a.date));
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Not Geçmişi',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            if (logsWithNotes.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(32),
+                  child: Text('Henüz not eklenmemiş'),
+                ),
+              )
+            else
+              ...logsWithNotes.take(10).map((log) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[50],
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.grey[200]!),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.note_outlined,
+                              size: 16,
+                              color: Colors.grey[600],
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              _formatDate(log.date),
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            if (log.quality != null) ...[
+                              const SizedBox(width: 8),
+                              Text(
+                                _getQualityEmoji(log.quality!),
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                            ],
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          log.note!,
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _getQualityEmoji(LogQuality quality) {
+    switch (quality) {
+      case LogQuality.excellent:
+        return '😊';
+      case LogQuality.good:
+        return '🙂';
+      case LogQuality.minimal:
+        return '😐';
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final diff = now.difference(date).inDays;
+
+    if (diff == 0) {
+      return 'Bugün';
+    } else if (diff == 1) {
+      return 'Dün';
+    } else if (diff < 7) {
+      return '$diff gün önce';
+    } else {
+      return '${date.day}/${date.month}/${date.year}';
+    }
+  }
+
   Future<void> _deleteHabit(Habit habit) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -1156,10 +1672,11 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
         );
       },
     );
-    
+
     if (confirmed == true && mounted) {
-      final success = await ref.read(habitActionProvider.notifier).deleteHabit(habit.id);
-      
+      final success =
+          await ref.read(habitActionProvider.notifier).deleteHabit(habit.id);
+
       if (success && mounted) {
         context.showSuccessSnackBar('Alışkanlık silindi');
         Navigator.of(context).pop(true);
@@ -1169,7 +1686,7 @@ class _HabitDetailScreenState extends ConsumerState<HabitDetailScreen>
       }
     }
   }
-  
+
   Color _getColorFromHex(String hexColor) {
     try {
       final hex = hexColor.replaceAll('#', '');

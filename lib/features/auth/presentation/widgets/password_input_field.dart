@@ -5,7 +5,6 @@ import '../../../../l10n/app_localizations.dart';
 
 /// Custom password input field with visibility toggle.
 class PasswordInputField extends StatefulWidget {
-  
   const PasswordInputField({
     super.key,
     this.controller,
@@ -39,19 +38,19 @@ class PasswordInputField extends StatefulWidget {
 class _PasswordInputFieldState extends State<PasswordInputField> {
   bool _obscureText = true;
   PasswordStrength _strength = PasswordStrength.none;
-  
+
   @override
   void initState() {
     super.initState();
     widget.controller?.addListener(_updateStrength);
   }
-  
+
   @override
   void dispose() {
     widget.controller?.removeListener(_updateStrength);
     super.dispose();
   }
-  
+
   void _updateStrength() {
     if (widget.showStrengthIndicator) {
       setState(() {
@@ -59,18 +58,18 @@ class _PasswordInputFieldState extends State<PasswordInputField> {
       });
     }
   }
-  
+
   PasswordStrength _calculateStrength(String password) {
     if (password.isEmpty) return PasswordStrength.none;
     if (password.length < 6) return PasswordStrength.weak;
-    
+
     var score = 0;
     if (password.length >= 8) score++;
     if (RegExp(r'[a-z]').hasMatch(password)) score++;
     if (RegExp(r'[A-Z]').hasMatch(password)) score++;
     if (RegExp(r'[0-9]').hasMatch(password)) score++;
     if (RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(password)) score++;
-    
+
     if (score <= 2) return PasswordStrength.weak;
     if (score <= 3) return PasswordStrength.medium;
     return PasswordStrength.strong;
@@ -80,7 +79,7 @@ class _PasswordInputFieldState extends State<PasswordInputField> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -92,7 +91,9 @@ class _PasswordInputFieldState extends State<PasswordInputField> {
             prefixIcon: const Icon(Icons.lock_outline),
             suffixIcon: IconButton(
               icon: Icon(
-                _obscureText ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                _obscureText
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined,
               ),
               onPressed: () {
                 setState(() {
@@ -109,15 +110,17 @@ class _PasswordInputFieldState extends State<PasswordInputField> {
           enableSuggestions: false,
           onFieldSubmitted: widget.onFieldSubmitted,
           onChanged: widget.onChanged,
-          validator: widget.validator ?? (value) => Validators.password(
-            value,
-            minLength: widget.minLength,
-            errorMessage: l10n.passwordRequired,
-          ),
+          validator: widget.validator ??
+              (value) => Validators.password(
+                    value,
+                    minLength: widget.minLength,
+                    errorMessage: l10n.passwordRequired,
+                  ),
         ),
-        
+
         // Password strength indicator
-        if (widget.showStrengthIndicator && _strength != PasswordStrength.none) ...[
+        if (widget.showStrengthIndicator &&
+            _strength != PasswordStrength.none) ...[
           const SizedBox(height: 8),
           Row(
             children: [
@@ -151,9 +154,9 @@ enum PasswordStrength {
   weak(0.33, Colors.red, 'Zayıf'),
   medium(0.66, Colors.orange, 'Orta'),
   strong(1, Colors.green, 'Güçlü');
-  
+
   const PasswordStrength(this.value, this.color, this.label);
-  
+
   final double value;
   final Color color;
   final String label;

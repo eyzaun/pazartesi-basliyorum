@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../domain/entities/habit.dart';
 import '../../domain/entities/habit_log.dart';
+import 'detailed_checkin_sheet.dart';
+import 'skip_reason_sheet.dart';
 
 /// Card widget to display a habit with check-in options and swipe actions.
 class HabitCard extends StatelessWidget {
-  
   const HabitCard({
-    required this.habit, 
+    required this.habit,
     super.key,
     this.log,
     this.onComplete,
@@ -15,22 +17,26 @@ class HabitCard extends StatelessWidget {
     this.onTap,
     this.onEdit,
     this.onDelete,
+    this.showStreakWarning = false,
+    this.onRecoverStreak,
   });
-  
+
   final Habit habit;
   final HabitLog? log;
-  final VoidCallback? onComplete;
-  final VoidCallback? onSkip;
+  final void Function(Map<String, dynamic>)? onComplete;
+  final void Function(Map<String, dynamic>)? onSkip;
   final VoidCallback? onTap;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final bool showStreakWarning;
+  final VoidCallback? onRecoverStreak;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isCompleted = log?.completed ?? false;
     final isSkipped = log?.skipped ?? false;
-    
+
     // Determine card background color based on status
     Color? cardColor;
     if (isCompleted) {
@@ -38,14 +44,29 @@ class HabitCard extends StatelessWidget {
     } else if (isSkipped) {
       cardColor = Colors.orange[50];
     }
-    
+
     return Slidable(
       key: ValueKey(habit.id),
-      
+
+      // Enable quick complete by dismissing (swipe right)
+      // Only allow if not completed or skipped
+      enabled: !isCompleted && !isSkipped,
+
       // Left swipe actions (complete with quality)
       startActionPane: !isCompleted && !isSkipped
           ? ActionPane(
               motion: const StretchMotion(),
+              dismissible: DismissiblePane(
+                onDismissed: () {
+                  HapticFeedback.mediumImpact();
+                  _quickComplete(context);
+                },
+                confirmDismiss: () async {
+                  // Only allow dismiss if swiped far enough (80%)
+                  return true;
+                },
+                closeOnCancel: true,
+              ),
               children: [
                 SlidableAction(
                   onPressed: (_) {
@@ -59,7 +80,7 @@ class HabitCard extends StatelessWidget {
               ],
             )
           : null,
-      
+
       // Right swipe actions (edit, delete)
       endActionPane: ActionPane(
         motion: const BehindMotion(),
@@ -80,7 +101,7 @@ class HabitCard extends StatelessWidget {
           ),
         ],
       ),
-      
+
       child: Card(
         elevation: isCompleted ? 1 : 2,
         color: cardColor,
@@ -99,7 +120,8 @@ class HabitCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: _getColorFromHex(habit.color).withValues(alpha: 0.1),
+                        color: _getColorFromHex(habit.color)
+                            .withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -108,7 +130,7 @@ class HabitCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    
+
                     // Name and category
                     Expanded(
                       child: Column(
@@ -118,8 +140,8 @@ class HabitCard extends StatelessWidget {
                             habit.name,
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
-                              decoration: isCompleted 
-                                  ? TextDecoration.lineThrough 
+                              decoration: isCompleted
+                                  ? TextDecoration.lineThrough
                                   : null,
                             ),
                             maxLines: 1,
@@ -135,7 +157,7 @@ class HabitCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    
+
                     // Status indicator
                     if (isCompleted)
                       Container(
@@ -201,9 +223,10 @@ class HabitCard extends StatelessWidget {
                       ),
                   ],
                 ),
-                
+
                 // Description (if available)
-                if (habit.description != null && habit.description!.isNotEmpty) ...[
+                if (habit.description != null &&
+                    habit.description!.isNotEmpty) ...[
                   const SizedBox(height: 8),
                   Text(
                     habit.description!,
@@ -212,7 +235,69 @@ class HabitCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
-                
+
+                // Streak warning banner
+                if (showStreakWarning && !isCompleted && !isSkipped) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.orange[50],
+                      borderRadius: BorderRadius.circular(8),
+                      border:
+                          Border.all(color: Colors.orange[300]!, width: 1.5),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.warning_amber_rounded,
+                          color: Colors.orange[700],
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Seri Kırıldı',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.orange[900],
+                                  fontSize: 13,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Serini kurtarmak için 24 saat içinde işlem yap',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.orange[800],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (onRecoverStreak != null)
+                          TextButton(
+                            onPressed: onRecoverStreak,
+                            style: TextButton.styleFrom(
+                              foregroundColor: Colors.orange[900],
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                            ),
+                            child: const Text(
+                              'Kurtar',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+
                 // Action buttons (only show if not completed or skipped)
                 if (!isCompleted && !isSkipped) ...[
                   const SizedBox(height: 12),
@@ -232,10 +317,10 @@ class HabitCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      
+
                       // Skip button
                       OutlinedButton.icon(
-                        onPressed: onSkip,
+                        onPressed: () => _showSkipReasonSheet(context),
                         icon: const Icon(Icons.skip_next, size: 18),
                         label: const Text('Atla'),
                         style: OutlinedButton.styleFrom(
@@ -248,14 +333,17 @@ class HabitCard extends StatelessWidget {
                     ],
                   ),
                 ],
-                
+
                 // Show note if completed with note
-                if (isCompleted && log?.note != null && log!.note!.isNotEmpty) ...[
+                if (isCompleted &&
+                    log?.note != null &&
+                    log!.note!.isNotEmpty) ...[
                   const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                      color: theme.colorScheme.surfaceContainerHighest
+                          .withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -278,7 +366,7 @@ class HabitCard extends StatelessWidget {
                     ),
                   ),
                 ],
-                
+
                 // Show skip reason if skipped
                 if (isSkipped && log?.skipReason != null) ...[
                   const SizedBox(height: 8),
@@ -314,84 +402,63 @@ class HabitCard extends StatelessWidget {
       ),
     );
   }
-  
-  /// Show quality selector bottom sheet
-  void _showQualitySelector(BuildContext context) {
-    showModalBottomSheet<int>(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+
+  /// Quick complete without quality selection (swipe right gesture)
+  void _quickComplete(BuildContext context) {
+    // Complete with default good quality and no note
+    final data = {
+      'quality': LogQuality.good,
+      'note': null,
+      'photo': null,
+    };
+
+    onComplete?.call(data);
+
+    // Show brief success feedback
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Row(
           children: [
-            Text(
-              'Alışkanlığı nasıl tamamladın?',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Performansını değerlendir',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
-            ),
-            const SizedBox(height: 24),
-            
-            // Quality options
-            _QualityOption(
-              icon: Icons.sentiment_very_satisfied,
-              iconColor: Colors.green,
-              label: 'Mükemmel',
-              description: 'Hedefimin üstünde',
-              onTap: () {
-                Navigator.pop(context, 3);
-                onComplete?.call();
-              },
-            ),
-            const SizedBox(height: 12),
-            _QualityOption(
-              icon: Icons.sentiment_satisfied,
-              iconColor: Colors.blue,
-              label: 'İyi',
-              description: 'Hedefimi tamamladım',
-              onTap: () {
-                Navigator.pop(context, 2);
-                onComplete?.call();
-              },
-            ),
-            const SizedBox(height: 12),
-            _QualityOption(
-              icon: Icons.sentiment_neutral,
-              iconColor: Colors.orange,
-              label: 'Orta',
-              description: 'Kısmen tamamladım',
-              onTap: () {
-                Navigator.pop(context, 1);
-                onComplete?.call();
-              },
-            ),
-            const SizedBox(height: 16),
-            
-            // Cancel button
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('İptal'),
-              ),
-            ),
+            Icon(Icons.check_circle, color: Colors.white),
+            SizedBox(width: 8),
+            Text('Hızlı tamamlandı! ⚡'),
           ],
         ),
+        backgroundColor: Colors.green[600],
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
-  
+
+  /// Show detailed check-in bottom sheet
+  Future<void> _showQualitySelector(BuildContext context) async {
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DetailedCheckInSheet(habit: habit),
+    );
+
+    if (result != null) {
+      onComplete?.call(result);
+    }
+  }
+
+  /// Show skip reason bottom sheet
+  Future<void> _showSkipReasonSheet(BuildContext context) async {
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => SkipReasonSheet(habit: habit),
+    );
+
+    if (result != null) {
+      onSkip?.call(result);
+    }
+  }
+
   /// Convert hex color string to Color.
   Color _getColorFromHex(String hexColor) {
     try {
@@ -400,73 +467,5 @@ class HabitCard extends StatelessWidget {
     } catch (e) {
       return Colors.purple;
     }
-  }
-}
-
-/// Quality option widget for bottom sheet
-class _QualityOption extends StatelessWidget {
-  const _QualityOption({
-    required this.icon,
-    required this.iconColor,
-    required this.label,
-    required this.description,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final Color iconColor;
-  final String label;
-  final String description;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey[300]!),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, color: iconColor, size: 28),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    description,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(Icons.chevron_right, color: Colors.grey[400]),
-          ],
-        ),
-      ),
-    );
   }
 }

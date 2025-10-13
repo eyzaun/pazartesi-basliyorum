@@ -8,10 +8,9 @@ import '../datasources/auth_remote_datasource.dart';
 /// Implementation of [AuthRepository].
 /// Handles error handling and converts data models to domain entities.
 class AuthRepositoryImpl implements AuthRepository {
-  
   AuthRepositoryImpl(this.remoteDataSource);
   final AuthRemoteDataSource remoteDataSource;
-  
+
   @override
   Future<Result<User>> signInWithEmail(String email, String password) async {
     try {
@@ -23,7 +22,7 @@ class AuthRepositoryImpl implements AuthRepository {
       return Failure('Beklenmeyen bir hata oluştu: ${e.toString()}');
     }
   }
-  
+
   @override
   Future<Result<User>> signUpWithEmail(
     String email,
@@ -43,7 +42,7 @@ class AuthRepositoryImpl implements AuthRepository {
       return Failure('Beklenmeyen bir hata oluştu: ${e.toString()}');
     }
   }
-  
+
   @override
   Future<Result<User>> signInWithGoogle() async {
     try {
@@ -55,7 +54,7 @@ class AuthRepositoryImpl implements AuthRepository {
       return Failure('Google girişi başarısız: ${e.toString()}');
     }
   }
-  
+
   @override
   Future<Result<void>> signOut() async {
     try {
@@ -65,7 +64,7 @@ class AuthRepositoryImpl implements AuthRepository {
       return Failure('Çıkış yapılamadı: ${e.toString()}');
     }
   }
-  
+
   @override
   Future<Result<void>> resetPassword(String email) async {
     try {
@@ -77,7 +76,7 @@ class AuthRepositoryImpl implements AuthRepository {
       return Failure('Şifre sıfırlama başarısız: ${e.toString()}');
     }
   }
-  
+
   @override
   Future<Result<User?>> getCurrentUser() async {
     try {
@@ -87,14 +86,14 @@ class AuthRepositoryImpl implements AuthRepository {
       return Failure('Kullanıcı bilgisi alınamadı: ${e.toString()}');
     }
   }
-  
+
   @override
   Stream<User?> get authStateChanges {
     return remoteDataSource.authStateChanges.map(
       (userModel) => userModel?.toEntity(),
     );
   }
-  
+
   /// Handle Firebase Auth errors and return user-friendly messages.
   String _handleFirebaseAuthError(firebase_auth.FirebaseAuthException e) {
     switch (e.code) {

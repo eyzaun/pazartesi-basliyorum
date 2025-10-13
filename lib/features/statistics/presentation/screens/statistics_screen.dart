@@ -17,7 +17,7 @@ class StatisticsScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final authState = ref.watch(authStateProvider);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.statistics),
@@ -41,7 +41,7 @@ class StatisticsScreen extends ConsumerWidget {
               ),
             );
           }
-          
+
           return _buildStatistics(context, ref, user.id);
         },
         loading: () => const Center(child: LoadingIndicator()),
@@ -51,11 +51,11 @@ class StatisticsScreen extends ConsumerWidget {
       ),
     );
   }
-  
+
   Widget _buildStatistics(BuildContext context, WidgetRef ref, String userId) {
     final theme = Theme.of(context);
     final habitsAsync = ref.watch(habitsProvider(userId));
-    
+
     return habitsAsync.when(
       data: (habits) {
         if (habits.isEmpty) {
@@ -81,22 +81,22 @@ class StatisticsScreen extends ConsumerWidget {
             ),
           );
         }
-        
+
         return ListView(
           padding: const EdgeInsets.all(16),
           children: [
             // Overview Card
             _buildOverviewCard(context, habits, userId, ref),
             const SizedBox(height: 16),
-            
+
             // Category Distribution
             _buildCategoryChart(context, habits),
             const SizedBox(height: 16),
-            
+
             // Completion Trend (Last 7 days)
             _buildCompletionTrendChart(context, habits, userId, ref),
             const SizedBox(height: 16),
-            
+
             // Individual Habit Stats
             _buildHabitsList(context, habits, ref),
             const SizedBox(height: 80),
@@ -109,7 +109,7 @@ class StatisticsScreen extends ConsumerWidget {
       ),
     );
   }
-  
+
   Widget _buildOverviewCard(
     BuildContext context,
     List<Habit> habits,
@@ -117,11 +117,12 @@ class StatisticsScreen extends ConsumerWidget {
     WidgetRef ref,
   ) {
     final theme = Theme.of(context);
-    
+
     // Calculate overall stats
     const totalCompletions = 0;
-    final totalActiveHabits = habits.where((h) => h.status == HabitStatus.active).length;
-    
+    final totalActiveHabits =
+        habits.where((h) => h.status == HabitStatus.active).length;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -163,7 +164,7 @@ class StatisticsScreen extends ConsumerWidget {
       ),
     );
   }
-  
+
   Widget _buildOverviewItem({
     required IconData icon,
     required String value,
@@ -196,16 +197,16 @@ class StatisticsScreen extends ConsumerWidget {
       ],
     );
   }
-  
+
   Widget _buildCategoryChart(BuildContext context, List<Habit> habits) {
     final theme = Theme.of(context);
-    
+
     // Count habits by category
     final categoryCount = <String, int>{};
     for (final habit in habits) {
       categoryCount[habit.category] = (categoryCount[habit.category] ?? 0) + 1;
     }
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -254,7 +255,7 @@ class StatisticsScreen extends ConsumerWidget {
       ),
     );
   }
-  
+
   List<PieChartSectionData> _buildPieSections(Map<String, int> data) {
     final colors = [
       Colors.blue,
@@ -267,12 +268,12 @@ class StatisticsScreen extends ConsumerWidget {
       Colors.pink,
       Colors.indigo,
     ];
-    
+
     var colorIndex = 0;
     return data.entries.map((entry) {
       final color = colors[colorIndex % colors.length];
       colorIndex++;
-      
+
       return PieChartSectionData(
         value: entry.value.toDouble(),
         title: entry.value.toString(),
@@ -286,7 +287,7 @@ class StatisticsScreen extends ConsumerWidget {
       );
     }).toList();
   }
-  
+
   Widget _buildCompletionTrendChart(
     BuildContext context,
     List<Habit> habits,
@@ -294,7 +295,7 @@ class StatisticsScreen extends ConsumerWidget {
     WidgetRef ref,
   ) {
     final theme = Theme.of(context);
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -314,15 +315,26 @@ class StatisticsScreen extends ConsumerWidget {
                 LineChartData(
                   titlesData: FlTitlesData(
                     leftTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: true, reservedSize: 40),
+                      sideTitles:
+                          SideTitles(showTitles: true, reservedSize: 40),
                     ),
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
                         getTitlesWidget: (value, meta) {
-                          final days = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
-                          if (value.toInt() >= 0 && value.toInt() < days.length) {
-                            return Text(days[value.toInt()], style: const TextStyle(fontSize: 10));
+                          final days = [
+                            'Pzt',
+                            'Sal',
+                            'Çar',
+                            'Per',
+                            'Cum',
+                            'Cmt',
+                            'Paz'
+                          ];
+                          if (value.toInt() >= 0 &&
+                              value.toInt() < days.length) {
+                            return Text(days[value.toInt()],
+                                style: const TextStyle(fontSize: 10));
                           }
                           return const Text('');
                         },
@@ -352,7 +364,7 @@ class StatisticsScreen extends ConsumerWidget {
       ),
     );
   }
-  
+
   List<FlSpot> _generateMockTrendData() {
     // TODO: Get real data from repository
     return [
@@ -365,14 +377,14 @@ class StatisticsScreen extends ConsumerWidget {
       const FlSpot(6, 6),
     ];
   }
-  
+
   Widget _buildHabitsList(
     BuildContext context,
     List<Habit> habits,
     WidgetRef ref,
   ) {
     final theme = Theme.of(context);
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -392,10 +404,10 @@ class StatisticsScreen extends ConsumerWidget {
       ),
     );
   }
-  
+
   Widget _buildHabitStatItem(Habit habit, WidgetRef ref) {
     final statsAsync = ref.watch(habitStatisticsProvider(habit.id));
-    
+
     return statsAsync.when(
       data: (stats) {
         return Padding(
@@ -427,7 +439,8 @@ class StatisticsScreen extends ConsumerWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.green[50],
                   borderRadius: BorderRadius.circular(12),
@@ -435,7 +448,8 @@ class StatisticsScreen extends ConsumerWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.local_fire_department, size: 16, color: Colors.orange[700]),
+                    Icon(Icons.local_fire_department,
+                        size: 16, color: Colors.orange[700]),
                     const SizedBox(width: 4),
                     Text(
                       '${stats.currentStreak}',
@@ -458,7 +472,7 @@ class StatisticsScreen extends ConsumerWidget {
       error: (error, stack) => const SizedBox(),
     );
   }
-  
+
   Color _getCategoryColor(String category) {
     final colors = {
       'Sağlık': Colors.red,
@@ -473,7 +487,7 @@ class StatisticsScreen extends ConsumerWidget {
     };
     return colors[category] ?? Colors.grey;
   }
-  
+
   Color _getColorFromHex(String hexColor) {
     try {
       final hex = hexColor.replaceAll('#', '');

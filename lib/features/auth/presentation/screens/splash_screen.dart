@@ -17,30 +17,30 @@ class SplashScreen extends ConsumerStatefulWidget {
 
 class _SplashScreenState extends ConsumerState<SplashScreen> {
   bool _navigated = false;
-  
+
   @override
   void initState() {
     super.initState();
     _initializeApp();
   }
-  
+
   Future<void> _initializeApp() async {
     // Wait for minimum splash screen duration
     await Future.delayed(const Duration(seconds: 2));
-    
+
     if (!mounted) return;
-    
+
     // Check if user has seen onboarding
     final prefs = await SharedPreferences.getInstance();
     final hasSeenOnboarding = prefs.getBool('onboarding_seen') ?? false;
-    
+
     // Check auth state
     final authState = ref.read(authStateProvider);
     authState.when(
       data: (user) {
         if (!mounted || _navigated) return;
         _navigated = true;
-        
+
         if (user != null) {
           // User authenticated -> go to home
           Navigator.of(context).pushReplacementNamed(AppRouter.home);
@@ -56,7 +56,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         // Still loading after 2 seconds
         if (!mounted || _navigated) return;
         _navigated = true;
-        
+
         if (hasSeenOnboarding) {
           Navigator.of(context).pushReplacementNamed(AppRouter.welcome);
         } else {
@@ -66,7 +66,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       error: (error, stack) {
         if (!mounted || _navigated) return;
         _navigated = true;
-        
+
         if (hasSeenOnboarding) {
           Navigator.of(context).pushReplacementNamed(AppRouter.welcome);
         } else {
@@ -79,7 +79,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: Center(
@@ -92,7 +92,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
               style: TextStyle(fontSize: 80),
             ),
             const SizedBox(height: 24),
-            
+
             // App Name
             Text(
               AppConstants.appName,
@@ -103,7 +103,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            
+
             // Tagline
             Text(
               'Alışkanlıklarını takip et',
@@ -113,7 +113,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 48),
-            
+
             // Loading indicator
             CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(

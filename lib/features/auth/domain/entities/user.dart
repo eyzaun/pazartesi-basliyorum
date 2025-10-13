@@ -3,7 +3,6 @@ import 'package:equatable/equatable.dart';
 /// Domain entity representing a user in the application.
 /// This is the core business object that's independent of any framework.
 class User extends Equatable {
-  
   const User({
     required this.id,
     required this.email,
@@ -16,7 +15,7 @@ class User extends Equatable {
   final String username;
   final String displayName;
   final String? photoUrl;
-  
+
   /// Create a copy of this User with some fields replaced.
   User copyWith({
     String? id,
@@ -33,10 +32,10 @@ class User extends Equatable {
       photoUrl: photoUrl ?? this.photoUrl,
     );
   }
-  
+
   @override
   List<Object?> get props => [id, email, username, displayName, photoUrl];
-  
+
   @override
   String toString() {
     return 'User(id: $id, email: $email, username: $username, '

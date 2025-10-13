@@ -3,13 +3,12 @@ import 'package:equatable/equatable.dart';
 /// Base class for all failures in the application.
 /// Failures represent errors that occurred during business logic execution.
 abstract class Failure extends Equatable {
-  
   const Failure(this.message);
   final String message;
-  
+
   @override
   List<Object?> get props => [message];
-  
+
   @override
   String toString() => message;
 }
@@ -20,25 +19,24 @@ abstract class Failure extends Equatable {
 
 /// Failure that occurs when there's no internet connection.
 class NetworkFailure extends Failure {
-  const NetworkFailure([String? message]) 
+  const NetworkFailure([String? message])
       : super(message ?? 'İnternet bağlantısı yok');
 }
 
 /// Failure that occurs when the server returns an error.
 class ServerFailure extends Failure {
-  const ServerFailure([String? message]) 
+  const ServerFailure([String? message])
       : super(message ?? 'Sunucu hatası oluştu');
 }
 
 /// Failure that occurs when cached data is not available.
 class CacheFailure extends Failure {
-  const CacheFailure([String? message]) 
-      : super(message ?? 'Önbellek hatası');
+  const CacheFailure([String? message]) : super(message ?? 'Önbellek hatası');
 }
 
 /// Failure that occurs during database operations.
 class DatabaseFailure extends Failure {
-  const DatabaseFailure([String? message]) 
+  const DatabaseFailure([String? message])
       : super(message ?? 'Veritabanı hatası');
 }
 
@@ -48,7 +46,7 @@ class DatabaseFailure extends Failure {
 
 /// Failure for authentication errors.
 class AuthFailure extends Failure {
-  const AuthFailure([String? message]) 
+  const AuthFailure([String? message])
       : super(message ?? 'Kimlik doğrulama hatası');
 }
 
@@ -88,7 +86,7 @@ class ValidationFailure extends Failure {
 
 /// Failure when required field is empty.
 class EmptyFieldFailure extends ValidationFailure {
-  const EmptyFieldFailure(String fieldName) 
+  const EmptyFieldFailure(String fieldName)
       : super('$fieldName alanı boş olamaz');
 }
 
@@ -99,7 +97,7 @@ class InvalidEmailFailure extends ValidationFailure {
 
 /// Failure when password is too short.
 class ShortPasswordFailure extends ValidationFailure {
-  const ShortPasswordFailure([int minLength = 6]) 
+  const ShortPasswordFailure([int minLength = 6])
       : super('Şifre en az $minLength karakter olmalı');
 }
 
@@ -109,13 +107,13 @@ class ShortPasswordFailure extends ValidationFailure {
 
 /// Failure when user doesn't have permission.
 class PermissionFailure extends Failure {
-  const PermissionFailure([String? message]) 
+  const PermissionFailure([String? message])
       : super(message ?? 'Bu işlem için yetkiniz yok');
 }
 
 /// Failure when resource is not found.
 class NotFoundFailure extends Failure {
-  const NotFoundFailure([String? message]) 
+  const NotFoundFailure([String? message])
       : super(message ?? 'Kayıt bulunamadı');
 }
 
@@ -125,7 +123,7 @@ class NotFoundFailure extends Failure {
 
 /// Failure during data synchronization.
 class SyncFailure extends Failure {
-  const SyncFailure([String? message]) 
+  const SyncFailure([String? message])
       : super(message ?? 'Senkronizasyon başarısız');
 }
 
@@ -135,7 +133,7 @@ class SyncFailure extends Failure {
 
 /// Failure for unexpected errors.
 class UnexpectedFailure extends Failure {
-  const UnexpectedFailure([String? message]) 
+  const UnexpectedFailure([String? message])
       : super(message ?? 'Beklenmeyen bir hata oluştu');
 }
 
@@ -146,13 +144,13 @@ class UnexpectedFailure extends Failure {
 extension FailureExtension on Failure {
   /// Check if failure is related to network.
   bool get isNetworkFailure => this is NetworkFailure;
-  
+
   /// Check if failure is related to authentication.
   bool get isAuthFailure => this is AuthFailure;
-  
+
   /// Check if failure is related to validation.
   bool get isValidationFailure => this is ValidationFailure;
-  
+
   /// Check if failure is related to permissions.
   bool get isPermissionFailure => this is PermissionFailure;
 }

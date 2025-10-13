@@ -10,7 +10,7 @@ class SocialScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.social),
@@ -76,7 +76,7 @@ class SocialScreen extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildFeatureItem(String icon, String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),

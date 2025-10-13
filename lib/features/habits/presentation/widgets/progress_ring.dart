@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 
 /// Circular progress ring widget for displaying completion progress.
 class ProgressRing extends StatelessWidget {
-  
   const ProgressRing({
-    required this.progress, super.key,
+    required this.progress,
+    super.key,
     this.size = 120,
     this.strokeWidth = 12,
     this.color = const Color(0xFF6C63FF),
@@ -26,7 +26,7 @@ class ProgressRing extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return SizedBox(
       width: size,
       height: size,
@@ -59,7 +59,7 @@ class ProgressRing extends StatelessWidget {
                 backgroundColor: backgroundColor,
               ),
             ),
-          
+
           // Center content
           if (child != null)
             child!
@@ -90,7 +90,6 @@ class ProgressRing extends StatelessWidget {
 
 /// Custom painter for the progress ring.
 class _ProgressRingPainter extends CustomPainter {
-  
   _ProgressRingPainter({
     required this.progress,
     required this.strokeWidth,
@@ -106,26 +105,26 @@ class _ProgressRingPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = (size.width - strokeWidth) / 2;
-    
+
     // Draw background circle
     final backgroundPaint = Paint()
       ..color = backgroundColor
       ..strokeWidth = strokeWidth
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
-    
+
     canvas.drawCircle(center, radius, backgroundPaint);
-    
+
     // Draw progress arc
     final progressPaint = Paint()
       ..color = color
       ..strokeWidth = strokeWidth
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
-    
+
     final sweepAngle = 2 * math.pi * progress;
     const startAngle = -math.pi / 2; // Start from top
-    
+
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
       startAngle,
@@ -146,9 +145,9 @@ class _ProgressRingPainter extends CustomPainter {
 
 /// Animated progress ring with pulse effect.
 class AnimatedProgressRing extends StatefulWidget {
-  
   const AnimatedProgressRing({
-    required this.progress, super.key,
+    required this.progress,
+    super.key,
     this.size = 120,
     this.strokeWidth = 12,
     this.color = const Color(0xFF6C63FF),
@@ -172,7 +171,7 @@ class _AnimatedProgressRingState extends State<AnimatedProgressRing>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
-  
+
   @override
   void initState() {
     super.initState();
@@ -180,12 +179,12 @@ class _AnimatedProgressRingState extends State<AnimatedProgressRing>
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     )..repeat(reverse: true);
-    
+
     _scaleAnimation = Tween<double>(begin: 0.95, end: 1.05).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
   }
-  
+
   @override
   void dispose() {
     _controller.dispose();
@@ -209,7 +208,7 @@ class _AnimatedProgressRingState extends State<AnimatedProgressRing>
         ),
       );
     }
-    
+
     return ProgressRing(
       progress: widget.progress,
       size: widget.size,

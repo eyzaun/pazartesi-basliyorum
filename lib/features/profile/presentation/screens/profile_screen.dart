@@ -7,6 +7,8 @@ import '../../../../core/routing/app_router.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../shared/models/result.dart';
+import '../../../achievements/presentation/providers/achievement_provider.dart';
+import '../../../achievements/presentation/widgets/badge_widget.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 
 /// Profile screen showing user information and settings.
@@ -18,7 +20,7 @@ class ProfileScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final authState = ref.watch(authStateProvider);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.profile),
@@ -48,7 +50,8 @@ class ProfileScreen extends ConsumerWidget {
                   const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.of(context).pushReplacementNamed(AppRouter.welcome);
+                      Navigator.of(context)
+                          .pushReplacementNamed(AppRouter.welcome);
                     },
                     child: Text(l10n.signIn),
                   ),
@@ -56,7 +59,7 @@ class ProfileScreen extends ConsumerWidget {
               ),
             );
           }
-          
+
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -69,7 +72,8 @@ class ProfileScreen extends ConsumerWidget {
                       // Avatar
                       CircleAvatar(
                         radius: 50,
-                        backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.1),
+                        backgroundColor:
+                            theme.colorScheme.primary.withValues(alpha: 0.1),
                         backgroundImage: user.photoUrl != null
                             ? NetworkImage(user.photoUrl!)
                             : null,
@@ -85,7 +89,7 @@ class ProfileScreen extends ConsumerWidget {
                             : null,
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Name
                       Text(
                         user.displayName,
@@ -94,7 +98,7 @@ class ProfileScreen extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      
+
                       // Username
                       Text(
                         '@${user.username}',
@@ -103,7 +107,7 @@ class ProfileScreen extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      
+
                       // Email
                       Text(
                         user.email,
@@ -114,7 +118,7 @@ class ProfileScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Statistics Card
               Card(
                 child: Padding(
@@ -157,7 +161,132 @@ class ProfileScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
+              // Achievements Card
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Başarılar',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Consumer(
+                            builder: (context, ref, child) {
+                              final achievementCount = ref.watch(
+                                achievementCountProvider(user.id),
+                              );
+
+                              return achievementCount.when(
+                                data: (count) => Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFFD700)
+                                        .withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    '$count/10',
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFFFFD700),
+                                    ),
+                                  ),
+                                ),
+                                loading: () => const SizedBox.shrink(),
+                                error: (_, __) => const SizedBox.shrink(),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Consumer(
+                        builder: (context, ref, child) {
+                          final achievementsAsync = ref.watch(
+                            userAchievementsProvider(user.id),
+                          );
+
+                          return achievementsAsync.when(
+                            data: (achievements) {
+                              if (achievements.isEmpty) {
+                                return Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Column(
+                                      children: [
+                                        const Text('🏆',
+                                            style: TextStyle(fontSize: 48)),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Henüz başarı kazanılmadı',
+                                          style: theme.textTheme.bodyMedium
+                                              ?.copyWith(
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          'İlk alışkanlığını tamamla!',
+                                          style: theme.textTheme.bodySmall
+                                              ?.copyWith(
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }
+
+                              return Wrap(
+                                spacing: 12,
+                                runSpacing: 12,
+                                alignment: WrapAlignment.center,
+                                children: achievements.map((achievement) {
+                                  return BadgeWidget(
+                                    achievement: achievement,
+                                    size: BadgeSize.small,
+                                  );
+                                }).toList(),
+                              );
+                            },
+                            loading: () => const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(16),
+                                child: CircularProgressIndicator(),
+                              ),
+                            ),
+                            error: (error, _) => Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Text(
+                                  'Başarılar yüklenemedi',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
               // Settings Section
               Card(
                 child: Column(
@@ -197,7 +326,7 @@ class ProfileScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // About Section
               Card(
                 child: Column(
@@ -223,7 +352,7 @@ class ProfileScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Sign Out Button
               ElevatedButton.icon(
                 onPressed: () => _signOut(context, ref),
@@ -246,7 +375,7 @@ class ProfileScreen extends ConsumerWidget {
       ),
     );
   }
-  
+
   Widget _buildStatItem(
     BuildContext context, {
     required IconData icon,
@@ -254,7 +383,7 @@ class ProfileScreen extends ConsumerWidget {
     required String label,
   }) {
     final theme = Theme.of(context);
-    
+
     return Column(
       children: [
         Icon(
@@ -276,7 +405,7 @@ class ProfileScreen extends ConsumerWidget {
       ],
     );
   }
-  
+
   void _showAboutDialog(BuildContext context) {
     showAboutDialog(
       context: context,
@@ -292,7 +421,7 @@ class ProfileScreen extends ConsumerWidget {
       ],
     );
   }
-  
+
   Future<void> _signOut(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -313,10 +442,10 @@ class ProfileScreen extends ConsumerWidget {
         );
       },
     );
-    
+
     if (confirmed == true && context.mounted) {
       final result = await ref.read(authRepositoryProvider).signOut();
-      
+
       if (result is Success && context.mounted) {
         unawaited(
           Navigator.of(context).pushNamedAndRemoveUntil(

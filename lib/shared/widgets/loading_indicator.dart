@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 /// Custom loading indicator widget.
 class LoadingIndicator extends StatelessWidget {
-  
   const LoadingIndicator({
     super.key,
     this.message,
@@ -16,7 +15,7 @@ class LoadingIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -48,7 +47,6 @@ class LoadingIndicator extends StatelessWidget {
 
 /// Full screen loading overlay.
 class LoadingOverlay extends StatelessWidget {
-  
   const LoadingOverlay({
     super.key,
     this.message,

@@ -13,7 +13,7 @@ class WelcomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -23,7 +23,7 @@ class WelcomeScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(),
-              
+
               // App Logo
               const Center(
                 child: Text(
@@ -32,7 +32,7 @@ class WelcomeScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              
+
               // App Name
               Text(
                 l10n.appName,
@@ -43,7 +43,7 @@ class WelcomeScreen extends ConsumerWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
-              
+
               // Tagline
               Text(
                 l10n.welcomeTitle,
@@ -52,9 +52,9 @@ class WelcomeScreen extends ConsumerWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-              
+
               const Spacer(),
-              
+
               // Email Sign In Button (Primary)
               SizedBox(
                 width: double.infinity,
@@ -78,7 +78,7 @@ class WelcomeScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              
+
               // Google Sign In Button
               SizedBox(
                 width: double.infinity,
@@ -115,7 +115,7 @@ class WelcomeScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // Sign Up Link
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -144,7 +144,7 @@ class WelcomeScreen extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 8),
-              
+
               // Continue as Guest Button
               TextButton(
                 onPressed: () {
@@ -157,7 +157,7 @@ class WelcomeScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 32),
             ],
           ),

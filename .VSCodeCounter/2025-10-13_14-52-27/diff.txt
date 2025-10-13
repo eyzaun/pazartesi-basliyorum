@@ -1,0 +1,45 @@
+Date : 2025-10-13 14:52:27
+Directory : e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum
+Total : 10 files,  1113 codes, 43 comments, 109 blanks, all 1265 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| Dart     |         10 |      1,113 |         43 |        109 |      1,265 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++-----------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                                              | files      | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                                 |         10 |      1,113 |         43 |        109 |      1,265 |
+| lib                                                                                                                               |         10 |      1,113 |         43 |        109 |      1,265 |
+| lib\features                                                                                                                      |         10 |      1,113 |         43 |        109 |      1,265 |
+| lib\features\habits                                                                                                               |         10 |      1,113 |         43 |        109 |      1,265 |
+| lib\features\habits\data                                                                                                          |          1 |          2 |          0 |          0 |          2 |
+| lib\features\habits\data\repositories                                                                                             |          1 |          2 |          0 |          0 |          2 |
+| lib\features\habits\domain                                                                                                        |          1 |          1 |          0 |          0 |          1 |
+| lib\features\habits\domain\repositories                                                                                           |          1 |          1 |          0 |          0 |          1 |
+| lib\features\habits\presentation                                                                                                  |          8 |      1,110 |         43 |        109 |      1,262 |
+| lib\features\habits\presentation\providers                                                                                        |          1 |          2 |          0 |          0 |          2 |
+| lib\features\habits\presentation\screens                                                                                          |          2 |        203 |         12 |         27 |        242 |
+| lib\features\habits\presentation\widgets                                                                                          |          5 |        905 |         31 |         82 |      1,018 |
++-----------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-----------------------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                                                                          | language | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\data\repositories\habit_repository_impl.dart       | Dart     |          2 |          0 |          0 |          2 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\domain\repositories\habit_repository.dart          | Dart     |          1 |          0 |          0 |          1 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\providers\habits_provider.dart        | Dart     |          2 |          0 |          0 |          2 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\screens\statistics_screen.dart        | Dart     |        228 |         11 |         27 |        266 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\screens\today_screen.dart             | Dart     |        -25 |          1 |          0 |        -24 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\widgets\edit_log_sheet.dart           | Dart     |        467 |         10 |         34 |        511 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\widgets\habit_card.dart               | Dart     |        -77 |          4 |          2 |        -71 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\widgets\skip_reason_sheet.dart        | Dart     |        236 |          9 |         24 |        269 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\widgets\statistics_overview_card.dart | Dart     |        143 |          3 |          9 |        155 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\widgets\top_habits_card.dart          | Dart     |        136 |          5 |         13 |        154 |
+| Total                                                                                                                             |          |      1,113 |         43 |        109 |      1,265 |
++-----------------------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+

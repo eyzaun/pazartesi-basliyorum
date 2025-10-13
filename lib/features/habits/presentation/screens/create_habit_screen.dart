@@ -24,30 +24,37 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
   final _descriptionController = TextEditingController();
   final _goalController = TextEditingController();
   final _uuid = const Uuid();
-  
+
   int _currentStep = 0;
-  
+
   // Step 1: Basic Info
   String _selectedCategory = AppConstants.categories.first;
-  String _selectedIcon = AppConstants.categoryIcons[AppConstants.categories.first]!;
+  String _selectedIcon =
+      AppConstants.categoryIcons[AppConstants.categories.first]!;
   String _selectedColor = '#6C63FF';
-  
+
   // Step 2: Frequency
   FrequencyType _frequencyType = FrequencyType.daily;
   bool _everyDay = true;
   final List<String> _selectedDays = [];
   int _timesPerWeek = 3;
-  
+
   // Step 3: Goals & Reminders
   TimeOfDay? _reminderTime;
   String _goalValue = '1';
   String _goalUnit = 'kez';
-  
+
   final List<String> _colors = [
-    '#6C63FF', '#FF6B6B', '#4ECDC4', '#FFD93D',
-    '#95E1D3', '#F38181', '#AA96DA', '#FCBAD3',
+    '#6C63FF',
+    '#FF6B6B',
+    '#4ECDC4',
+    '#FFD93D',
+    '#95E1D3',
+    '#F38181',
+    '#AA96DA',
+    '#FCBAD3',
   ];
-  
+
   final List<Map<String, String>> _daysOfWeek = [
     {'value': 'mon', 'label': 'Pzt'},
     {'value': 'tue', 'label': 'Sal'},
@@ -57,7 +64,7 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
     {'value': 'sat', 'label': 'Cmt'},
     {'value': 'sun', 'label': 'Paz'},
   ];
-  
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -66,12 +73,12 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
     _pageController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.createHabit),
@@ -84,7 +91,7 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
         children: [
           // Progress Indicator
           _buildProgressIndicator(theme),
-          
+
           // Step Content
           Expanded(
             child: PageView(
@@ -102,14 +109,14 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
               ],
             ),
           ),
-          
+
           // Navigation Buttons
           _buildNavigationButtons(theme, l10n),
         ],
       ),
     );
   }
-  
+
   Widget _buildProgressIndicator(ThemeData theme) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -124,11 +131,12 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
       ),
     );
   }
-  
-  Widget _buildStepIndicator(int step, String number, String label, ThemeData theme) {
+
+  Widget _buildStepIndicator(
+      int step, String number, String label, ThemeData theme) {
     final isActive = step == _currentStep;
     final isCompleted = step < _currentStep;
-    
+
     return Column(
       children: [
         Container(
@@ -157,28 +165,30 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
           label,
           style: TextStyle(
             fontSize: 11,
-            color: isActive || isCompleted ? theme.colorScheme.primary : Colors.grey[600],
+            color: isActive || isCompleted
+                ? theme.colorScheme.primary
+                : Colors.grey[600],
             fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
           ),
         ),
       ],
     );
   }
-  
+
   Widget _buildStepConnector(int step, ThemeData theme) {
     final isCompleted = step < _currentStep;
-    
+
     return Container(
       height: 2,
       margin: const EdgeInsets.only(bottom: 20),
       color: isCompleted ? theme.colorScheme.primary : Colors.grey[300],
     );
   }
-  
+
   // ============================================================================
   // STEP 1: Basic Info
   // ============================================================================
-  
+
   Widget _buildStep1BasicInfo(ThemeData theme, AppLocalizations l10n) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -201,7 +211,7 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            
+
             // Name Field
             TextFormField(
               controller: _nameController,
@@ -221,7 +231,7 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
               },
             ),
             const SizedBox(height: 16),
-            
+
             // Description Field
             TextFormField(
               controller: _descriptionController,
@@ -236,7 +246,7 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            
+
             // Category Selection
             Text(
               'Kategori',
@@ -251,7 +261,7 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
               children: AppConstants.categories.map((category) {
                 final isSelected = category == _selectedCategory;
                 final icon = AppConstants.categoryIcons[category]!;
-                
+
                 return InkWell(
                   onTap: () {
                     setState(() {
@@ -285,8 +295,11 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
                         Text(
                           category,
                           style: TextStyle(
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                            color: isSelected ? theme.colorScheme.primary : null,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            color:
+                                isSelected ? theme.colorScheme.primary : null,
                           ),
                         ),
                       ],
@@ -296,7 +309,7 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
               }).toList(),
             ),
             const SizedBox(height: 24),
-            
+
             // Color Selection
             Text(
               'Renk',
@@ -310,7 +323,7 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
               runSpacing: 12,
               children: _colors.map((color) {
                 final isSelected = color == _selectedColor;
-                
+
                 return InkWell(
                   onTap: () {
                     setState(() {
@@ -340,11 +353,11 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
       ),
     );
   }
-  
+
   // ============================================================================
   // STEP 2: Frequency
   // ============================================================================
-  
+
   Widget _buildStep2Frequency(ThemeData theme, AppLocalizations l10n) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -365,7 +378,7 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          
+
           // Frequency Type Selection
           _buildFrequencyOption(
             theme,
@@ -383,7 +396,7 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
             'Haftada belirli sayıda',
           ),
           const SizedBox(height: 24),
-          
+
           // Daily Options
           if (_frequencyType == FrequencyType.daily) ...[
             Text(
@@ -413,7 +426,7 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
                 runSpacing: 8,
                 children: _daysOfWeek.map((day) {
                   final isSelected = _selectedDays.contains(day['value']);
-                  
+
                   return FilterChip(
                     selected: isSelected,
                     label: Text(day['label']!),
@@ -431,7 +444,7 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
               ),
             ],
           ],
-          
+
           // Weekly Options
           if (_frequencyType == FrequencyType.weekly) ...[
             Text(
@@ -471,7 +484,7 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
       ),
     );
   }
-  
+
   Widget _buildFrequencyOption(
     ThemeData theme,
     FrequencyType type,
@@ -480,7 +493,7 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
     String subtitle,
   ) {
     final isSelected = _frequencyType == type;
-    
+
     return InkWell(
       onTap: () {
         setState(() {
@@ -505,9 +518,8 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: isSelected
-                    ? theme.colorScheme.primary
-                    : Colors.grey[400],
+                color:
+                    isSelected ? theme.colorScheme.primary : Colors.grey[400],
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(icon, color: Colors.white, size: 24),
@@ -547,11 +559,11 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
       ),
     );
   }
-  
+
   // ============================================================================
   // STEP 3: Goals & Reminders
   // ============================================================================
-  
+
   Widget _buildStep3GoalsReminders(ThemeData theme, AppLocalizations l10n) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -572,7 +584,7 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          
+
           // Daily Goal
           Text(
             'Günlük Hedef',
@@ -605,7 +617,7 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
               Expanded(
                 flex: 3,
                 child: DropdownButtonFormField<String>(
-                  value: _goalUnit,
+                  initialValue: _goalUnit,
                   decoration: InputDecoration(
                     labelText: 'Birim',
                     border: OutlineInputBorder(
@@ -613,10 +625,12 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
                     ),
                   ),
                   items: ['kez', 'dakika', 'saat', 'sayfa', 'km']
-                      .map((unit) => DropdownMenuItem(
-                            value: unit,
-                            child: Text(unit),
-                          ))
+                      .map(
+                        (unit) => DropdownMenuItem(
+                          value: unit,
+                          child: Text(unit),
+                        ),
+                      )
                       .toList(),
                   onChanged: (value) {
                     if (value != null) {
@@ -630,7 +644,7 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
             ],
           ),
           const SizedBox(height: 24),
-          
+
           // Reminder Time
           Text(
             'Hatırlatıcı',
@@ -644,10 +658,13 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-            leading: Icon(Icons.notifications_outlined, color: theme.colorScheme.primary),
-            title: Text(_reminderTime == null
-                ? 'Hatırlatıcı kur'
-                : 'Hatırlatıcı: ${_reminderTime!.format(context)}'),
+            leading: Icon(Icons.notifications_outlined,
+                color: theme.colorScheme.primary),
+            title: Text(
+              _reminderTime == null
+                  ? 'Hatırlatıcı kur'
+                  : 'Hatırlatıcı: ${_reminderTime!.format(context)}',
+            ),
             trailing: _reminderTime != null
                 ? IconButton(
                     icon: const Icon(Icons.close),
@@ -671,7 +688,7 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
             },
           ),
           const SizedBox(height: 24),
-          
+
           // Tips Card
           Container(
             padding: const EdgeInsets.all(16),
@@ -700,11 +717,11 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
       ),
     );
   }
-  
+
   // ============================================================================
   // Navigation
   // ============================================================================
-  
+
   Widget _buildNavigationButtons(ThemeData theme, AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -745,32 +762,34 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
       ),
     );
   }
-  
+
   void _nextStep() {
     if (_currentStep == 0 && !_formKey.currentState!.validate()) {
       return;
     }
-    
+
     if (_currentStep == 1) {
-      if (_frequencyType == FrequencyType.daily && !_everyDay && _selectedDays.isEmpty) {
+      if (_frequencyType == FrequencyType.daily &&
+          !_everyDay &&
+          _selectedDays.isEmpty) {
         context.showErrorSnackBar('Lütfen en az bir gün seçin');
         return;
       }
     }
-    
+
     _pageController.nextPage(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );
   }
-  
+
   void _previousStep() {
     _pageController.previousPage(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );
   }
-  
+
   Future<void> _createHabit() async {
     // Get current user
     final user = await ref.read(currentUserProvider.future);
@@ -780,19 +799,18 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
       }
       return;
     }
-    
+
     // Prepare frequency config
     final Map<String, dynamic> frequencyConfig;
     if (_frequencyType == FrequencyType.daily) {
-      frequencyConfig = _everyDay
-          ? {'everyDay': true}
-          : {'specificDays': _selectedDays};
+      frequencyConfig =
+          _everyDay ? {'everyDay': true} : {'specificDays': _selectedDays};
     } else if (_frequencyType == FrequencyType.weekly) {
       frequencyConfig = {'timesPerWeek': _timesPerWeek};
     } else {
       frequencyConfig = {'everyDay': true};
     }
-    
+
     // Create new habit
     final newHabit = Habit(
       id: _uuid.v4(),
@@ -808,14 +826,13 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
         type: _frequencyType,
         config: frequencyConfig,
       ),
-      isShared: false,
-      status: HabitStatus.active,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
-    
-    final success = await ref.read(habitActionProvider.notifier).createHabit(newHabit);
-    
+
+    final success =
+        await ref.read(habitActionProvider.notifier).createHabit(newHabit);
+
     if (success && mounted) {
       context.showSuccessSnackBar('Alışkanlık oluşturuldu! 🎉');
       Navigator.of(context).pop(true);
@@ -823,7 +840,7 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
       context.showErrorSnackBar('Alışkanlık oluşturulamadı');
     }
   }
-  
+
   Color _hexToColor(String hex) {
     try {
       final hexColor = hex.replaceAll('#', '');

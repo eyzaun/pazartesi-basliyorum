@@ -18,9 +18,9 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _currentIndex = 0;
-  
+
   late final List<Widget> _screens;
-  
+
   @override
   void initState() {
     super.initState();
@@ -35,7 +35,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    
+
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,

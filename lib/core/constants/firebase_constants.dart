@@ -7,7 +7,7 @@ class FirebaseConstants {
   static const String habitLogsCollection = 'habit_logs';
   static const String sharedHabitsCollection = 'shared_habits';
   static const String notificationsCollection = 'notifications';
-  
+
   // User fields
   static const String userIdField = 'userId';
   static const String emailField = 'email';
@@ -17,7 +17,7 @@ class FirebaseConstants {
   static const String createdAtField = 'createdAt';
   static const String statsField = 'stats';
   static const String privacyField = 'privacy';
-  
+
   // Habit fields
   static const String habitIdField = 'habitId';
   static const String ownerIdField = 'ownerId';
@@ -31,7 +31,7 @@ class FirebaseConstants {
   static const String sharedWithField = 'sharedWith';
   static const String statusField = 'status';
   static const String updatedAtField = 'updatedAt';
-  
+
   // Habit log fields
   static const String logIdField = 'logId';
   static const String dateField = 'date';
@@ -41,29 +41,29 @@ class FirebaseConstants {
   static const String qualityField = 'quality';
   static const String noteField = 'note';
   static const String moodField = 'mood';
-  
+
   // Frequency fields
   static const String frequencyTypeField = 'type';
   static const String frequencyConfigField = 'config';
-  
+
   // Stats fields
   static const String totalCompletionsField = 'totalCompletions';
   static const String currentStreakField = 'currentStreak';
   static const String longestStreakField = 'longestStreak';
-  
+
   // Privacy fields
   static const String profileVisibilityField = 'profileVisibility';
   static const String allowFriendRequestsField = 'allowFriendRequests';
-  
+
   // Status values
   static const String activeStatus = 'active';
   static const String pausedStatus = 'paused';
   static const String archivedStatus = 'archived';
-  
+
   // Privacy values
   static const String publicVisibility = 'public';
   static const String privateVisibility = 'private';
-  
+
   // Quality values
   static const String minimalQuality = 'minimal';
   static const String goodQuality = 'good';

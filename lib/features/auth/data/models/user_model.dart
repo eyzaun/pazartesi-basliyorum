@@ -11,7 +11,7 @@ class UserModel extends User {
     required super.displayName,
     super.photoUrl,
   });
-  
+
   /// Create UserModel from domain entity.
   factory UserModel.fromEntity(User user) {
     return UserModel(
@@ -22,7 +22,7 @@ class UserModel extends User {
       photoUrl: user.photoUrl,
     );
   }
-  
+
   /// Create UserModel from Firestore document.
   factory UserModel.fromFirestore(Map<String, dynamic> json) {
     return UserModel(
@@ -33,13 +33,13 @@ class UserModel extends User {
       photoUrl: json['photoURL'] as String?,
     );
   }
-  
+
   /// Create UserModel from Firestore DocumentSnapshot.
   factory UserModel.fromDocument(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return UserModel.fromFirestore(data);
   }
-  
+
   /// Convert UserModel to Firestore map.
   /// This is used when creating a new user document.
   Map<String, dynamic> toFirestore() {
@@ -61,7 +61,7 @@ class UserModel extends User {
       },
     };
   }
-  
+
   /// Convert UserModel to domain entity.
   User toEntity() {
     return User(
@@ -72,7 +72,7 @@ class UserModel extends User {
       photoUrl: photoUrl,
     );
   }
-  
+
   /// Create a copy of this UserModel with some fields replaced.
   @override
   UserModel copyWith({
