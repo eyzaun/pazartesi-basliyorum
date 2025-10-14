@@ -12,6 +12,8 @@ import '../../../../shared/widgets/error_widget.dart';
 import '../../../../shared/widgets/loading_indicator.dart';
 import '../../../achievements/presentation/widgets/achievement_unlocked_dialog.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../social/data/repositories/friend_repository_impl.dart';
+import '../../../social/data/repositories/shared_habit_repository_impl.dart';
 import '../../domain/entities/habit.dart';
 import '../../domain/entities/habit_log.dart';
 import '../providers/habits_provider.dart';
@@ -223,6 +225,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: null,
         onPressed: () async {
           final result =
               await Navigator.of(context).pushNamed(AppRouter.habitCreate);
@@ -371,6 +374,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                                 onTap: () => _navigateToDetail(habit.id),
                                 onEdit: () => _editHabit(habit.id),
                                 onDelete: () => _deleteHabit(habit.id, userId),
+                                onShare: () => _shareHabit(habit, userId),
                                 onRecoverStreak: () async {
                                   final yesterday = DateTime.now()
                                       .subtract(const Duration(days: 1));
@@ -444,6 +448,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                                 onTap: () => _navigateToDetail(habit.id),
                                 onEdit: () => _editHabit(habit.id),
                                 onDelete: () => _deleteHabit(habit.id, userId),
+                                onShare: () => _shareHabit(habit, userId),
                               ),
                             );
                           },
@@ -488,6 +493,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                                 onTap: () => _navigateToDetail(habit.id),
                                 onEdit: () => _editHabit(habit.id),
                                 onDelete: () => _deleteHabit(habit.id, userId),
+                                onShare: () => _shareHabit(habit, userId),
                               ),
                             );
                           },
@@ -532,6 +538,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                                 onTap: () => _navigateToDetail(habit.id),
                                 onEdit: () => _editHabit(habit.id),
                                 onDelete: () => _deleteHabit(habit.id, userId),
+                                onShare: () => _shareHabit(habit, userId),
                               ),
                             );
                           },
@@ -597,6 +604,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                                   onEdit: () => _editHabit(habit.id),
                                   onDelete: () =>
                                       _deleteHabit(habit.id, userId),
+                                  onShare: () => _shareHabit(habit, userId),
                                 ),
                               );
                             },
@@ -769,6 +777,83 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
         context.showSuccessSnackBar('Alışkanlık silindi');
       } else if (result.isFailure && mounted) {
         context.showErrorSnackBar(result.errorOrNull ?? 'Silme başarısız');
+      }
+    }
+  }
+
+  Future<void> _shareHabit(Habit habit, String userId) async {
+    // Get friends list
+    final friendsResult = await ref.read(friendRepositoryProvider).getFriends(userId);
+    
+    if (friendsResult is Failure) {
+      if (mounted) {
+        context.showErrorSnackBar('Arkadaş listesi yüklenemedi');
+      }
+      return;
+    }
+    
+    final friends = (friendsResult as Success).data;
+    
+    if (friends.isEmpty) {
+      if (mounted) {
+        context.showErrorSnackBar('Henüz arkadaşınız yok. Önce arkadaş ekleyin!');
+      }
+      return;
+    }
+
+    // Show friend selection dialog
+    if (!mounted) return;
+    
+    final selectedFriendId = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('"${habit.name}" alışkanlığını paylaş'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: friends.length,
+            itemBuilder: (context, index) {
+              final friend = friends[index];
+              return ListTile(
+                leading: CircleAvatar(
+                  backgroundImage: friend.friendPhotoUrl != null
+                      ? NetworkImage(friend.friendPhotoUrl!)
+                      : null,
+                  child: friend.friendPhotoUrl == null
+                      ? Text(friend.friendDisplayName[0].toUpperCase())
+                      : null,
+                ),
+                title: Text(friend.friendDisplayName),
+                subtitle: Text('@${friend.friendUsername}'),
+                onTap: () => Navigator.pop(context, friend.friendId),
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('İptal'),
+          ),
+        ],
+      ),
+    );
+
+    if (selectedFriendId == null) return;
+
+    // Share habit
+    final shareResult = await ref.read(sharedHabitRepositoryProvider).shareHabit(
+      habitId: habit.id,
+      friendId: selectedFriendId,
+      canEdit: false,
+    );
+
+    if (mounted) {
+      if (shareResult is Success) {
+        context.showSuccessSnackBar('Alışkanlık paylaşıldı!');
+      } else if (shareResult is Failure) {
+        context.showErrorSnackBar((shareResult as Failure).message);
       }
     }
   }

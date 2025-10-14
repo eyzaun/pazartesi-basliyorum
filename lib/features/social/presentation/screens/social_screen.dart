@@ -65,6 +65,7 @@ class _SocialScreenState extends ConsumerState<SocialScreen>
       ),
       floatingActionButton: _tabController.index == 0
           ? FloatingActionButton(
+              heroTag: null,
               onPressed: () => _showAddFriendDialog(context),
               child: const Icon(Icons.person_add),
             )

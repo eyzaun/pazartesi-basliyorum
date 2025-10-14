@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../models/user_model.dart';
@@ -106,34 +107,58 @@ class AuthRemoteDataSource {
   /// Throws [firebase_auth.FirebaseAuthException] on error.
   Future<UserModel> signInWithGoogle() async {
     try {
-      // Check if there's a currently signed in Google user
-      final currentUser = await _googleSignIn.signInSilently();
+      firebase_auth.UserCredential userCredential;
 
-      // If there is, sign out to force account selection
-      if (currentUser != null) {
-        await _googleSignIn.signOut();
-      }
+      if (kIsWeb) {
+        // Web platform (iOS Safari, Chrome, etc.)
+        final provider = firebase_auth.GoogleAuthProvider();
+        
+        // Try popup first, fallback to redirect for iOS Safari
+        try {
+          userCredential = await _firebaseAuth.signInWithPopup(provider);
+        } catch (e) {
+          // Popup blocked (iOS Safari), use redirect instead
+          await _firebaseAuth.signInWithRedirect(provider);
+          // After redirect, get the result
+          userCredential = await _firebaseAuth.getRedirectResult();
+          
+          if (userCredential.user == null) {
+            throw firebase_auth.FirebaseAuthException(
+              code: 'google-sign-in-failed',
+              message: 'Google girişi başarısız',
+            );
+          }
+        }
+      } else {
+        // Mobile platform (Android, iOS app)
+        // Check if there's a currently signed in Google user
+        final currentUser = await _googleSignIn.signInSilently();
 
-      // Trigger Google Sign In flow (will show account picker)
-      final googleUser = await _googleSignIn.signIn();
+        // If there is, sign out to force account selection
+        if (currentUser != null) {
+          await _googleSignIn.signOut();
+        }
 
-      if (googleUser == null) {
-        throw firebase_auth.FirebaseAuthException(
-          code: 'google-sign-in-cancelled',
-          message: 'Google girişi iptal edildi',
+        // Trigger Google Sign In flow (will show account picker)
+        final googleUser = await _googleSignIn.signIn();
+
+        if (googleUser == null) {
+          throw firebase_auth.FirebaseAuthException(
+            code: 'google-sign-in-cancelled',
+            message: 'Google girişi iptal edildi',
+          );
+        }
+
+        // Get Google Auth credentials
+        final googleAuth = await googleUser.authentication;
+        final credential = firebase_auth.GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
         );
+
+        // Sign in to Firebase
+        userCredential = await _firebaseAuth.signInWithCredential(credential);
       }
-
-      // Get Google Auth credentials
-      final googleAuth = await googleUser.authentication;
-      final credential = firebase_auth.GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      // Sign in to Firebase
-      final userCredential =
-          await _firebaseAuth.signInWithCredential(credential);
 
       if (userCredential.user == null) {
         throw firebase_auth.FirebaseAuthException(
@@ -191,10 +216,16 @@ class AuthRemoteDataSource {
   /// Sign out from Firebase and Google.
   Future<void> signOut() async {
     try {
-      await Future.wait([
-        _firebaseAuth.signOut(),
-        _googleSignIn.signOut(),
-      ]);
+      if (kIsWeb) {
+        // Web platform - only sign out from Firebase
+        await _firebaseAuth.signOut();
+      } else {
+        // Mobile platform - sign out from both
+        await Future.wait([
+          _firebaseAuth.signOut(),
+          _googleSignIn.signOut(),
+        ]);
+      }
     } catch (e) {
       rethrow;
     }

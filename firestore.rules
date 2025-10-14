@@ -91,8 +91,8 @@ service cloud.firestore {
       // - User is authenticated and is the owner, OR
       // - Habit is shared and user is in sharedWith array
       allow read: if isAuthenticated() && (
-        isResourceOwner(resource) ||
-        (resource.data.isShared && request.auth.uid in resource.data.sharedWith)
+        request.auth.uid == resource.data.ownerId ||
+        (resource.data.get('isShared', false) == true && request.auth.uid in resource.data.get('sharedWith', []))
       );
       
       // Allow list (queries) if authenticated
@@ -101,31 +101,24 @@ service cloud.firestore {
       
       // Allow create if:
       // - User is authenticated
-      // - User is the owner
-      // - Required fields are valid
-      // - Habit count doesn't exceed limits (checked in app)
+      // - User is the owner (using ownerId field from Firestore)
+      // - Basic field validation (name and category must exist)
       allow create: if isAuthenticated()
-        && isOwner(request.resource.data.ownerId)
-        && isValidString(request.resource.data.name, 1, 100)
-        && isValidString(request.resource.data.category, 1, 50)
-        && request.resource.data.status in ['active', 'paused', 'archived']
-        && request.resource.data.createdAt == request.time
-        && request.resource.data.updatedAt == request.time;
+        && request.auth.uid == request.resource.data.ownerId
+        && request.resource.data.name is string
+        && request.resource.data.category is string;
       
       // Allow update if:
       // - User is authenticated and is the owner
-      // - Not changing habitId, ownerId, or createdAt
-      // - updatedAt is set to current time
+      // - Not changing habitId or ownerId
       allow update: if isAuthenticated()
-        && isResourceOwner(resource)
+        && request.auth.uid == resource.data.ownerId
         && request.resource.data.habitId == resource.data.habitId
-        && request.resource.data.ownerId == resource.data.ownerId
-        && request.resource.data.createdAt == resource.data.createdAt
-        && isRecentTimestamp(request.resource.data.updatedAt);
+        && request.resource.data.ownerId == resource.data.ownerId;
       
       // Allow delete if:
       // - User is authenticated and is the owner
-      allow delete: if isAuthenticated() && isResourceOwner(resource);
+      allow delete: if isAuthenticated() && request.auth.uid == resource.data.ownerId;
     }
     
     // ========================================================================
@@ -173,6 +166,43 @@ service cloud.firestore {
     }
     
     // ========================================================================
+    // Friendships Collection
+    // ========================================================================
+    
+    match /friendships/{friendshipId} {
+      // Helper function to check if user is involved in friendship
+      function isFriendshipMember() {
+        return request.auth.uid == resource.data.userId || 
+               request.auth.uid == resource.data.friendId;
+      }
+      
+      // Allow read if:
+      // - User is authenticated and is one of the friendship members
+      allow read: if isAuthenticated() && isFriendshipMember();
+      
+      // Allow list (queries) if authenticated
+      // Users will only see their own friendships due to query filters
+      allow list: if isAuthenticated();
+      
+      // Allow create if:
+      // - User is authenticated and is the requester (userId OR friendId)
+      // - This allows both sending requests and accepting invitations
+      allow create: if isAuthenticated() && (
+        request.auth.uid == request.resource.data.userId ||
+        request.auth.uid == request.resource.data.friendId
+      );
+      
+      // Allow update if:
+      // - User is authenticated and is one of the friendship members
+      // - Typically used to accept/reject requests
+      allow update: if isAuthenticated() && isFriendshipMember();
+      
+      // Allow delete if:
+      // - User is authenticated and is one of the friendship members
+      allow delete: if isAuthenticated() && isFriendshipMember();
+    }
+    
+    // ========================================================================
     // Shared Habits Collection
     // ========================================================================
     
@@ -185,6 +215,9 @@ service cloud.firestore {
       // Allow read if:
       // - User is authenticated and is a participant
       allow read: if isAuthenticated() && isParticipant();
+      
+      // Allow list if authenticated
+      allow list: if isAuthenticated();
       
       // Allow create if:
       // - User is authenticated
@@ -202,6 +235,95 @@ service cloud.firestore {
       // - User is authenticated and is a participant (owner check should be done in app)
       allow delete: if isAuthenticated()
         && request.auth.uid in resource.data.participants;
+    }
+    
+    // ========================================================================
+    // Achievements Collection
+    // ========================================================================
+    
+    match /achievements/{achievementId} {
+      // Allow read if:
+      // - User is authenticated (achievements are public)
+      allow read: if isAuthenticated();
+      
+      // Allow list if authenticated
+      allow list: if isAuthenticated();
+      
+      // Allow create if:
+      // - User is authenticated
+      // - User is the owner (using userId field)
+      allow create: if isAuthenticated()
+        && request.auth.uid == request.resource.data.userId;
+      
+      // Allow update if:
+      // - User is authenticated and is the owner
+      allow update: if isAuthenticated()
+        && request.auth.uid == resource.data.userId;
+      
+      // Allow delete if:
+      // - User is authenticated and is the owner
+      allow delete: if isAuthenticated()
+        && request.auth.uid == resource.data.userId;
+    }
+    
+    // ========================================================================
+    // Habit Logs Collection
+    // ========================================================================
+    
+    match /habit_logs/{logId} {
+      // Allow read if:
+      // - User is authenticated and is the owner of the log
+      allow read: if isAuthenticated()
+        && request.auth.uid == resource.data.userId;
+      
+      // Allow create if:
+      // - User is authenticated and creating their own log
+      allow create: if isAuthenticated()
+        && request.auth.uid == request.resource.data.userId
+        && request.resource.data.habitId is string
+        && request.resource.data.habitId.size() > 0;
+      
+      // Allow update if:
+      // - User is authenticated and is the owner
+      allow update: if isAuthenticated()
+        && request.auth.uid == resource.data.userId
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.habitId == resource.data.habitId;
+      
+      // Allow delete if:
+      // - User is authenticated and is the owner
+      allow delete: if isAuthenticated()
+        && request.auth.uid == resource.data.userId;
+    }
+    
+    // ========================================================================
+    // Streak Recoveries Collection
+    // ========================================================================
+    
+    match /streak_recoveries/{recoveryId} {
+      // Allow read if:
+      // - User is authenticated and is the owner of the recovery
+      allow read: if isAuthenticated()
+        && request.auth.uid == resource.data.userId;
+      
+      // Allow create if:
+      // - User is authenticated and creating their own recovery
+      allow create: if isAuthenticated()
+        && request.auth.uid == request.resource.data.userId
+        && request.resource.data.habitId is string
+        && request.resource.data.habitId.size() > 0;
+      
+      // Allow update if:
+      // - User is authenticated and is the owner
+      allow update: if isAuthenticated()
+        && request.auth.uid == resource.data.userId
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.habitId == resource.data.habitId;
+      
+      // Allow delete if:
+      // - User is authenticated and is the owner
+      allow delete: if isAuthenticated()
+        && request.auth.uid == resource.data.userId;
     }
     
     // ========================================================================

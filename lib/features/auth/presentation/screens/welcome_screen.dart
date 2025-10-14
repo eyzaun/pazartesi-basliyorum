@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/routing/app_router.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../shared/models/result.dart';
+import '../providers/auth_provider.dart';
 
 /// Welcome screen shown to unauthenticated users.
 /// Provides options to sign in, sign up, or continue as guest.
@@ -84,13 +86,43 @@ class WelcomeScreen extends ConsumerWidget {
                 width: double.infinity,
                 height: 50,
                 child: OutlinedButton.icon(
-                  onPressed: () {
-                    // TODO: Implement Google Sign-In
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Google Sign-In yapılacak'),
-                      ),
-                    );
+                  onPressed: () async {
+                    // Show loading state
+                    ref.read(authLoadingProvider.notifier).state = true;
+                    
+                    try {
+                      final result = await ref.read(authRepositoryProvider).signInWithGoogle();
+                      
+                      if (result is Success) {
+                        // Navigate to home on success
+                        if (context.mounted) {
+                          Navigator.of(context).pushReplacementNamed(AppRouter.home);
+                        }
+                      } else if (result is Failure) {
+                        // Show error message
+                        final failure = result as Failure;
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Google girişi başarısız: ${failure.message}'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      }
+                    } catch (e) {
+                      // Show error message
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Bir hata oluştu: $e'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    } finally {
+                      ref.read(authLoadingProvider.notifier).state = false;
+                    }
                   },
                   icon: Image.asset(
                     'assets/icons/google_logo.png',

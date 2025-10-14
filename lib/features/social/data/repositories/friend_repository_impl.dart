@@ -135,10 +135,42 @@ class FriendRepositoryImpl implements FriendRepository {
           .where('status', isEqualTo: 'accepted')
           .get();
 
-      final friends = <Friend>[
-        ...sentQuery.docs.map((doc) => FriendModel.fromDocument(doc).toEntity()),
-        ...receivedQuery.docs.map((doc) => FriendModel.fromDocument(doc).toEntity()),
-      ];
+      final friends = <Friend>[];
+      
+      // Add friends where current user sent the request
+      friends.addAll(
+        sentQuery.docs.map((doc) => FriendModel.fromDocument(doc).toEntity())
+      );
+      
+      // Add friends where current user received the request
+      // Need to fetch the sender's info from users collection
+      for (final doc in receivedQuery.docs) {
+        final data = doc.data();
+        
+        // Get the sender's (userId) information
+        final senderDoc = await _firestore
+            .collection('users')
+            .doc(data['userId'] as String)
+            .get();
+        
+        if (senderDoc.exists) {
+          final senderData = senderDoc.data()!;
+          
+          friends.add(FriendModel(
+            id: doc.id,
+            userId: userId, // Current user
+            friendId: data['userId'] as String, // The sender
+            friendUsername: senderData['username'] as String,
+            friendDisplayName: senderData['displayName'] as String,
+            friendPhotoUrl: senderData['photoURL'] as String?,
+            status: FriendStatus.accepted,
+            createdAt: (data['createdAt'] as Timestamp).toDate(),
+            updatedAt: data['updatedAt'] != null
+                ? (data['updatedAt'] as Timestamp).toDate()
+                : null,
+          ).toEntity());
+        }
+      }
 
       return Success(friends);
     } catch (e) {
@@ -188,7 +220,7 @@ class FriendRepositoryImpl implements FriendRepository {
 
   @override
   Stream<List<Friend>> watchFriends(String userId) {
-    // Watch both directions
+    // Watch both directions - where user is either userId or friendId
     final sentStream = _firestore
         .collection('friendships')
         .where('userId', isEqualTo: userId)
@@ -204,10 +236,46 @@ class FriendRepositoryImpl implements FriendRepository {
     return sentStream.asyncMap((sentSnapshot) async {
       final receivedSnapshot = await receivedStream.first;
       
-      return [
-        ...sentSnapshot.docs.map((doc) => FriendModel.fromDocument(doc).toEntity()),
-        ...receivedSnapshot.docs.map((doc) => FriendModel.fromDocument(doc).toEntity()),
-      ];
+      final friends = <Friend>[];
+      
+      // Add friends where current user is userId (sent requests)
+      // friendUsername/friendDisplayName are already correct
+      friends.addAll(
+        sentSnapshot.docs.map((doc) => FriendModel.fromDocument(doc).toEntity())
+      );
+      
+      // Add friends where current user is friendId (received requests)
+      // Need to swap: show the OTHER person's info (the userId person)
+      for (final doc in receivedSnapshot.docs) {
+        final data = doc.data();
+        
+        // Get the sender's (userId) information from users collection
+        final senderDoc = await _firestore
+            .collection('users')
+            .doc(data['userId'] as String)
+            .get();
+        
+        if (senderDoc.exists) {
+          final senderData = senderDoc.data()!;
+          
+          // Create Friend with swapped information
+          friends.add(FriendModel(
+            id: doc.id,
+            userId: userId, // Current user
+            friendId: data['userId'] as String, // The sender is the friend
+            friendUsername: senderData['username'] as String,
+            friendDisplayName: senderData['displayName'] as String,
+            friendPhotoUrl: senderData['photoURL'] as String?,
+            status: FriendStatus.accepted,
+            createdAt: (data['createdAt'] as Timestamp).toDate(),
+            updatedAt: data['updatedAt'] != null
+                ? (data['updatedAt'] as Timestamp).toDate()
+                : null,
+          ).toEntity());
+        }
+      }
+      
+      return friends;
     });
   }
 

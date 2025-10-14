@@ -1,0 +1,54 @@
+Date : 2025-10-14 02:19:43
+Directory : e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum
+Total : 16 files,  -764 codes, 43 comments, -175 blanks, all -896 lines
+
+Languages
++----------------+------------+------------+------------+------------+------------+
+| language       | files      | code       | comment    | blank      | total      |
++----------------+------------+------------+------------+------------+------------+
+| PowerShell     |          3 |        113 |         15 |         30 |        158 |
+| JSON           |          1 |         56 |          0 |          0 |         56 |
+| Firebase Rules |          1 |         22 |         28 |         14 |         64 |
+| Dart           |          3 |         -7 |          0 |          0 |         -7 |
+| Markdown       |          8 |       -948 |          0 |       -219 |     -1,167 |
++----------------+------------+------------+------------+------------+------------+
+
+Directories
++------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                                   | files      | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                      |         16 |       -764 |         43 |       -175 |       -896 |
+| . (Files)                                                                                                              |         13 |       -757 |         43 |       -175 |       -889 |
+| lib                                                                                                                    |          3 |         -7 |          0 |          0 |         -7 |
+| lib\features                                                                                                           |          3 |         -7 |          0 |          0 |         -7 |
+| lib\features\habits                                                                                                    |          2 |         -8 |          0 |          0 |         -8 |
+| lib\features\habits\presentation                                                                                       |          2 |         -8 |          0 |          0 |         -8 |
+| lib\features\habits\presentation\screens                                                                               |          1 |          1 |          0 |          0 |          1 |
+| lib\features\habits\presentation\widgets                                                                               |          1 |         -9 |          0 |          0 |         -9 |
+| lib\features\social                                                                                                    |          1 |          1 |          0 |          0 |          1 |
+| lib\features\social\presentation                                                                                       |          1 |          1 |          0 |          0 |          1 |
+| lib\features\social\presentation\screens                                                                               |          1 |          1 |          0 |          0 |          1 |
++------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++------------------------------------------------------------------------------------------------------------------------+----------------+------------+------------+------------+------------+
+| filename                                                                                                               | language       | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------------------------------------------+----------------+------------+------------+------------+------------+
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\ASSETS_GUIDE.md                                             | Markdown       |       -160 |          0 |        -59 |       -219 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\BACKUP_INFO.md                                              | Markdown       |       -131 |          0 |        -40 |       -171 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\BUILD_IMPROVEMENTS.md                                       | Markdown       |       -142 |          0 |        -49 |       -191 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\FIREBASE_INDEX_SETUP.md                                     | Markdown       |         49 |          0 |         14 |         63 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\FIREBASE_RULES.md                                           | Markdown       |       -209 |          0 |        -55 |       -264 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\PART3_IMPLEMENTATION.md                                     | Markdown       |       -207 |          0 |        -54 |       -261 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\README.md                                                   | Markdown       |         12 |          0 |         76 |         88 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\WEB_DEPLOYMENT.md                                           | Markdown       |       -160 |          0 |        -52 |       -212 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\firestore.indexes.json                                      | JSON           |         56 |          0 |          0 |         56 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\firestore.rules                                             | Firebase Rules |         22 |         28 |         14 |         64 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\install.ps1                                                 | PowerShell     |         35 |          3 |         10 |         48 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\screens\today_screen.dart  | Dart           |          1 |          0 |          0 |          1 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\widgets\habit_card.dart    | Dart           |         -9 |          0 |          0 |         -9 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\presentation\screens\social_screen.dart | Dart           |          1 |          0 |          0 |          1 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\run.ps1                                                     | PowerShell     |         34 |          5 |          7 |         46 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\wifi-connect.ps1                                            | PowerShell     |         44 |          7 |         13 |         64 |
+| Total                                                                                                                  |                |       -764 |         43 |       -175 |       -896 |
++------------------------------------------------------------------------------------------------------------------------+----------------+------------+------------+------------+------------+

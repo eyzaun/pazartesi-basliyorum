@@ -65,7 +65,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
     result.when(
       success: (_) {
-        Navigator.of(context).pushReplacementNamed(AppRouter.home);
+        // Clear entire navigation stack and go to home
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          AppRouter.home,
+          (route) => false,
+        );
       },
       failure: (message) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -90,7 +94,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
     result.when(
       success: (_) {
-        Navigator.of(context).pushReplacementNamed(AppRouter.home);
+        // Clear entire navigation stack and go to home
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          AppRouter.home,
+          (route) => false,
+        );
       },
       failure: (message) {
         ScaffoldMessenger.of(context).showSnackBar(

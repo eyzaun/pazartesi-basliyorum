@@ -17,6 +17,7 @@ class HabitCard extends StatelessWidget {
     this.onTap,
     this.onEdit,
     this.onDelete,
+    this.onShare,
     this.showStreakWarning = false,
     this.onRecoverStreak,
   });
@@ -28,6 +29,7 @@ class HabitCard extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final VoidCallback? onShare;
   final bool showStreakWarning;
   final VoidCallback? onRecoverStreak;
 
@@ -56,35 +58,35 @@ class HabitCard extends StatelessWidget {
       startActionPane: !isCompleted && !isSkipped
           ? ActionPane(
               motion: const StretchMotion(),
-              dismissible: DismissiblePane(
-                onDismissed: () {
-                  HapticFeedback.mediumImpact();
-                  _quickComplete(context);
-                },
-                confirmDismiss: () async {
-                  // Only allow dismiss if swiped far enough (80%)
-                  return true;
-                },
-                closeOnCancel: true,
-              ),
+              extentRatio: 0.25,
               children: [
                 SlidableAction(
                   onPressed: (_) {
-                    _showQualitySelector(context);
+                    HapticFeedback.mediumImpact();
+                    _quickComplete(context);
                   },
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
                   icon: Icons.check_circle,
                   label: 'Tamamla',
+                  autoClose: true,
                 ),
               ],
             )
           : null,
 
-      // Right swipe actions (edit, delete)
+      // Right swipe actions (share, edit, delete)
       endActionPane: ActionPane(
         motion: const BehindMotion(),
         children: [
+          if (onShare != null)
+            SlidableAction(
+              onPressed: (_) => onShare?.call(),
+              backgroundColor: Colors.purple,
+              foregroundColor: Colors.white,
+              icon: Icons.share,
+              label: 'Paylaş',
+            ),
           SlidableAction(
             onPressed: (_) => onEdit?.call(),
             backgroundColor: Colors.blue,
@@ -404,7 +406,7 @@ class HabitCard extends StatelessWidget {
   }
 
   /// Quick complete without quality selection (swipe right gesture)
-  void _quickComplete(BuildContext context) {
+  void _quickComplete(BuildContext context) async {
     // Complete with default good quality and no note
     final data = {
       'quality': LogQuality.good,
@@ -412,23 +414,29 @@ class HabitCard extends StatelessWidget {
       'photo': null,
     };
 
+    // Call completion callback
     onComplete?.call(data);
 
-    // Show brief success feedback
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Row(
-          children: [
-            Icon(Icons.check_circle, color: Colors.white),
-            SizedBox(width: 8),
-            Text('Hızlı tamamlandı! ⚡'),
-          ],
+    // Wait a bit to let parent refresh after dismiss animation
+    await Future.delayed(const Duration(milliseconds: 50));
+
+    // Show brief success feedback (if still mounted)
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 8),
+              Text('Hızlı tamamlandı! ⚡'),
+            ],
+          ),
+          backgroundColor: Colors.green[600],
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
         ),
-        backgroundColor: Colors.green[600],
-        duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+      );
+    }
   }
 
   /// Show detailed check-in bottom sheet

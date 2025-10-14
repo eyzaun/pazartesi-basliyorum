@@ -29,6 +29,11 @@ final googleSignInProvider = Provider<GoogleSignIn>((ref) {
     // Web client ID for Google Sign In
     clientId:
         '167069643931-okbnjkorvbqfpgkjrp2uqth58klneian.apps.googleusercontent.com',
+    // Web için sadece temel scopes
+    scopes: <String>[
+      'email',
+      'profile',
+    ],
   );
 });
 

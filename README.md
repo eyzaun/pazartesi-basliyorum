@@ -1,91 +1,179 @@
-# Pazartesi Başlıyorum 📅
+# Pazartesi Başlıyorum 📅# Pazartesi Başlıyorum 📅
 
-Alışkanlık takip uygulaması - Track your habits, reach your goals!
 
-## ✨ Features
 
-### Phase 1: MVP (Completed)
-- ✅ **Authentication System**
-  - Email/Password authentication
+**Alışkanlık takip uygulaması** - Hedeflerinizi ertelemeden gerçekleştirin!Alışkanlık takip uygulaması - Track your habits, reach your goals!
+
+
+
+## 🚀 Hızlı Başlangıç## ✨ Features
+
+
+
+```bash### Phase 1: MVP (Completed)
+
+# Bağımlılıkları yükle- ✅ **Authentication System**
+
+flutter pub get  - Email/Password authentication
+
   - Google Sign-In
-  - Guest mode
-  - User profile management
-- ✅ **Clean Architecture**
-  - Domain layer (entities, repositories, use cases)
+
+# Çalıştır  - Guest mode
+
+flutter run                    # Android/iOS  - User profile management
+
+flutter run -d chrome          # Web- ✅ **Clean Architecture**
+
+.\run.ps1                      # PowerShell script ile  - Domain layer (entities, repositories, use cases)
+
   - Data layer (models, data sources, repository implementations)
-  - Presentation layer (providers, screens, widgets)
-- ✅ **Offline-First Approach**
-  - Local database with Drift/SQLite (ready to implement)
-  - Automatic sync with Firebase
-- ✅ **Localization**
+
+# Build  - Presentation layer (providers, screens, widgets)
+
+flutter build apk --release    # Android APK- ✅ **Offline-First Approach**
+
+flutter build appbundle        # Google Play AAB  - Local database with Drift/SQLite (ready to implement)
+
+flutter build web --release    # Web  - Automatic sync with Firebase
+
+```- ✅ **Localization**
+
   - Turkish (tr)
-  - English (en)
+
+## ✨ Özellikler  - English (en)
+
 - ✅ **Theme Support**
-  - Light mode
-  - Dark mode
-  - System auto
 
-### Phase 2: Coming Soon
-- 🔄 Habits CRUD operations
-- 🔄 Daily check-in system
-- 🔄 Statistics and analytics
-- 🔄 Social features (habit sharing)
+### ✅ Tamamlanan  - Light mode
 
-## 🚀 Getting Started
+- **Authentication**: Email/Password, Google Sign-In, Guest mode  - Dark mode
 
-### Prerequisites
+- **Habits**: CRUD, Categories, Frequency, Goals  - System auto
+
+- **Check-in**: Daily tracking, Streak recovery, Completion stats
+
+- **Statistics**: Charts, Analytics, Achievement badges### Phase 2: Coming Soon
+
+- **Offline-First**: Hive local DB, Auto-sync, Conflict resolution- 🔄 Habits CRUD operations
+
+- **Social**: Friends, Habit sharing, User search- 🔄 Daily check-in system
+
+- **Localization**: Turkish/English- 🔄 Statistics and analytics
+
+- **Theme**: Light/Dark mode- 🔄 Social features (habit sharing)
+
+
+
+### 🌐 Deployment## 🚀 Getting Started
+
+- **Web**: https://pazartesi-basliyorum.web.app
+
+- **Android**: Ready for Google Play Store### Prerequisites
+
+- **Package**: com.loncagames.pazartesibasliyorum
 
 - Flutter SDK 3.35.5 or higher
-- Dart 3.9.2 or higher
+
+## 📱 Teknolojiler- Dart 3.9.2 or higher
+
 - Android Studio / VS Code
-- Firebase account
 
-### Installation
+- **Flutter** 3.35.5 | **Dart** 3.9.2- Firebase account
 
-1. **Clone the repository**
-```bash
+- **State Management**: Riverpod 2.6.1
+
+- **Backend**: Firebase (Auth, Firestore, Storage, Messaging)### Installation
+
+- **Local DB**: Hive 2.2.3
+
+- **Charts**: fl_chart 0.68.01. **Clone the repository**
+
+- **Architecture**: Clean Architecture (Domain/Data/Presentation)```bash
+
 git clone https://github.com/yourusername/pazartesi_basliyorum.git
-cd pazartesi_basliyorum
+
+## 🛠️ Geliştirme Araçlarıcd pazartesi_basliyorum
+
 ```
 
-2. **Install dependencies**
-```bash
-flutter pub get
+### Wi-Fi Bağlantı (Telefon)
+
+```bash2. **Install dependencies**
+
+.\wifi-connect.ps1```bash
+
+```flutter pub get
+
 ```
 
-3. **Add Firebase configuration files**
+### Hızlı Çalıştırma
 
-   **For Android:**
-   - Place `google-services.json` in `android/app/` directory
+```bash3. **Add Firebase configuration files**
+
+.\run.ps1              # Debug mode
+
+.\run.ps1 -release     # Release mode   **For Android:**
+
+```   - Place `google-services.json` in `android/app/` directory
+
    
-   **For Web:**
-   - Configuration is already in `lib/firebase_options.dart`
 
-4. **Run code generation**
+### APK Kurulum   **For Web:**
+
+```bash   - Configuration is already in `lib/firebase_options.dart`
+
+.\install.ps1          # Release/Debug APK seçimi
+
+```4. **Run code generation**
+
 ```bash
-flutter pub run build_runner build --delete-conflicting-outputs
+
+## 📦 Firebase Konfigürasyonuflutter pub run build_runner build --delete-conflicting-outputs
+
 ```
 
-5. **Generate localization files**
-```bash
+**Android**: `android/app/google-services.json`  
+
+**Web**: `lib/firebase_options.dart`  5. **Generate localization files**
+
+**Credentials**: `android/key.properties` (Şifre: 542.Ezu.143.)```bash
+
 flutter gen-l10n
-```
 
-### Running the App
+## 🏗️ Proje Yapısı```
 
-**For Android:**
-```bash
-flutter run
+
+
+```### Running the App
+
+lib/
+
+├── features/          # Auth, Habits, Statistics, Social, Achievements, Profile**For Android:**
+
+├── core/             # Constants, Theme, Routing, Utils```bash
+
+├── shared/           # Models, Widgets, Servicesflutter run
+
+└── l10n/             # Turkish/English localization```
+
 ```
 
 **For Web:**
-```bash
-flutter run -d chrome
-```
 
-**For Windows:**
+## 👨‍💻 Developer```bash
+
+flutter run -d chrome
+
+**Lonca Games** | [GitHub](https://github.com/eyzaun/pazartesi-basliyorum)```
+
+
+
+---**For Windows:**
+
 ```bash
-flutter run -d windows
+
+**Version**: 1.0.2+3 | **Status**: Production Ready ✅flutter run -d windows
+
 ```
 
 ## 📁 Project Structure
