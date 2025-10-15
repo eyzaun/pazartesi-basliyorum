@@ -1,10 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../shared/models/result.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../data/repositories/friend_repository_impl.dart';
+import '../../data/repositories/habit_activity_repository_impl.dart';
 import '../../data/repositories/shared_habit_repository_impl.dart';
 import '../../data/repositories/user_search_repository.dart';
 import '../../domain/entities/friend.dart';
+import '../../domain/entities/habit_activity.dart';
 import '../../domain/entities/shared_habit.dart';
 
 // ============================================================================
@@ -109,4 +112,20 @@ final userSearchProvider = Provider((ref) {
 final getUserByUsernameProvider = Provider((ref) {
   final repository = ref.watch(userSearchRepositoryProvider);
   return repository.getUserByUsername;
+});
+
+// ============================================================================
+// Activity Feed
+// ============================================================================
+
+/// Activity feed provider (friends' activities).
+final activityFeedProvider = FutureProvider<List<HabitActivity>>((ref) async {
+  final repository = ref.watch(habitActivityRepositoryProvider);
+  final authState = ref.watch(authStateProvider);
+
+  final user = authState.value;
+  if (user == null) return [];
+
+  final result = await repository.getActivityFeed(user.id);
+  return result is Success<List<HabitActivity>> ? result.data : [];
 });

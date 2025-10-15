@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -52,23 +54,30 @@ class FriendRepositoryImpl implements FriendRepository {
         return const Failure('Bu kullanıcıyla zaten arkadaşsınız veya bekleyen bir istek var');
       }
 
-      // Get friend user info
+      // Get sender (current user) info to store in friendship document
+      final senderDoc = await _firestore.collection('users').doc(userId).get();
+      if (!senderDoc.exists) {
+        return const Failure('Kullanıcı bulunamadı');
+      }
+
+      final senderData = senderDoc.data()!;
+      
+      // Get friend user info to check if they exist
       final friendDoc = await _firestore.collection('users').doc(friendId).get();
       if (!friendDoc.exists) {
         return const Failure('Kullanıcı bulunamadı');
       }
-
-      final friendData = friendDoc.data()!;
       
-      // Create friendship document
+      // Create friendship document with sender's info
+      // When recipient views this request, they'll see sender's name
       final docRef = _firestore.collection('friendships').doc();
       final friendship = FriendModel(
         id: docRef.id,
         userId: userId,
         friendId: friendId,
-        friendUsername: friendData['username'] as String,
-        friendDisplayName: friendData['displayName'] as String,
-        friendPhotoUrl: friendData['photoURL'] as String?,
+        friendUsername: senderData['username'] as String,
+        friendDisplayName: senderData['displayName'] as String,
+        friendPhotoUrl: senderData['photoURL'] as String?,
         status: FriendStatus.pending,
         createdAt: DateTime.now(),
       );
@@ -220,7 +229,10 @@ class FriendRepositoryImpl implements FriendRepository {
 
   @override
   Stream<List<Friend>> watchFriends(String userId) {
-    // Watch both directions - where user is either userId or friendId
+    // Create a stream controller to manually manage updates
+    final controller = StreamController<List<Friend>>();
+    
+    // Watch both directions
     final sentStream = _firestore
         .collection('friendships')
         .where('userId', isEqualTo: userId)
@@ -233,50 +245,81 @@ class FriendRepositoryImpl implements FriendRepository {
         .where('status', isEqualTo: 'accepted')
         .snapshots();
 
-    return sentStream.asyncMap((sentSnapshot) async {
-      final receivedSnapshot = await receivedStream.first;
+    StreamSubscription? sentSub;
+    StreamSubscription? receivedSub;
+    
+    // Cache for the latest snapshots
+    QuerySnapshot<Map<String, dynamic>>? latestSent;
+    QuerySnapshot<Map<String, dynamic>>? latestReceived;
+    
+    Future<void> rebuildList() async {
+      if (latestSent == null || latestReceived == null) return;
       
       final friends = <Friend>[];
       
-      // Add friends where current user is userId (sent requests)
-      // friendUsername/friendDisplayName are already correct
-      friends.addAll(
-        sentSnapshot.docs.map((doc) => FriendModel.fromDocument(doc).toEntity())
-      );
-      
-      // Add friends where current user is friendId (received requests)
-      // Need to swap: show the OTHER person's info (the userId person)
-      for (final doc in receivedSnapshot.docs) {
+      // Process sent friendships
+      for (final doc in latestSent!.docs) {
         final data = doc.data();
+        final docFriendId = data['friendId'] as String;
         
-        // Get the sender's (userId) information from users collection
-        final senderDoc = await _firestore
-            .collection('users')
-            .doc(data['userId'] as String)
-            .get();
-        
-        if (senderDoc.exists) {
-          final senderData = senderDoc.data()!;
+        try {
+          final friendDoc = await _firestore
+              .collection('users')
+              .doc(docFriendId)
+              .get();
           
-          // Create Friend with swapped information
-          friends.add(FriendModel(
-            id: doc.id,
-            userId: userId, // Current user
-            friendId: data['userId'] as String, // The sender is the friend
-            friendUsername: senderData['username'] as String,
-            friendDisplayName: senderData['displayName'] as String,
-            friendPhotoUrl: senderData['photoURL'] as String?,
-            status: FriendStatus.accepted,
-            createdAt: (data['createdAt'] as Timestamp).toDate(),
-            updatedAt: data['updatedAt'] != null
-                ? (data['updatedAt'] as Timestamp).toDate()
-                : null,
-          ).toEntity());
+          if (friendDoc.exists) {
+            final friendData = friendDoc.data()!;
+            
+            friends.add(FriendModel(
+              id: doc.id,
+              userId: userId,
+              friendId: docFriendId,
+              friendUsername: friendData['username'] as String,
+              friendDisplayName: friendData['displayName'] as String,
+              friendPhotoUrl: friendData['photoURL'] as String?,
+              status: FriendStatus.accepted,
+              createdAt: (data['createdAt'] as Timestamp).toDate(),
+              updatedAt: data['updatedAt'] != null
+                  ? (data['updatedAt'] as Timestamp).toDate()
+                  : null,
+            ).toEntity());
+          }
+        } catch (e) {
+          continue;
         }
       }
       
-      return friends;
+      // Process received friendships
+      for (final doc in latestReceived!.docs) {
+        try {
+          friends.add(FriendModel.fromDocument(doc).toEntity());
+        } catch (e) {
+          continue;
+        }
+      }
+      
+      controller.add(friends);
+    }
+    
+    // Listen to both streams
+    sentSub = sentStream.listen((snapshot) {
+      latestSent = snapshot;
+      rebuildList();
     });
+    
+    receivedSub = receivedStream.listen((snapshot) {
+      latestReceived = snapshot;
+      rebuildList();
+    });
+    
+    // Cleanup when stream is cancelled
+    controller.onCancel = () {
+      sentSub?.cancel();
+      receivedSub?.cancel();
+    };
+    
+    return controller.stream;
   }
 
   @override

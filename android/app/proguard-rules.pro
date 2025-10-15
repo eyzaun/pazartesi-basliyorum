@@ -34,6 +34,10 @@
 -dontwarn com.google.firebase.**
 -dontwarn com.google.android.gms.**
 
+# Firebase Storage (for activity photos)
+-keep class com.google.firebase.storage.** { *; }
+-dontwarn com.google.firebase.storage.**
+
 # Google Sign-In
 -keep class com.google.android.gms.auth.** { *; }
 -keep class com.google.android.gms.common.** { *; }

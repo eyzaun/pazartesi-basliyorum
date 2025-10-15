@@ -44,6 +44,10 @@ android {
         jvmTarget = JavaVersion.VERSION_1_8
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
         applicationId = "com.loncagames.pazartesibasliyorum"
         minSdk = 26

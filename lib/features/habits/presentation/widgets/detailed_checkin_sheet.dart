@@ -13,10 +13,12 @@ class DetailedCheckInSheet extends StatefulWidget {
     required this.habit,
     super.key,
     this.existingLog,
+    this.initialNote,
   });
 
   final Habit habit;
   final HabitLog? existingLog;
+  final String? initialNote;
 
   @override
   State<DetailedCheckInSheet> createState() => _DetailedCheckInSheetState();
@@ -28,6 +30,7 @@ class _DetailedCheckInSheetState extends State<DetailedCheckInSheet>
   final _noteController = TextEditingController();
   File? _selectedPhoto;
   bool _isLoading = false;
+  bool _shareWithFriends = false; // Default: don't share
   late AnimationController _animationController;
 
   @override
@@ -42,6 +45,9 @@ class _DetailedCheckInSheetState extends State<DetailedCheckInSheet>
     if (widget.existingLog != null) {
       _selectedQuality = widget.existingLog!.quality;
       _noteController.text = widget.existingLog!.note ?? '';
+    } else if (widget.initialNote != null) {
+      // Use initial note if provided (e.g., from timer)
+      _noteController.text = widget.initialNote!;
     }
 
     // Auto-save draft
@@ -145,6 +151,7 @@ class _DetailedCheckInSheetState extends State<DetailedCheckInSheet>
       'quality': _selectedQuality,
       'note': _noteController.text.trim(),
       'photo': _selectedPhoto,
+      'shareWithFriends': _shareWithFriends,
     });
   }
 
@@ -360,6 +367,53 @@ class _DetailedCheckInSheetState extends State<DetailedCheckInSheet>
                         ),
                       ],
                     ),
+                  const SizedBox(height: 24),
+
+                  // Share with friends option
+                  Container(
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primaryContainer.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: SwitchListTile(
+                      value: _shareWithFriends,
+                      onChanged: (value) {
+                        setState(() => _shareWithFriends = value);
+                        HapticFeedback.mediumImpact();
+                      },
+                      title: Row(
+                        children: [
+                          Icon(
+                            Icons.share,
+                            size: 20,
+                            color: theme.colorScheme.primary,
+                          ),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Arkadaşlarla Paylaş',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                      subtitle: Text(
+                        _shareWithFriends
+                            ? '✅ "${widget.habit.name}" tamamlandı paylaşılacak'
+                            : 'Tamamladığın bu alışkanlığı arkadaşlarınla paylaş',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: _shareWithFriends
+                              ? theme.colorScheme.primary
+                              : Colors.grey[600],
+                        ),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

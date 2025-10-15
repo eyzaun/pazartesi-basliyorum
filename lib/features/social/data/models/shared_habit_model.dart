@@ -20,13 +20,24 @@ class SharedHabitModel extends SharedHabit {
 
   /// Create from Firestore document.
   factory SharedHabitModel.fromFirestore(Map<String, dynamic> json) {
+    // Handle habitColor which can be String or int
+    int? habitColor;
+    final colorValue = json['habitColor'];
+    if (colorValue != null) {
+      if (colorValue is int) {
+        habitColor = colorValue;
+      } else if (colorValue is String) {
+        habitColor = int.tryParse(colorValue);
+      }
+    }
+
     return SharedHabitModel(
       id: json['id'] as String,
       habitId: json['habitId'] as String,
       habitName: json['habitName'] as String,
       habitDescription: json['habitDescription'] as String?,
       habitIcon: json['habitIcon'] as String?,
-      habitColor: json['habitColor'] as int?,
+      habitColor: habitColor,
       ownerId: json['ownerId'] as String,
       ownerUsername: json['ownerUsername'] as String,
       sharedWithId: json['sharedWithId'] as String,

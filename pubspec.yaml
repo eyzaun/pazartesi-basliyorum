@@ -1,7 +1,7 @@
 name: pazartesi_basliyorum
 description: Alışkanlık takip uygulaması - Pazartesi Başlıyorum
 publish_to: 'none'
-version: 1.0.8+8
+version: 1.0.9+9
 
 environment:
   sdk: '>=3.2.6 <4.0.0'
@@ -41,6 +41,13 @@ dependencies:
   shimmer: ^3.0.0
   table_calendar: ^3.1.1
   uuid: ^4.4.0
+  # Part 4: Advanced Features
+  wakelock_plus: ^1.2.8
+  audioplayers: ^6.1.0
+  flutter_image_compress: ^2.3.0
+  geolocator: ^10.1.1
+  permission_handler: ^11.3.1
+  just_audio: ^0.9.40
 
 dev_dependencies:
   flutter_test:

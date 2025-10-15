@@ -4,6 +4,7 @@ import '../../features/auth/presentation/screens/onboarding_screen.dart';
 import '../../features/auth/presentation/screens/sign_in_screen.dart';
 import '../../features/auth/presentation/screens/sign_up_screen.dart';
 import '../../features/auth/presentation/screens/splash_screen.dart';
+import '../../features/auth/presentation/screens/username_selection_screen.dart';
 import '../../features/auth/presentation/screens/welcome_screen.dart';
 import '../../features/habits/presentation/screens/create_habit_screen.dart';
 import '../../features/habits/presentation/screens/edit_habit_screen.dart';
@@ -19,6 +20,7 @@ class AppRouter {
   static const String welcome = '/welcome';
   static const String signIn = '/sign-in';
   static const String signUp = '/sign-up';
+  static const String usernameSelection = '/username-selection';
   static const String home = '/home';
   static const String habitCreate = '/habit/create';
   static const String habitDetail = '/habit/detail';
@@ -44,6 +46,19 @@ class AppRouter {
 
       case signUp:
         return MaterialPageRoute(builder: (_) => const SignUpScreen());
+
+      case usernameSelection:
+        final args = settings.arguments as Map<String, dynamic>?;
+        if (args == null) {
+          return _errorRoute('Username selection arguments required');
+        }
+        return MaterialPageRoute(
+          builder: (_) => UsernameSelectionScreen(
+            email: args['email'] as String,
+            photoUrl: args['photoUrl'] as String?,
+            userId: args['userId'] as String,
+          ),
+        );
 
       case home:
         return MaterialPageRoute(builder: (_) => const HomeScreen());

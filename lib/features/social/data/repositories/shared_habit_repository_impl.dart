@@ -62,13 +62,32 @@ class SharedHabitRepositoryImpl implements SharedHabitRepository {
 
       // Create shared habit
       final docRef = _firestore.collection('shared_habits').doc();
+      
+      // Handle color conversion from String (hex) to int
+      int? habitColor;
+      final colorValue = habitData['color'];
+      if (colorValue != null) {
+        if (colorValue is int) {
+          habitColor = colorValue;
+        } else if (colorValue is String) {
+          // Convert hex string to int (e.g., "#6C63FF" -> 0xFF6C63FF)
+          try {
+            final hexColor = colorValue.replaceAll('#', '');
+            habitColor = int.parse('FF$hexColor', radix: 16);
+          } catch (e) {
+            // If parsing fails, use null
+            habitColor = null;
+          }
+        }
+      }
+      
       final sharedHabit = SharedHabitModel(
         id: docRef.id,
         habitId: habitId,
         habitName: habitData['name'] as String,
         habitDescription: habitData['description'] as String?,
         habitIcon: habitData['icon'] as String?,
-        habitColor: habitData['color'] as int?,
+        habitColor: habitColor,
         ownerId: userId,
         ownerUsername: userData['username'] as String,
         sharedWithId: friendId,

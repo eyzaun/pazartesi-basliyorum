@@ -33,11 +33,6 @@ service cloud.firestore {
       return email.matches('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$');
     }
     
-    // Check if timestamp is recent (within 5 minutes)
-    function isRecentTimestamp(ts) {
-      return ts > request.time - duration.value(5, 'm');
-    }
-    
     // ========================================================================
     // Users Collection
     // ========================================================================
@@ -88,7 +83,7 @@ service cloud.firestore {
     
     match /habits/{habitId} {
       // Allow read if:
-      // - User is authenticated and is the owner, OR
+      // - User is authenticated and is the owner (using ownerId field)
       // - Habit is shared and user is in sharedWith array
       allow read: if isAuthenticated() && (
         request.auth.uid == resource.data.ownerId ||
@@ -207,34 +202,43 @@ service cloud.firestore {
     // ========================================================================
     
     match /shared_habits/{sharedHabitId} {
-      // Helper function to check if user is a participant
-      function isParticipant() {
-        return request.auth.uid in resource.data.participants;
+      // Helper function to check if user is involved (owner or recipient)
+      function isInvolved() {
+        return request.auth.uid == resource.data.ownerId || 
+               request.auth.uid == resource.data.sharedWithId;
       }
       
       // Allow read if:
-      // - User is authenticated and is a participant
-      allow read: if isAuthenticated() && isParticipant();
+      // - User is authenticated and is involved (owner or recipient)
+      allow read: if isAuthenticated() && isInvolved();
       
       // Allow list if authenticated
+      // Query filters will ensure users only see relevant shared habits
       allow list: if isAuthenticated();
       
       // Allow create if:
       // - User is authenticated
-      // - User is the owner (participants array contains user ID)
+      // - User is the owner (ownerId matches auth.uid)
+      // - Required fields are present
       allow create: if isAuthenticated()
-        && request.auth.uid in request.resource.data.participants
-        && request.resource.data.createdAt == request.time;
+        && request.auth.uid == request.resource.data.ownerId
+        && request.resource.data.habitId is string
+        && request.resource.data.sharedWithId is string
+        && request.resource.data.ownerId != request.resource.data.sharedWithId;
       
       // Allow update if:
-      // - User is authenticated and is a participant
+      // - User is authenticated and is involved (owner or recipient)
+      // - Not changing core fields (ownerId, habitId, sharedWithId)
       allow update: if isAuthenticated()
-        && request.auth.uid in resource.data.participants;
+        && isInvolved()
+        && request.resource.data.ownerId == resource.data.ownerId
+        && request.resource.data.habitId == resource.data.habitId
+        && request.resource.data.sharedWithId == resource.data.sharedWithId;
       
       // Allow delete if:
-      // - User is authenticated and is a participant (owner check should be done in app)
+      // - User is authenticated and is the owner
       allow delete: if isAuthenticated()
-        && request.auth.uid in resource.data.participants;
+        && request.auth.uid == resource.data.ownerId;
     }
     
     // ========================================================================
@@ -259,36 +263,6 @@ service cloud.firestore {
       // - User is authenticated and is the owner
       allow update: if isAuthenticated()
         && request.auth.uid == resource.data.userId;
-      
-      // Allow delete if:
-      // - User is authenticated and is the owner
-      allow delete: if isAuthenticated()
-        && request.auth.uid == resource.data.userId;
-    }
-    
-    // ========================================================================
-    // Habit Logs Collection
-    // ========================================================================
-    
-    match /habit_logs/{logId} {
-      // Allow read if:
-      // - User is authenticated and is the owner of the log
-      allow read: if isAuthenticated()
-        && request.auth.uid == resource.data.userId;
-      
-      // Allow create if:
-      // - User is authenticated and creating their own log
-      allow create: if isAuthenticated()
-        && request.auth.uid == request.resource.data.userId
-        && request.resource.data.habitId is string
-        && request.resource.data.habitId.size() > 0;
-      
-      // Allow update if:
-      // - User is authenticated and is the owner
-      allow update: if isAuthenticated()
-        && request.auth.uid == resource.data.userId
-        && request.resource.data.userId == resource.data.userId
-        && request.resource.data.habitId == resource.data.habitId;
       
       // Allow delete if:
       // - User is authenticated and is the owner
@@ -354,6 +328,59 @@ service cloud.firestore {
       // Allow delete if:
       // - User is authenticated and is the recipient
       allow delete: if isAuthenticated() && isOwner(resource.data.recipientId);
+    }
+    
+    // ========================================================================
+    // Timer Sessions Collection
+    // ========================================================================
+    
+    match /timer_sessions/{sessionId} {
+      // TEMPORARY: Allow all authenticated users for testing
+      // TODO: Restore proper security after testing
+      allow read, write: if isAuthenticated();
+    }
+    
+    // ========================================================================
+    // Habit Activities Collection (Completion Sharing)
+    // ========================================================================
+    
+    match /habit_activities/{activityId} {
+      // Allow read if:
+      // - User is authenticated and is the activity owner, OR
+      // - User is authenticated (can see friends' activities via query filters in app)
+      allow read: if isAuthenticated();
+      
+      // Allow list (queries) if authenticated
+      // App will filter to show only friends' activities
+      allow list: if isAuthenticated();
+      
+      // Allow create if:
+      // - User is authenticated
+      // - User is creating their own activity
+      // - Required fields are present
+      // - createdAt is close to current time (within 1 hour)
+      allow create: if isAuthenticated()
+        && request.auth.uid == request.resource.data.userId
+        && request.resource.data.habitId is string
+        && request.resource.data.habitName is string
+        && request.resource.data.username is string
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.createdAt > request.time - duration.value(1, 'h')
+        && request.resource.data.createdAt < request.time + duration.value(1, 'h');
+      
+      // Allow update if:
+      // - User is authenticated and is the activity owner
+      // - Not changing core fields (userId, habitId, createdAt)
+      allow update: if isAuthenticated()
+        && request.auth.uid == resource.data.userId
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.habitId == resource.data.habitId
+        && request.resource.data.createdAt == resource.data.createdAt;
+      
+      // Allow delete if:
+      // - User is authenticated and is the activity owner
+      allow delete: if isAuthenticated()
+        && request.auth.uid == resource.data.userId;
     }
     
     // ========================================================================

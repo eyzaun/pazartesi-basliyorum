@@ -59,37 +59,32 @@ class InitialSyncService {
   }
 
   Future<void> _downloadHabits(String userId) async {
-    final snapshot = await _firestore
+    await _firestore
         .collection('habits')
         .where('ownerId', isEqualTo: userId)
         .where('status', isEqualTo: 'active')
         .get();
-
     // Habits are already cached by Firestore
-    // Just triggering the download
-    print('Downloaded ${snapshot.docs.length} habits');
   }
 
   Future<void> _downloadLogs(String userId) async {
     // Download logs from last 90 days
     final ninetyDaysAgo = DateTime.now().subtract(const Duration(days: 90));
 
-    final snapshot = await _firestore
+    await _firestore
         .collection('habit_logs')
         .where('userId', isEqualTo: userId)
         .where('date', isGreaterThanOrEqualTo: ninetyDaysAgo)
         .get();
-
-    print('Downloaded ${snapshot.docs.length} logs');
+    // Logs are already cached by Firestore
   }
 
   Future<void> _downloadAchievements(String userId) async {
-    final snapshot = await _firestore
+    await _firestore
         .collection('achievements')
         .where('userId', isEqualTo: userId)
         .get();
-
-    print('Downloaded ${snapshot.docs.length} achievements');
+    // Achievements are already cached by Firestore
   }
 
   Future<void> _downloadUserProfile(String userId) async {
@@ -101,8 +96,7 @@ class InitialSyncService {
     if (!snapshot.exists) {
       throw InitialSyncException('Kullanıcı profili bulunamadı');
     }
-
-    print('Downloaded user profile');
+    // User profile is already cached by Firestore
   }
 
   Future<bool> needsInitialSync(String userId) async {

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,6 +14,7 @@ import '../../../../shared/widgets/loading_indicator.dart';
 import '../../../achievements/presentation/widgets/achievement_unlocked_dialog.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../social/data/repositories/friend_repository_impl.dart';
+import '../../../social/data/repositories/habit_activity_repository_impl.dart';
 import '../../../social/data/repositories/shared_habit_repository_impl.dart';
 import '../../domain/entities/habit.dart';
 import '../../domain/entities/habit_log.dart';
@@ -20,6 +22,7 @@ import '../providers/habits_provider.dart';
 import '../widgets/daily_progress_card.dart';
 import '../widgets/habit_card.dart';
 import '../widgets/streak_recovery_dialog.dart';
+import 'habit_timer_screen.dart'; // Part 4: Timer screen
 
 /// Today screen showing user's daily habits.
 /// This is the main screen where users check in their habits.
@@ -30,12 +33,15 @@ class TodayScreen extends ConsumerStatefulWidget {
   ConsumerState<TodayScreen> createState() => _TodayScreenState();
 }
 
-class _TodayScreenState extends ConsumerState<TodayScreen> {
+class _TodayScreenState extends ConsumerState<TodayScreen>
+    with SingleTickerProviderStateMixin {
   bool _showCompleted = false;
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
     // Trigger sync when screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(habitActionProvider.notifier).syncWithFirebase();
@@ -43,12 +49,21 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
   /// Check for broken streaks and show recovery dialog if applicable.
   Future<void> _checkForBrokenStreaks() async {
+    if (!mounted) return; // Check if widget is still mounted
+    
     final user = await ref.read(currentUserProvider.future);
-    if (user == null) return;
+    if (user == null || !mounted) return;
 
     final habitsAsync = await ref.read(habitsProvider(user.id).future);
+    if (!mounted) return;
 
     final yesterday = DateTime.now().subtract(const Duration(days: 1));
     final yesterdayNormalized =
@@ -56,10 +71,28 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
 
     // Check each habit for broken streak
     for (final habit in habitsAsync) {
+      if (!mounted) return; // Check before each iteration
+      
+      // Skip habits created today or after yesterday
+      // (they shouldn't have yesterday's log)
+      final habitCreatedDate = DateTime(
+        habit.createdAt.year,
+        habit.createdAt.month,
+        habit.createdAt.day,
+      );
+      if (habitCreatedDate.isAfter(yesterdayNormalized) ||
+          habitCreatedDate.isAtSameMomentAs(DateTime(
+            DateTime.now().year,
+            DateTime.now().month,
+            DateTime.now().day,
+          ))) {
+        continue; // Skip newly created habits
+      }
+      
       // Get logs for this habit
       final habitLogsResult =
           await ref.read(habitRepositoryProvider).getLogsForHabit(habit.id);
-      if (habitLogsResult is! Success<List<HabitLog>>) continue;
+      if (habitLogsResult is! Success<List<HabitLog>> || !mounted) continue;
 
       final habitLogs = habitLogsResult.data;
 
@@ -70,7 +103,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
       });
 
       // If no log for yesterday, check if recovery is available
-      if (!hasYesterdayLog) {
+      if (!hasYesterdayLog && mounted) {
         final eligibilityAsync = await ref.read(
           streakRecoveryEligibilityProvider((
             habitId: habit.id,
@@ -78,11 +111,16 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
             missedDate: yesterday,
           ),).future,
         );
+        
+        if (!mounted) return;
 
         // Calculate current streak to show in dialog
         final statsResult = await ref
             .read(habitRepositoryProvider)
             .getHabitStatistics(habit.id);
+        
+        if (!mounted) return;
+        
         final currentStreak = statsResult is Success<HabitStatistics>
             ? statsResult.data.currentStreak
             : 0;
@@ -137,12 +175,14 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
         // Refresh habits to show updated streak
         await _refreshHabits();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Seri başarıyla kurtarıldı!'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('✅ Seri başarıyla kurtarıldı!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
       }
     }
   }
@@ -190,6 +230,13 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
             tooltip: l10n.profile,
           ),
         ],
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: 'Bugün'),
+            Tab(text: 'Günü Değil'),
+          ],
+        ),
       ),
       body: authState.when(
         data: (user) {
@@ -216,7 +263,13 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
             );
           }
 
-          return _buildHabitsList(user.id);
+          return TabBarView(
+            controller: _tabController,
+            children: [
+              _buildHabitsList(user.id, showScheduledOnly: true),
+              _buildHabitsList(user.id, showScheduledOnly: false),
+            ],
+          );
         },
         loading: () => const LoadingIndicator(),
         error: (error, stack) => CustomErrorWidget(
@@ -240,29 +293,54 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     );
   }
 
-  Widget _buildHabitsList(String userId) {
+  Widget _buildHabitsList(String userId, {required bool showScheduledOnly}) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final habitsAsync = ref.watch(habitsProvider(userId));
     final todayLogsAsync = ref.watch(todayLogsProvider(userId));
+    final today = DateTime.now();
 
     return RefreshIndicator(
       onRefresh: _refreshHabits,
       child: habitsAsync.when(
-        data: (habits) {
+        data: (allHabits) {
+          // Filter habits based on schedule
+          final habits = allHabits.where((habit) {
+            // "Günü Değil" sekmesi sadece günlük+belirli günler olanları gösterir
+            if (!showScheduledOnly) {
+              // Sadece günlük + specific days olanları kontrol et
+              if (habit.frequency.type != FrequencyType.daily) {
+                return false; // Haftalık/özel sıklık "Günü Değil"de görünmez
+              }
+              final config = habit.frequency.config;
+              if (config['everyDay'] == true) {
+                return false; // "Her gün" olanlar "Günü Değil"de görünmez
+              }
+              // Bugün programda olmayan günlük alışkanlıkları göster
+              return !habit.frequency.isScheduledForToday(today);
+            } else {
+              // "Bugün" sekmesi - bugün programda olanları göster
+              return habit.frequency.isScheduledForToday(today);
+            }
+          }).toList();
+
           if (habits.isEmpty) {
             return EmptyStateWidget(
-              icon: Icons.calendar_today_outlined,
-              title: l10n.noHabitsYet,
-              message: l10n.createYourFirstHabit,
-              actionLabel: l10n.createHabit,
-              onAction: () async {
+              icon: showScheduledOnly 
+                  ? Icons.calendar_today_outlined 
+                  : Icons.event_busy_outlined,
+              title: showScheduledOnly ? l10n.noHabitsYet : 'Günü değil',
+              message: showScheduledOnly 
+                  ? l10n.createYourFirstHabit 
+                  : 'Bugün programda olmayan alışkanlık yok',
+              actionLabel: showScheduledOnly ? l10n.createHabit : null,
+              onAction: showScheduledOnly ? () async {
                 final result = await Navigator.of(context)
                     .pushNamed(AppRouter.habitCreate);
                 if (result == true && mounted) {
                   unawaited(_refreshHabits());
                 }
-              },
+              } : null,
             );
           }
 
@@ -375,6 +453,9 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                                 onEdit: () => _editHabit(habit.id),
                                 onDelete: () => _deleteHabit(habit.id, userId),
                                 onShare: () => _shareHabit(habit, userId),
+                                onTimer: habit.isTimedHabit
+                                    ? () => _openTimer(habit)
+                                    : null, // Part 4: Timer
                                 onRecoverStreak: () async {
                                   final yesterday = DateTime.now()
                                       .subtract(const Duration(days: 1));
@@ -449,6 +530,9 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                                 onEdit: () => _editHabit(habit.id),
                                 onDelete: () => _deleteHabit(habit.id, userId),
                                 onShare: () => _shareHabit(habit, userId),
+                                onTimer: habit.isTimedHabit
+                                    ? () => _openTimer(habit)
+                                    : null, // Part 4: Timer
                               ),
                             );
                           },
@@ -494,6 +578,9 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                                 onEdit: () => _editHabit(habit.id),
                                 onDelete: () => _deleteHabit(habit.id, userId),
                                 onShare: () => _shareHabit(habit, userId),
+                                onTimer: habit.isTimedHabit
+                                    ? () => _openTimer(habit)
+                                    : null, // Part 4: Timer
                               ),
                             );
                           },
@@ -539,6 +626,9 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                                 onEdit: () => _editHabit(habit.id),
                                 onDelete: () => _deleteHabit(habit.id, userId),
                                 onShare: () => _shareHabit(habit, userId),
+                                onTimer: habit.isTimedHabit
+                                    ? () => _openTimer(habit)
+                                    : null, // Part 4: Timer
                               ),
                             );
                           },
@@ -605,6 +695,9 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                                   onDelete: () =>
                                       _deleteHabit(habit.id, userId),
                                   onShare: () => _shareHabit(habit, userId),
+                                  onTimer: habit.isTimedHabit
+                                      ? () => _openTimer(habit)
+                                      : null, // Part 4: Timer
                                 ),
                               );
                             },
@@ -678,7 +771,8 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
       String habitId, String userId, Map<String, dynamic> data,) async {
     final quality = data['quality'] as LogQuality?;
     final note = data['note'] as String?;
-    // final photo = data['photo'] as File?; // TODO: Upload photo to Firebase Storage
+    final photo = data['photo'] as File?;
+    final shareWithFriends = data['shareWithFriends'] as bool? ?? false;
 
     final success = await ref.read(habitActionProvider.notifier).completeHabit(
           habitId: habitId,
@@ -688,6 +782,43 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
         );
 
     if (success && mounted) {
+      // Share activity with friends if requested
+      if (shareWithFriends) {
+        // Get habit details from current habits list
+        final habitsAsync = ref.read(habitsProvider(userId));
+        
+        habitsAsync.whenData((habits) {
+          try {
+            final habit = habits.firstWhere((h) => h.id == habitId);
+            
+            // Convert hex color string to int
+            int habitColor;
+            try {
+              final hexColor = habit.color.replaceAll('#', '');
+              habitColor = int.parse('FF$hexColor', radix: 16);
+            } catch (e) {
+              habitColor = 0xFF6200EA; // Default purple
+            }
+
+            // Share activity in background (don't block UI)
+            unawaited(
+              ref.read(habitActivityRepositoryProvider).shareActivity(
+                habitId: habit.id,
+                habitName: habit.name,
+                habitIcon: habit.icon,
+                habitColor: habitColor,
+                completedAt: DateTime.now(),
+                quality: quality?.toString().split('.').last,
+                note: note,
+                photo: photo,
+              ),
+            );
+          } catch (e) {
+            // Habit not found or error, silently fail
+          }
+        });
+      }
+
       // Check for new achievements
       final state = ref.read(habitActionProvider);
       final newAchievements = state.lastUnlockedAchievements;
@@ -801,59 +932,74 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
       return;
     }
 
-    // Show friend selection dialog
+    // Confirm sharing with all friends
     if (!mounted) return;
     
-    final selectedFriendId = await showDialog<String>(
+    final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('"${habit.name}" alışkanlığını paylaş'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: friends.length,
-            itemBuilder: (context, index) {
-              final friend = friends[index];
-              return ListTile(
-                leading: CircleAvatar(
-                  backgroundImage: friend.friendPhotoUrl != null
-                      ? NetworkImage(friend.friendPhotoUrl!)
-                      : null,
-                  child: friend.friendPhotoUrl == null
-                      ? Text(friend.friendDisplayName[0].toUpperCase())
-                      : null,
-                ),
-                title: Text(friend.friendDisplayName),
-                subtitle: Text('@${friend.friendUsername}'),
-                onTap: () => Navigator.pop(context, friend.friendId),
-              );
-            },
-          ),
+        content: Text(
+          'Bu alışkanlık tüm arkadaşlarınızla (${friends.length} kişi) paylaşılacak. Onayyor musunuz?',
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(context, false),
             child: const Text('İptal'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Paylaş'),
           ),
         ],
       ),
     );
 
-    if (selectedFriendId == null) return;
+    if (confirmed != true) return;
 
-    // Share habit
-    final shareResult = await ref.read(sharedHabitRepositoryProvider).shareHabit(
-      habitId: habit.id,
-      friendId: selectedFriendId,
-      canEdit: false,
-    );
+    // Share habit with all friends
+    int successCount = 0;
+    int failureCount = 0;
+
+    for (final friend in friends) {
+      final shareResult = await ref.read(sharedHabitRepositoryProvider).shareHabit(
+        habitId: habit.id,
+        friendId: friend.friendId,
+        canEdit: false,
+      );
+
+      if (shareResult is Success) {
+        successCount++;
+      } else {
+        failureCount++;
+      }
+    }
 
     if (mounted) {
-      if (shareResult is Success) {
-        context.showSuccessSnackBar('Alışkanlık paylaşıldı!');
-      } else if (shareResult is Failure) {
-        context.showErrorSnackBar((shareResult as Failure).message);
+      if (successCount > 0) {
+        context.showSuccessSnackBar(
+          'Alışkanlık $successCount arkadaşınızla paylaşıldı!${failureCount > 0 ? ' ($failureCount başarısız)' : ''}',
+        );
+      } else {
+        context.showErrorSnackBar('Alışkanlık paylaşılamadı');
+      }
+    }
+  }
+
+  /// Part 4: Open timer screen for timed habit
+  Future<void> _openTimer(Habit habit) async {
+    final result = await Navigator.push<Map<String, dynamic>>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => HabitTimerScreen(habit: habit),
+      ),
+    );
+    
+    // If habit was completed from timer, process it
+    if (result != null && mounted) {
+      final user = await ref.read(currentUserProvider.future);
+      if (user != null) {
+        await _completeHabit(habit.id, user.id, result);
       }
     }
   }

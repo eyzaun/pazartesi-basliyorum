@@ -68,6 +68,12 @@ class _FrequencySelectorState extends State<FrequencySelector> {
           'targetPerWeek': _targetPerWeek,
         };
         break;
+      case FrequencyType.custom:
+        config = {
+          'periodDays': 7,
+          'timesInPeriod': 3,
+        };
+        break;
     }
 
     widget.onChanged(_type, config);

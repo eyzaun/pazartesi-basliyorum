@@ -14,6 +14,7 @@ class HabitLog extends Equatable {
     this.quality,
     this.note,
     this.mood,
+    this.durationSeconds, // Part 4: Timer duration
   });
   final String id;
   final String habitId;
@@ -25,6 +26,7 @@ class HabitLog extends Equatable {
   final LogQuality? quality;
   final String? note;
   final String? mood;
+  final int? durationSeconds; // Part 4: Duration in seconds for timed habits
   final DateTime createdAt;
 
   HabitLog copyWith({
@@ -38,6 +40,7 @@ class HabitLog extends Equatable {
     LogQuality? quality,
     String? note,
     String? mood,
+    int? durationSeconds,
     DateTime? createdAt,
   }) {
     return HabitLog(
@@ -51,6 +54,7 @@ class HabitLog extends Equatable {
       quality: quality ?? this.quality,
       note: note ?? this.note,
       mood: mood ?? this.mood,
+      durationSeconds: durationSeconds ?? this.durationSeconds,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -67,6 +71,7 @@ class HabitLog extends Equatable {
         quality,
         note,
         mood,
+        durationSeconds,
         createdAt,
       ];
 }

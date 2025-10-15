@@ -15,6 +15,19 @@ class Habit extends Equatable {
     this.description,
     this.isShared = false,
     this.status = HabitStatus.active,
+    // Part 4: Habit Stacking
+    this.isStacked = false,
+    this.stackedWithId,
+    this.stackOrder,
+    this.stackTriggerType,
+    this.stackTriggerDelay,
+    // Part 4: Timed Habits
+    this.isTimedHabit = false,
+    this.targetDurationMinutes,
+    this.allowBackgroundTimer = true,
+    this.timerSound,
+    this.vibrateOnComplete = true,
+    this.ambientSound,
   });
   final String id;
   final String userId;
@@ -28,6 +41,21 @@ class Habit extends Equatable {
   final HabitStatus status;
   final DateTime createdAt;
   final DateTime updatedAt;
+  
+  // Part 4: Habit Stacking fields
+  final bool isStacked;
+  final String? stackedWithId; // parent stack ID
+  final int? stackOrder; // order in stack (0, 1, 2...)
+  final String? stackTriggerType; // 'after_completion', 'after_time'
+  final int? stackTriggerDelay; // minutes to wait before next habit
+  
+  // Part 4: Timed Habit fields
+  final bool isTimedHabit;
+  final int? targetDurationMinutes; // target duration in minutes
+  final bool allowBackgroundTimer; // allow timer to run in background
+  final String? timerSound; // completion sound file name
+  final bool vibrateOnComplete; // vibrate when timer completes
+  final String? ambientSound; // ambient sound during timer (e.g., 'nature', 'rain')
 
   Habit copyWith({
     String? id,
@@ -42,6 +70,17 @@ class Habit extends Equatable {
     HabitStatus? status,
     DateTime? createdAt,
     DateTime? updatedAt,
+    bool? isStacked,
+    String? stackedWithId,
+    int? stackOrder,
+    String? stackTriggerType,
+    int? stackTriggerDelay,
+    bool? isTimedHabit,
+    int? targetDurationMinutes,
+    bool? allowBackgroundTimer,
+    String? timerSound,
+    bool? vibrateOnComplete,
+    String? ambientSound,
   }) {
     return Habit(
       id: id ?? this.id,
@@ -56,6 +95,17 @@ class Habit extends Equatable {
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      isStacked: isStacked ?? this.isStacked,
+      stackedWithId: stackedWithId ?? this.stackedWithId,
+      stackOrder: stackOrder ?? this.stackOrder,
+      stackTriggerType: stackTriggerType ?? this.stackTriggerType,
+      stackTriggerDelay: stackTriggerDelay ?? this.stackTriggerDelay,
+      isTimedHabit: isTimedHabit ?? this.isTimedHabit,
+      targetDurationMinutes: targetDurationMinutes ?? this.targetDurationMinutes,
+      allowBackgroundTimer: allowBackgroundTimer ?? this.allowBackgroundTimer,
+      timerSound: timerSound ?? this.timerSound,
+      vibrateOnComplete: vibrateOnComplete ?? this.vibrateOnComplete,
+      ambientSound: ambientSound ?? this.ambientSound,
     );
   }
 
@@ -73,6 +123,17 @@ class Habit extends Equatable {
         status,
         createdAt,
         updatedAt,
+        isStacked,
+        stackedWithId,
+        stackOrder,
+        stackTriggerType,
+        stackTriggerDelay,
+        isTimedHabit,
+        targetDurationMinutes,
+        allowBackgroundTimer,
+        timerSound,
+        vibrateOnComplete,
+        ambientSound,
       ];
 }
 
@@ -120,8 +181,61 @@ class HabitFrequency extends Equatable {
       },
     );
   }
+
+  /// Create custom frequency (X times in Y days).
+  /// Example: 3 times in 7 days, 2 times in 10 days
+  factory HabitFrequency.custom({
+    required int timesInPeriod, // Y kere
+    required int periodDays,    // X günde
+  }) {
+    return HabitFrequency(
+      type: FrequencyType.custom,
+      config: {
+        'timesInPeriod': timesInPeriod,
+        'periodDays': periodDays,
+      },
+    );
+  }
+
   final FrequencyType type;
   final Map<String, dynamic> config;
+
+  /// Check if this habit should be active today
+  bool isScheduledForToday(DateTime date) {
+    switch (type) {
+      case FrequencyType.daily:
+        // Check if everyDay or if today is in specificDays
+        if (config['everyDay'] == true) {
+          return true;
+        }
+        final specificDays = config['specificDays'] as List<dynamic>?;
+        if (specificDays != null) {
+          final weekdayNames = [
+            '',
+            'monday',
+            'tuesday',
+            'wednesday',
+            'thursday',
+            'friday',
+            'saturday',
+            'sunday',
+          ];
+          final todayName = weekdayNames[date.weekday];
+          return specificDays.contains(todayName);
+        }
+        return true;
+
+      case FrequencyType.weekly:
+      case FrequencyType.flexible:
+      case FrequencyType.custom:
+        // These types are always "scheduled" - completion is tracked differently
+        return true;
+
+      case FrequencyType.monthly:
+        // Monthly habits are always shown (for now)
+        return true;
+    }
+  }
 
   @override
   List<Object?> get props => [type, config];
@@ -133,6 +247,7 @@ enum FrequencyType {
   weekly,
   monthly,
   flexible,
+  custom, // X günde Y kere
 }
 
 /// Habit status enum.
@@ -154,6 +269,8 @@ extension FrequencyTypeExtension on String {
         return FrequencyType.monthly;
       case 'flexible':
         return FrequencyType.flexible;
+      case 'custom':
+        return FrequencyType.custom;
       default:
         return FrequencyType.daily;
     }
@@ -188,6 +305,8 @@ extension FrequencyTypeString on FrequencyType {
         return 'monthly';
       case FrequencyType.flexible:
         return 'flexible';
+      case FrequencyType.custom:
+        return 'custom';
     }
   }
 }

@@ -174,37 +174,15 @@ class AuthRemoteDataSource {
           .get();
 
       if (!doc.exists) {
-        // Create new user document
-        // Generate unique username from email
-        final baseUsername = userCredential.user!.email!.split('@')[0];
-        var username = baseUsername;
-
-        // Check if username exists and add random suffix if needed
-        final usernameQuery = await _firestore
-            .collection('users')
-            .where('username', isEqualTo: username)
-            .get();
-
-        if (usernameQuery.docs.isNotEmpty) {
-          // Username taken, add random suffix
-          username =
-              '${baseUsername}_${DateTime.now().millisecondsSinceEpoch % 10000}';
-        }
-
-        final user = UserModel(
+        // Return user model without saving to Firestore
+        // This indicates that username selection is needed
+        return UserModel(
           id: userCredential.user!.uid,
           email: userCredential.user!.email!,
-          username: username,
-          displayName: userCredential.user!.displayName ?? username,
+          username: '', // Empty username indicates username selection needed
+          displayName: userCredential.user!.displayName ?? '',
           photoUrl: userCredential.user!.photoURL,
         );
-
-        await _firestore
-            .collection('users')
-            .doc(user.id)
-            .set(user.toFirestore());
-
-        return user;
       }
 
       return UserModel.fromFirestore(doc.data()!);
@@ -282,10 +260,48 @@ class AuthRemoteDataSource {
         }
 
         // After 3 attempts, document still doesn't exist
+        // This happens for Google sign-in users who haven't completed username selection yet
+        // Return a temporary user model with empty username to trigger username selection
+        if (firebaseUser.providerData.any((p) => p.providerId == 'google.com')) {
+          return UserModel(
+            id: firebaseUser.uid,
+            email: firebaseUser.email ?? '',
+            username: '', // Empty username triggers username selection
+            displayName: firebaseUser.displayName ?? '',
+            photoUrl: firebaseUser.photoURL,
+          );
+        }
+        
+        // For other auth methods, return null (should not happen in normal flow)
         return null;
       } catch (e) {
         return null;
       }
     });
+  }
+
+  /// Complete Google sign-in by saving user data to Firestore with selected username.
+  /// Used after username selection screen.
+  Future<UserModel> completeGoogleSignIn({
+    required String userId,
+    required String email,
+    required String username,
+    String? photoUrl,
+  }) async {
+    try {
+      final user = UserModel(
+        id: userId,
+        email: email,
+        username: username,
+        displayName: username, // Use username as display name
+        photoUrl: photoUrl,
+      );
+
+      await _firestore.collection('users').doc(user.id).set(user.toFirestore());
+
+      return user;
+    } catch (e) {
+      rethrow;
+    }
   }
 }

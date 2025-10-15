@@ -42,8 +42,21 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         _navigated = true;
 
         if (user != null) {
-          // User authenticated -> go to home
-          Navigator.of(context).pushReplacementNamed(AppRouter.home);
+          // Check if user needs to complete username selection (Google sign-in)
+          if (user.username.isEmpty) {
+            // User needs to select username -> go to username selection
+            Navigator.of(context).pushReplacementNamed(
+              AppRouter.usernameSelection,
+              arguments: {
+                'userId': user.id,
+                'email': user.email,
+                'photoUrl': user.photoUrl,
+              },
+            );
+          } else {
+            // User authenticated and complete -> go to home
+            Navigator.of(context).pushReplacementNamed(AppRouter.home);
+          }
         } else if (hasSeenOnboarding) {
           // Seen onboarding -> go to welcome
           Navigator.of(context).pushReplacementNamed(AppRouter.welcome);

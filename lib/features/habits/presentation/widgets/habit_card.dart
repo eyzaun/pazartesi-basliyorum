@@ -18,6 +18,7 @@ class HabitCard extends StatelessWidget {
     this.onEdit,
     this.onDelete,
     this.onShare,
+    this.onTimer, // Part 4: Timer callback
     this.showStreakWarning = false,
     this.onRecoverStreak,
   });
@@ -30,6 +31,7 @@ class HabitCard extends StatelessWidget {
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
   final VoidCallback? onShare;
+  final VoidCallback? onTimer; // Part 4: Timer callback
   final bool showStreakWarning;
   final VoidCallback? onRecoverStreak;
 
@@ -305,6 +307,22 @@ class HabitCard extends StatelessWidget {
                   const SizedBox(height: 12),
                   Row(
                     children: [
+                      // Timer button (if timed habit)
+                      if (habit.isTimedHabit && onTimer != null) ...[
+                        OutlinedButton.icon(
+                          onPressed: onTimer,
+                          icon: const Icon(Icons.timer, size: 18),
+                          label: const Text('Başlat'),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+
                       // Complete button
                       Expanded(
                         child: ElevatedButton.icon(

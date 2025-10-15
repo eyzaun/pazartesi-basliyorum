@@ -53,7 +53,7 @@ class MonthlyLineChartCard extends StatelessWidget {
                             ),
                             belowBarData: BarAreaData(
                               show: true,
-                              color: const Color(0xFF6C63FF).withOpacity(0.1),
+                              color: const Color(0xFF6C63FF).withValues(alpha: 0.1),
                             ),
                           ),
                         ],

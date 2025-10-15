@@ -36,4 +36,13 @@ abstract class AuthRepository {
   /// Stream of authentication state changes.
   /// Emits [User] when signed in, null when signed out.
   Stream<User?> get authStateChanges;
+
+  /// Complete Google sign-in by creating user document with username.
+  /// Returns [Success] with [User] if successful, [Failure] otherwise.
+  Future<Result<User>> completeGoogleSignIn({
+    required String userId,
+    required String email,
+    required String username,
+    String? photoUrl,
+  });
 }

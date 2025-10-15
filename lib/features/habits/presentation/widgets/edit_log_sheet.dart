@@ -65,9 +65,11 @@ class _EditLogSheetState extends State<EditLogSheet>
         HapticFeedback.mediumImpact();
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Fotoğraf seçilemedi')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Fotoğraf seçilemedi')),
+        );
+      }
     }
   }
 

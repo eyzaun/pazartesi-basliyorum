@@ -93,12 +93,25 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     if (!mounted) return;
 
     result.when(
-      success: (_) {
-        // Clear entire navigation stack and go to home
-        Navigator.of(context).pushNamedAndRemoveUntil(
-          AppRouter.home,
-          (route) => false,
-        );
+      success: (user) {
+        // Check if username is empty (new user needs to select username)
+        if (user.username.isEmpty) {
+          // Navigate to username selection screen
+          Navigator.of(context).pushReplacementNamed(
+            AppRouter.usernameSelection,
+            arguments: {
+              'userId': user.id,
+              'email': user.email,
+              'photoUrl': user.photoUrl,
+            },
+          );
+        } else {
+          // Existing user, go directly to home
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            AppRouter.home,
+            (route) => false,
+          );
+        }
       },
       failure: (message) {
         ScaffoldMessenger.of(context).showSnackBar(

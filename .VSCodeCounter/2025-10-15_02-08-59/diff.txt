@@ -1,0 +1,75 @@
+Date : 2025-10-15 02:08:59
+Directory : e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum
+Total : 23 files,  757 codes, 63 comments, 96 blanks, all 916 lines
+
+Languages
++----------------+------------+------------+------------+------------+------------+
+| language       | files      | code       | comment    | blank      | total      |
++----------------+------------+------------+------------+------------+------------+
+| Dart           |         21 |        751 |         59 |         96 |        906 |
+| Firebase Rules |          1 |          6 |          8 |          0 |         14 |
+| YAML           |          1 |          0 |         -4 |          0 |         -4 |
++----------------+------------+------------+------------+------------+------------+
+
+Directories
++--------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                                                 | files      | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                                    |         23 |        757 |         63 |         96 |        916 |
+| . (Files)                                                                                                                            |          2 |          6 |          4 |          0 |         10 |
+| lib                                                                                                                                  |         21 |        751 |         59 |         96 |        906 |
+| lib\core                                                                                                                             |          2 |         10 |          2 |         -3 |          9 |
+| lib\core\routing                                                                                                                     |          1 |         14 |          0 |          1 |         15 |
+| lib\core\services                                                                                                                    |          1 |         -4 |          2 |         -4 |         -6 |
+| lib\features                                                                                                                         |         19 |        741 |         57 |         99 |        897 |
+| lib\features\auth                                                                                                                    |          8 |        318 |         26 |         43 |        387 |
+| lib\features\auth\data                                                                                                               |          2 |         33 |          3 |          0 |         36 |
+| lib\features\auth\data\datasources                                                                                                   |          1 |         14 |          3 |         -1 |         16 |
+| lib\features\auth\data\repositories                                                                                                  |          1 |         19 |          0 |          1 |         20 |
+| lib\features\auth\domain                                                                                                             |          1 |          6 |          2 |          1 |          9 |
+| lib\features\auth\domain\repositories                                                                                                |          1 |          6 |          2 |          1 |          9 |
+| lib\features\auth\presentation                                                                                                       |          5 |        279 |         21 |         42 |        342 |
+| lib\features\auth\presentation\providers                                                                                             |          1 |         16 |          3 |          4 |         23 |
+| lib\features\auth\presentation\screens                                                                                               |          4 |        263 |         18 |         38 |        319 |
+| lib\features\habits                                                                                                                  |          5 |         95 |          5 |          6 |        106 |
+| lib\features\habits\presentation                                                                                                     |          5 |         95 |          5 |          6 |        106 |
+| lib\features\habits\presentation\screens                                                                                             |          2 |         31 |          4 |          5 |         40 |
+| lib\features\habits\presentation\widgets                                                                                             |          3 |         64 |          1 |          1 |         66 |
+| lib\features\social                                                                                                                  |          6 |        328 |         26 |         50 |        404 |
+| lib\features\social\data                                                                                                             |          4 |        279 |         20 |         42 |        341 |
+| lib\features\social\data\models                                                                                                      |          2 |         94 |          2 |          8 |        104 |
+| lib\features\social\data\repositories                                                                                                |          2 |        185 |         18 |         34 |        237 |
+| lib\features\social\domain                                                                                                           |          2 |         49 |          6 |          8 |         63 |
+| lib\features\social\domain\entities                                                                                                  |          1 |         30 |          1 |          2 |         33 |
+| lib\features\social\domain\repositories                                                                                              |          1 |         19 |          5 |          6 |         30 |
++--------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++--------------------------------------------------------------------------------------------------------------------------------------+----------------+------------+------------+------------+------------+
+| filename                                                                                                                             | language       | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------------------------------------------------------------------+----------------+------------+------------+------------+------------+
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\analysis_options.yaml                                                     | YAML           |          0 |         -4 |          0 |         -4 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\firestore.rules                                                           | Firebase Rules |          6 |          8 |          0 |         14 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\core\routing\app_router.dart                                          | Dart           |         14 |          0 |          1 |         15 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\core\services\initial_sync_service.dart                               | Dart           |         -4 |          2 |         -4 |         -6 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\auth\data\datasources\auth_remote_datasource.dart            | Dart           |         14 |          3 |         -1 |         16 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\auth\data\repositories\auth_repository_impl.dart             | Dart           |         19 |          0 |          1 |         20 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\auth\domain\repositories\auth_repository.dart                | Dart           |          6 |          2 |          1 |          9 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\auth\presentation\providers\username_check_provider.dart     | Dart           |         16 |          3 |          4 |         23 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\auth\presentation\screens\sign_in_screen.dart                | Dart           |         11 |          2 |          0 |         13 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\auth\presentation\screens\sign_up_screen.dart                | Dart           |         11 |          2 |          0 |         13 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\auth\presentation\screens\splash_screen.dart                 | Dart           |         11 |          2 |          0 |         13 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\auth\presentation\screens\username_selection_screen.dart     | Dart           |        230 |         12 |         38 |        280 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\screens\habit_timer_screen.dart          | Dart           |          2 |          0 |         -1 |          1 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\screens\today_screen.dart                | Dart           |         29 |          4 |          6 |         39 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\widgets\detailed_checkin_sheet.dart      | Dart           |         47 |          1 |          1 |         49 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\widgets\edit_log_sheet.dart              | Dart           |          2 |          0 |          0 |          2 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\widgets\skip_reason_sheet.dart           | Dart           |         15 |          0 |          0 |         15 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\data\models\habit_activity_model.dart                 | Dart           |         85 |          1 |          7 |         93 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\data\models\shared_habit_model.dart                   | Dart           |          9 |          1 |          1 |         11 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\data\repositories\habit_activity_repository_impl.dart | Dart           |        171 |         15 |         32 |        218 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\data\repositories\shared_habit_repository_impl.dart   | Dart           |         14 |          3 |          2 |         19 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\domain\entities\habit_activity.dart                   | Dart           |         30 |          1 |          2 |         33 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\domain\repositories\habit_activity_repository.dart    | Dart           |         19 |          5 |          6 |         30 |
+| Total                                                                                                                                |                |        757 |         63 |         96 |        916 |
++--------------------------------------------------------------------------------------------------------------------------------------+----------------+------------+------------+------------+------------+

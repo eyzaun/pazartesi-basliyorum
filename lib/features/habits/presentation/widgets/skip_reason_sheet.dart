@@ -161,27 +161,42 @@ class _SkipReasonSheetState extends State<SkipReasonSheet> {
                     final isSelected = _selectedReason == reason;
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 12),
-                      child: RadioListTile<String>(
-                        value: reason,
-                        groupValue: _selectedReason,
-                        onChanged: (value) {
-                          setState(() => _selectedReason = value);
+                      child: InkWell(
+                        onTap: () {
+                          setState(() => _selectedReason = reason);
                           HapticFeedback.mediumImpact();
                         },
-                        title: Text(reason),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: isSelected
+                                  ? theme.colorScheme.primary
+                                  : Colors.grey[300]!,
+                              width: isSelected ? 2 : 1,
+                            ),
                             color: isSelected
-                                ? theme.colorScheme.primary
-                                : Colors.grey[300]!,
-                            width: isSelected ? 2 : 1,
+                                ? theme.colorScheme.primaryContainer
+                                    .withValues(alpha: 0.3)
+                                : null,
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                isSelected 
+                                    ? Icons.radio_button_checked 
+                                    : Icons.radio_button_unchecked,
+                                color: isSelected
+                                    ? theme.colorScheme.primary
+                                    : Colors.grey[400],
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(child: Text(reason)),
+                            ],
                           ),
                         ),
-                        tileColor: isSelected
-                            ? theme.colorScheme.primaryContainer
-                                .withValues(alpha: 0.3)
-                            : null,
                       ),
                     );
                   }),

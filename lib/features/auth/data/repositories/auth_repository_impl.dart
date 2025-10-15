@@ -94,6 +94,26 @@ class AuthRepositoryImpl implements AuthRepository {
     );
   }
 
+  @override
+  Future<Result<User>> completeGoogleSignIn({
+    required String userId,
+    required String email,
+    required String username,
+    String? photoUrl,
+  }) async {
+    try {
+      final userModel = await remoteDataSource.completeGoogleSignIn(
+        userId: userId,
+        email: email,
+        username: username,
+        photoUrl: photoUrl,
+      );
+      return Success(userModel.toEntity());
+    } catch (e) {
+      return Failure('Kullanıcı kaydı tamamlanamadı: ${e.toString()}');
+    }
+  }
+
   /// Handle Firebase Auth errors and return user-friendly messages.
   String _handleFirebaseAuthError(firebase_auth.FirebaseAuthException e) {
     switch (e.code) {

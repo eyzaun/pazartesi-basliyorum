@@ -334,6 +334,8 @@ class OfflineFirstHabitRepository implements HabitRepository {
         return 'monthly';
       case FrequencyType.flexible:
         return 'flexible';
+      case FrequencyType.custom:
+        return 'custom';
     }
   }
 
