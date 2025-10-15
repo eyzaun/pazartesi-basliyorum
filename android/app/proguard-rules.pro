@@ -46,6 +46,10 @@
 -keep class com.google.android.play.core.** { *; }
 -dontwarn com.google.android.play.core.**
 
+# Additional Google rules
+-keep class com.google.** { *; }
+-dontwarn com.google.**
+
 # Drift/SQLite
 -keep class androidx.sqlite.** { *; }
 -keep class org.sqlite.** { *; }

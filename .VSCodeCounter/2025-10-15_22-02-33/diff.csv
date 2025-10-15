@@ -1,0 +1,11 @@
+"filename", "language", "Firebase Rules", "JSON", "Dart", "comment", "blank", "total"
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\firestore.indexes.json", "JSON", 0, 14, 0, 0, 0, 14
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\firestore.rules", "Firebase Rules", 2, 0, 0, 1, 0, 3
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\providers\timer_session_providers.dart", "Dart", 0, 0, -3, -1, -1, -5
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\screens\today_screen.dart", "Dart", 0, 0, 13, 2, 1, 16
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\data\repositories\friend_repository_impl.dart", "Dart", 0, 0, 32, 2, 9, 43
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\presentation\providers\social_providers.dart", "Dart", 0, 0, 11, 4, 4, 19
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\presentation\screens\social_screen.dart", "Dart", 0, 0, 196, 5, 10, 211
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\presentation\widgets\activity_card.dart", "Dart", 0, 0, 201, 9, 15, 225
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\storage.rules", "Firebase Rules", 9, 0, 0, 12, 4, 25
+"Total", "-", 11, 14, 450, 34, 42, 551

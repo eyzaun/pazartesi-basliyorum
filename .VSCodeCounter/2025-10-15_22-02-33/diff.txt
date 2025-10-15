@@ -1,0 +1,49 @@
+Date : 2025-10-15 22:02:33
+Directory : e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum
+Total : 9 files,  475 codes, 34 comments, 42 blanks, all 551 lines
+
+Languages
++----------------+------------+------------+------------+------------+------------+
+| language       | files      | code       | comment    | blank      | total      |
++----------------+------------+------------+------------+------------+------------+
+| Dart           |          6 |        450 |         21 |         38 |        509 |
+| JSON           |          1 |         14 |          0 |          0 |         14 |
+| Firebase Rules |          2 |         11 |         13 |          4 |         28 |
++----------------+------------+------------+------------+------------+------------+
+
+Directories
++------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                                               | files      | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                                  |          9 |        475 |         34 |         42 |        551 |
+| . (Files)                                                                                                                          |          3 |         25 |         13 |          4 |         42 |
+| lib                                                                                                                                |          6 |        450 |         21 |         38 |        509 |
+| lib\features                                                                                                                       |          6 |        450 |         21 |         38 |        509 |
+| lib\features\habits                                                                                                                |          2 |         10 |          1 |          0 |         11 |
+| lib\features\habits\presentation                                                                                                   |          2 |         10 |          1 |          0 |         11 |
+| lib\features\habits\presentation\providers                                                                                         |          1 |         -3 |         -1 |         -1 |         -5 |
+| lib\features\habits\presentation\screens                                                                                           |          1 |         13 |          2 |          1 |         16 |
+| lib\features\social                                                                                                                |          4 |        440 |         20 |         38 |        498 |
+| lib\features\social\data                                                                                                           |          1 |         32 |          2 |          9 |         43 |
+| lib\features\social\data\repositories                                                                                              |          1 |         32 |          2 |          9 |         43 |
+| lib\features\social\presentation                                                                                                   |          3 |        408 |         18 |         29 |        455 |
+| lib\features\social\presentation\providers                                                                                         |          1 |         11 |          4 |          4 |         19 |
+| lib\features\social\presentation\screens                                                                                           |          1 |        196 |          5 |         10 |        211 |
+| lib\features\social\presentation\widgets                                                                                           |          1 |        201 |          9 |         15 |        225 |
++------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++------------------------------------------------------------------------------------------------------------------------------------+----------------+------------+------------+------------+------------+
+| filename                                                                                                                           | language       | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------------------------------------------------------+----------------+------------+------------+------------+------------+
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\firestore.indexes.json                                                  | JSON           |         14 |          0 |          0 |         14 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\firestore.rules                                                         | Firebase Rules |          2 |          1 |          0 |          3 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\providers\timer_session_providers.dart | Dart           |         -3 |         -1 |         -1 |         -5 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\screens\today_screen.dart              | Dart           |         13 |          2 |          1 |         16 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\data\repositories\friend_repository_impl.dart       | Dart           |         32 |          2 |          9 |         43 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\presentation\providers\social_providers.dart        | Dart           |         11 |          4 |          4 |         19 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\presentation\screens\social_screen.dart             | Dart           |        196 |          5 |         10 |        211 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\presentation\widgets\activity_card.dart             | Dart           |        201 |          9 |         15 |        225 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\storage.rules                                                           | Firebase Rules |          9 |         12 |          4 |         25 |
+| Total                                                                                                                              |                |        475 |         34 |         42 |        551 |
++------------------------------------------------------------------------------------------------------------------------------------+----------------+------------+------------+------------+------------+
