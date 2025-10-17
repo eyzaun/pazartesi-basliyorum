@@ -18,6 +18,170 @@ class FriendRepositoryImpl implements FriendRepository {
 
   String? get _currentUserId => _auth.currentUser?.uid;
 
+  CollectionReference<Map<String, dynamic>> get _friendships =>
+      _firestore.collection('friendships');
+
+  String _friendshipDocId(String ownerId, String friendId) =>
+      '${ownerId}_$friendId';
+
+  String _readString(Map<String, dynamic> data, String key,
+          [String fallback = '']) =>
+      data[key] as String? ?? fallback;
+
+  String? _readPhoto(Map<String, dynamic> data) =>
+      data['photoURL'] as String? ?? data['photoUrl'] as String?;
+
+  FriendStatus _parseStatus(String? status) {
+    switch (status) {
+      case 'accepted':
+        return FriendStatus.accepted;
+      case 'rejected':
+        return FriendStatus.rejected;
+      default:
+        return FriendStatus.pending;
+    }
+  }
+
+  String _statusToString(FriendStatus status) {
+    switch (status) {
+      case FriendStatus.accepted:
+        return 'accepted';
+      case FriendStatus.rejected:
+        return 'rejected';
+      case FriendStatus.pending:
+        return 'pending';
+    }
+  }
+
+  Future<void> _migrateLegacyFriendship(
+    DocumentSnapshot<Map<String, dynamic>> doc,
+  ) async {
+    final data = doc.data();
+    if (data == null) return;
+    if (data.containsKey('direction')) return;
+
+    final ownerId = _readString(data, 'userId');
+    final friendId = _readString(data, 'friendId');
+    if (ownerId.isEmpty || friendId.isEmpty) {
+      return;
+    }
+
+    final ownerSnapshot =
+        await _firestore.collection('users').doc(ownerId).get();
+    final friendSnapshot =
+        await _firestore.collection('users').doc(friendId).get();
+    if (!ownerSnapshot.exists || !friendSnapshot.exists) {
+      return;
+    }
+
+    final ownerData = ownerSnapshot.data()!;
+    final friendData = friendSnapshot.data()!;
+    final status = _parseStatus(data['status'] as String?);
+    final now = DateTime.now();
+    final timestamp = Timestamp.fromDate(now);
+
+    final ownerDirection =
+        status == FriendStatus.accepted ? 'accepted' : 'outgoing';
+    final friendDirection =
+        status == FriendStatus.accepted ? 'accepted' : 'incoming';
+
+    final ownerUpdate = <String, dynamic>{
+      'friendUsername': _readString(friendData, 'username'),
+      'friendDisplayName': _readString(
+        friendData,
+        'displayName',
+        _readString(friendData, 'username'),
+      ),
+      'friendPhotoUrl': _readPhoto(friendData),
+      'direction': ownerDirection,
+      'requestedBy': ownerId,
+      'updatedAt': timestamp,
+    };
+    if (status == FriendStatus.accepted && data['acceptedAt'] == null) {
+      ownerUpdate['acceptedAt'] = timestamp;
+    }
+
+    final batch = _firestore.batch();
+    batch.update(doc.reference, ownerUpdate);
+
+    final counterpartRef =
+        _friendships.doc(_friendshipDocId(friendId, ownerId));
+    final counterpartSnap = await counterpartRef.get();
+
+    if (counterpartSnap.exists) {
+      final counterpartData = counterpartSnap.data() ?? {};
+      final update = <String, dynamic>{
+        'updatedAt': timestamp,
+      };
+      if (!counterpartData.containsKey('direction')) {
+        update['direction'] = friendDirection;
+      }
+      if (!counterpartData.containsKey('requestedBy')) {
+        update['requestedBy'] = ownerId;
+      }
+      if (!counterpartData.containsKey('friendUsername')) {
+        update['friendUsername'] = _readString(ownerData, 'username');
+        update['friendDisplayName'] = _readString(
+          ownerData,
+          'displayName',
+          _readString(ownerData, 'username'),
+        );
+        update['friendPhotoUrl'] = _readPhoto(ownerData);
+      }
+      if (status == FriendStatus.accepted &&
+          counterpartData['acceptedAt'] == null) {
+        update['acceptedAt'] = timestamp;
+      }
+      batch.update(counterpartRef, update);
+    } else {
+      batch.set(counterpartRef, {
+        'userId': friendId,
+        'friendId': ownerId,
+        'friendUsername': _readString(ownerData, 'username'),
+        'friendDisplayName': _readString(
+          ownerData,
+          'displayName',
+          _readString(ownerData, 'username'),
+        ),
+        'friendPhotoUrl': _readPhoto(ownerData),
+        'status': _statusToString(status),
+        'direction': friendDirection,
+        'requestedBy': ownerId,
+        'createdAt': data['createdAt'] ?? timestamp,
+        'updatedAt': timestamp,
+        if (status == FriendStatus.accepted) 'acceptedAt': timestamp,
+      });
+    }
+
+    await batch.commit();
+  }
+
+  Future<void> _ensureLegacyEntriesForUser(String userId) async {
+    final futures = <Future<void>>[];
+
+    final ownerSnapshot =
+        await _friendships.where('userId', isEqualTo: userId).get();
+    for (final doc in ownerSnapshot.docs) {
+      final data = doc.data();
+      if (!data.containsKey('direction')) {
+        futures.add(_migrateLegacyFriendship(doc));
+      }
+    }
+
+    final friendSnapshot =
+        await _friendships.where('friendId', isEqualTo: userId).get();
+    for (final doc in friendSnapshot.docs) {
+      final data = doc.data();
+      if (!data.containsKey('direction')) {
+        futures.add(_migrateLegacyFriendship(doc));
+      }
+    }
+
+    if (futures.isNotEmpty) {
+      await Future.wait(futures);
+    }
+  }
+
   @override
   Future<Result<Friend>> sendFriendRequest(String friendId) async {
     try {
@@ -30,61 +194,98 @@ class FriendRepositoryImpl implements FriendRepository {
         return const Failure('Kendinize arkadaşlık isteği gönderemezsiniz');
       }
 
-      // Check if request already exists
-      final existingQuery = await _firestore
-          .collection('friendships')
-          .where('userId', isEqualTo: userId)
-          .where('friendId', isEqualTo: friendId)
-          .limit(1)
-          .get();
+      final outgoingId = _friendshipDocId(userId, friendId);
+      final incomingId = _friendshipDocId(friendId, userId);
 
-      if (existingQuery.docs.isNotEmpty) {
-        return const Failure('Bu kullanıcıya zaten arkadaşlık isteği gönderdıniz');
+      final outgoingDoc = await _friendships.doc(outgoingId).get();
+      if (outgoingDoc.exists) {
+        final status = _readString(outgoingDoc.data()!, 'status', 'pending');
+        if (status == 'accepted') {
+          return const Failure('Bu kullanıcıyla zaten arkadaşsınız');
+        }
+        return const Failure('Bu kullanıcıya zaten arkadaşlık isteği gönderdiniz');
       }
 
-      // Check reverse direction
-      final reverseQuery = await _firestore
-          .collection('friendships')
-          .where('userId', isEqualTo: friendId)
-          .where('friendId', isEqualTo: userId)
-          .limit(1)
-          .get();
-
-      if (reverseQuery.docs.isNotEmpty) {
-        return const Failure('Bu kullanıcıyla zaten arkadaşsınız veya bekleyen bir istek var');
+      final incomingDoc = await _friendships.doc(incomingId).get();
+      if (incomingDoc.exists) {
+        final status = _readString(incomingDoc.data()!, 'status', 'pending');
+        if (status == 'accepted') {
+          return const Failure('Bu kullanıcıyla zaten arkadaşsınız');
+        }
+        return const Failure('Bu kullanıcıdan bekleyen bir isteğiniz var');
       }
 
-      // Get sender (current user) info to store in friendship document
+      // Get current user profile
       final senderDoc = await _firestore.collection('users').doc(userId).get();
       if (!senderDoc.exists) {
         return const Failure('Kullanıcı bulunamadı');
       }
-
       final senderData = senderDoc.data()!;
-      
-      // Get friend user info to check if they exist
+
+      // Get friend user profile
       final friendDoc = await _firestore.collection('users').doc(friendId).get();
       if (!friendDoc.exists) {
         return const Failure('Kullanıcı bulunamadı');
       }
-      
-      // Create friendship document with sender's info
-      // When recipient views this request, they'll see sender's name
-      final docRef = _firestore.collection('friendships').doc();
-      final friendship = FriendModel(
-        id: docRef.id,
+      final friendData = friendDoc.data()!;
+
+      final now = DateTime.now();
+      final createdAt = Timestamp.fromDate(now);
+
+      final outgoingData = {
+        'userId': userId,
+        'friendId': friendId,
+        'friendUsername': _readString(friendData, 'username'),
+        'friendDisplayName': _readString(
+          friendData,
+          'displayName',
+          _readString(friendData, 'username'),
+        ),
+        'friendPhotoUrl': _readPhoto(friendData),
+        'status': 'pending',
+        'direction': 'outgoing',
+        'requestedBy': userId,
+        'createdAt': createdAt,
+        'updatedAt': createdAt,
+      };
+
+      final incomingData = {
+        'userId': friendId,
+        'friendId': userId,
+        'friendUsername': _readString(senderData, 'username'),
+        'friendDisplayName': _readString(
+          senderData,
+          'displayName',
+          _readString(senderData, 'username'),
+        ),
+        'friendPhotoUrl': _readPhoto(senderData),
+        'status': 'pending',
+        'direction': 'incoming',
+        'requestedBy': userId,
+        'createdAt': createdAt,
+        'updatedAt': createdAt,
+      };
+
+      final batch = _firestore.batch();
+      batch.set(_friendships.doc(outgoingId), outgoingData);
+      batch.set(_friendships.doc(incomingId), incomingData);
+      await batch.commit();
+
+      final friendEntity = Friend(
+        id: outgoingId,
         userId: userId,
         friendId: friendId,
-        friendUsername: senderData['username'] as String,
-        friendDisplayName: senderData['displayName'] as String,
-        friendPhotoUrl: senderData['photoURL'] as String?,
+        friendUsername: outgoingData['friendUsername'] as String,
+        friendDisplayName: outgoingData['friendDisplayName'] as String,
+        friendPhotoUrl: outgoingData['friendPhotoUrl'] as String?,
         status: FriendStatus.pending,
-        createdAt: DateTime.now(),
+        createdAt: now,
+        updatedAt: now,
+        direction: 'outgoing',
+        requestedBy: userId,
       );
 
-      await docRef.set(friendship.toFirestore());
-
-      return Success(friendship.toEntity());
+      return Success(friendEntity);
     } catch (e) {
       return Failure('Arkadaşlık isteği gönderilemedi: ${e.toString()}');
     }
@@ -93,10 +294,66 @@ class FriendRepositoryImpl implements FriendRepository {
   @override
   Future<Result<void>> acceptFriendRequest(String friendshipId) async {
     try {
-      await _firestore.collection('friendships').doc(friendshipId).update({
+      final snapshot = await _friendships.doc(friendshipId).get();
+      if (!snapshot.exists) {
+        return const Failure('İstek bulunamadı');
+      }
+
+      final data = snapshot.data()!;
+      final userId = data['userId'] as String;
+      final friendId = data['friendId'] as String;
+      final counterpartId = _friendshipDocId(friendId, userId);
+      final counterpartRef = _friendships.doc(counterpartId);
+      final now = DateTime.now();
+      final timestamp = Timestamp.fromDate(now);
+
+      final batch = _firestore.batch();
+      batch.update(snapshot.reference, {
         'status': 'accepted',
-        'updatedAt': FieldValue.serverTimestamp(),
+        'direction': 'accepted',
+        'updatedAt': timestamp,
+        'acceptedAt': timestamp,
       });
+
+      final counterpartSnap = await counterpartRef.get();
+      if (counterpartSnap.exists) {
+        batch.update(counterpartRef, {
+          'status': 'accepted',
+          'direction': 'accepted',
+          'updatedAt': timestamp,
+          'acceptedAt': timestamp,
+        });
+      } else {
+        // Legacy fallback: create counterpart entry if it doesn't exist.
+        final userProfile =
+            await _firestore.collection('users').doc(userId).get();
+        final friendProfile =
+            await _firestore.collection('users').doc(friendId).get();
+
+        if (userProfile.exists && friendProfile.exists) {
+          final ownerData = userProfile.data()!;
+
+          batch.set(counterpartRef, {
+            'userId': friendId,
+            'friendId': userId,
+            'friendUsername': _readString(ownerData, 'username'),
+            'friendDisplayName': _readString(
+              ownerData,
+              'displayName',
+              _readString(ownerData, 'username'),
+            ),
+            'friendPhotoUrl': _readPhoto(ownerData),
+            'status': 'accepted',
+            'direction': 'accepted',
+            'requestedBy': data['requestedBy'] ?? friendId,
+            'createdAt': data['createdAt'] ?? timestamp,
+            'updatedAt': timestamp,
+            'acceptedAt': timestamp,
+          });
+        }
+      }
+
+      await batch.commit();
 
       return const Success(null);
     } catch (e) {
@@ -107,8 +364,20 @@ class FriendRepositoryImpl implements FriendRepository {
   @override
   Future<Result<void>> rejectFriendRequest(String friendshipId) async {
     try {
-      // Delete the request instead of marking rejected
-      await _firestore.collection('friendships').doc(friendshipId).delete();
+      final snapshot = await _friendships.doc(friendshipId).get();
+      if (!snapshot.exists) {
+        return const Success(null);
+      }
+
+      final data = snapshot.data()!;
+      final ownerId = data['userId'] as String;
+      final friendId = data['friendId'] as String;
+      final counterpartId = _friendshipDocId(friendId, ownerId);
+
+      final batch = _firestore.batch();
+      batch.delete(snapshot.reference);
+      batch.delete(_friendships.doc(counterpartId));
+      await batch.commit();
 
       return const Success(null);
     } catch (e) {
@@ -119,7 +388,20 @@ class FriendRepositoryImpl implements FriendRepository {
   @override
   Future<Result<void>> removeFriend(String friendshipId) async {
     try {
-      await _firestore.collection('friendships').doc(friendshipId).delete();
+      final snapshot = await _friendships.doc(friendshipId).get();
+      if (!snapshot.exists) {
+        return const Failure('Arkadaşlık kaydı bulunamadı');
+      }
+
+      final data = snapshot.data()!;
+      final ownerId = data['userId'] as String;
+      final friendId = data['friendId'] as String;
+      final counterpartId = _friendshipDocId(friendId, ownerId);
+
+      final batch = _firestore.batch();
+      batch.delete(snapshot.reference);
+      batch.delete(_friendships.doc(counterpartId));
+      await batch.commit();
 
       return const Success(null);
     } catch (e) {
@@ -130,81 +412,16 @@ class FriendRepositoryImpl implements FriendRepository {
   @override
   Future<Result<List<Friend>>> getFriends(String userId) async {
     try {
-      // Get friends where user is userId and status is accepted
-      final sentQuery = await _firestore
-          .collection('friendships')
+      await _ensureLegacyEntriesForUser(userId);
+
+      final query = await _friendships
           .where('userId', isEqualTo: userId)
           .where('status', isEqualTo: 'accepted')
           .get();
 
-      // Get friends where user is friendId and status is accepted
-      final receivedQuery = await _firestore
-          .collection('friendships')
-          .where('friendId', isEqualTo: userId)
-          .where('status', isEqualTo: 'accepted')
-          .get();
-
-      final friends = <Friend>[];
-
-      // Add friends where current user sent the request
-      // For sent requests, we need to show the other user's info (friendId)
-      for (final doc in sentQuery.docs) {
-        final data = doc.data();
-        final docFriendId = data['friendId'] as String;
-
-        try {
-          final friendDoc = await _firestore.collection('users').doc(docFriendId).get();
-          if (!friendDoc.exists) continue;
-          final friendData = friendDoc.data()!;
-
-          friends.add(FriendModel(
-            id: doc.id,
-            userId: userId,
-            friendId: docFriendId,
-            friendUsername: friendData['username'] as String,
-            friendDisplayName: friendData['displayName'] as String,
-            friendPhotoUrl: friendData['photoURL'] as String?,
-            status: FriendStatus.accepted,
-            createdAt: (data['createdAt'] as Timestamp).toDate(),
-            updatedAt: data['updatedAt'] != null
-                ? (data['updatedAt'] as Timestamp).toDate()
-                : null,
-          ).toEntity());
-        } catch (e) {
-          // ignore individual errors and continue
-          continue;
-        }
-      }
-
-      // Add friends where current user received the request
-      // Need to fetch the sender's info from users collection
-      for (final doc in receivedQuery.docs) {
-        final data = doc.data();
-
-        // Get the sender's (userId) information
-        final senderDoc = await _firestore
-            .collection('users')
-            .doc(data['userId'] as String)
-            .get();
-
-        if (senderDoc.exists) {
-          final senderData = senderDoc.data()!;
-
-          friends.add(FriendModel(
-            id: doc.id,
-            userId: userId, // Current user
-            friendId: data['userId'] as String, // The sender
-            friendUsername: senderData['username'] as String,
-            friendDisplayName: senderData['displayName'] as String,
-            friendPhotoUrl: senderData['photoURL'] as String?,
-            status: FriendStatus.accepted,
-            createdAt: (data['createdAt'] as Timestamp).toDate(),
-            updatedAt: data['updatedAt'] != null
-                ? (data['updatedAt'] as Timestamp).toDate()
-                : null,
-          ).toEntity());
-        }
-      }
+      final friends = query.docs
+          .map((doc) => FriendModel.fromDocument(doc).toEntity())
+          .toList();
 
       return Success(friends);
     } catch (e) {
@@ -215,41 +432,17 @@ class FriendRepositoryImpl implements FriendRepository {
   @override
   Future<Result<List<Friend>>> getPendingRequests(String userId) async {
     try {
-      // Get requests where user is friendId (received requests)
-      final query = await _firestore
-          .collection('friendships')
-          .where('friendId', isEqualTo: userId)
+      await _ensureLegacyEntriesForUser(userId);
+
+      final query = await _friendships
+          .where('userId', isEqualTo: userId)
           .where('status', isEqualTo: 'pending')
+          .where('direction', isEqualTo: 'incoming')
           .get();
 
-      final requests = <Friend>[];
-
-      for (final doc in query.docs) {
-        final data = doc.data();
-        final docUserId = data['userId'] as String; // sender
-
-        try {
-          final senderDoc = await _firestore.collection('users').doc(docUserId).get();
-          if (!senderDoc.exists) continue;
-          final senderData = senderDoc.data()!;
-
-          requests.add(FriendModel(
-            id: doc.id,
-            userId: docUserId, // sender
-            friendId: userId, // current user is recipient
-            friendUsername: senderData['username'] as String,
-            friendDisplayName: senderData['displayName'] as String,
-            friendPhotoUrl: senderData['photoURL'] as String?,
-            status: FriendStatus.pending,
-            createdAt: (data['createdAt'] as Timestamp).toDate(),
-            updatedAt: data['updatedAt'] != null
-                ? (data['updatedAt'] as Timestamp).toDate()
-                : null,
-          ).toEntity());
-        } catch (e) {
-          continue;
-        }
-      }
+      final requests = query.docs
+          .map((doc) => FriendModel.fromDocument(doc).toEntity())
+          .toList();
 
       return Success(requests);
     } catch (e) {
@@ -260,11 +453,12 @@ class FriendRepositoryImpl implements FriendRepository {
   @override
   Future<Result<List<Friend>>> getSentRequests(String userId) async {
     try {
-      // Get requests where user is userId (sent requests)
-      final query = await _firestore
-          .collection('friendships')
+      await _ensureLegacyEntriesForUser(userId);
+
+      final query = await _friendships
           .where('userId', isEqualTo: userId)
           .where('status', isEqualTo: 'pending')
+          .where('direction', isEqualTo: 'outgoing')
           .get();
 
       final requests = query.docs
@@ -279,105 +473,24 @@ class FriendRepositoryImpl implements FriendRepository {
 
   @override
   Stream<List<Friend>> watchFriends(String userId) {
-    // Create a stream controller to manually manage updates
-    final controller = StreamController<List<Friend>>();
-    
-    // Watch both directions
-    final sentStream = _firestore
-        .collection('friendships')
+    unawaited(_ensureLegacyEntriesForUser(userId));
+
+    return _friendships
         .where('userId', isEqualTo: userId)
         .where('status', isEqualTo: 'accepted')
-        .snapshots();
-
-    final receivedStream = _firestore
-        .collection('friendships')
-        .where('friendId', isEqualTo: userId)
-        .where('status', isEqualTo: 'accepted')
-        .snapshots();
-
-    StreamSubscription? sentSub;
-    StreamSubscription? receivedSub;
-    
-    // Cache for the latest snapshots
-    QuerySnapshot<Map<String, dynamic>>? latestSent;
-    QuerySnapshot<Map<String, dynamic>>? latestReceived;
-    
-    Future<void> rebuildList() async {
-      if (latestSent == null || latestReceived == null) return;
-      
-      final friends = <Friend>[];
-      
-      // Process sent friendships
-      for (final doc in latestSent!.docs) {
-        final data = doc.data();
-        final docFriendId = data['friendId'] as String;
-        
-        try {
-          final friendDoc = await _firestore
-              .collection('users')
-              .doc(docFriendId)
-              .get();
-          
-          if (friendDoc.exists) {
-            final friendData = friendDoc.data()!;
-            
-            friends.add(FriendModel(
-              id: doc.id,
-              userId: userId,
-              friendId: docFriendId,
-              friendUsername: friendData['username'] as String,
-              friendDisplayName: friendData['displayName'] as String,
-              friendPhotoUrl: friendData['photoURL'] as String?,
-              status: FriendStatus.accepted,
-              createdAt: (data['createdAt'] as Timestamp).toDate(),
-              updatedAt: data['updatedAt'] != null
-                  ? (data['updatedAt'] as Timestamp).toDate()
-                  : null,
-            ).toEntity());
-          }
-        } catch (e) {
-          continue;
-        }
-      }
-      
-      // Process received friendships
-      for (final doc in latestReceived!.docs) {
-        try {
-          friends.add(FriendModel.fromDocument(doc).toEntity());
-        } catch (e) {
-          continue;
-        }
-      }
-      
-      controller.add(friends);
-    }
-    
-    // Listen to both streams
-    sentSub = sentStream.listen((snapshot) {
-      latestSent = snapshot;
-      rebuildList();
-    });
-    
-    receivedSub = receivedStream.listen((snapshot) {
-      latestReceived = snapshot;
-      rebuildList();
-    });
-    
-    // Cleanup when stream is cancelled
-    controller.onCancel = () {
-      sentSub?.cancel();
-      receivedSub?.cancel();
-    };
-    
-    return controller.stream;
+        .snapshots()
+        .map((snapshot) =>
+            snapshot.docs.map((doc) => FriendModel.fromDocument(doc).toEntity()).toList());
   }
 
   @override
   Stream<List<Friend>> watchPendingRequests(String userId) {
-    return _firestore
-        .collection('friendships')
-        .where('friendId', isEqualTo: userId)
+    unawaited(_ensureLegacyEntriesForUser(userId));
+
+    return _friendships
+        .where('userId', isEqualTo: userId)
         .where('status', isEqualTo: 'pending')
+        .where('direction', isEqualTo: 'incoming')
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => FriendModel.fromDocument(doc).toEntity())

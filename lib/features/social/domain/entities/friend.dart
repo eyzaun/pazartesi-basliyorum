@@ -10,6 +10,9 @@ class Friend {
     required this.createdAt,
     this.friendPhotoUrl,
     this.updatedAt,
+    this.direction,
+    this.requestedBy,
+    this.acceptedAt,
   });
 
   final String id;
@@ -21,6 +24,9 @@ class Friend {
   final FriendStatus status;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final String? direction;
+  final String? requestedBy;
+  final DateTime? acceptedAt;
 
   Friend copyWith({
     String? id,
@@ -32,6 +38,9 @@ class Friend {
     FriendStatus? status,
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? direction,
+    String? requestedBy,
+    DateTime? acceptedAt,
   }) {
     return Friend(
       id: id ?? this.id,
@@ -43,6 +52,9 @@ class Friend {
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      direction: direction ?? this.direction,
+      requestedBy: requestedBy ?? this.requestedBy,
+      acceptedAt: acceptedAt ?? this.acceptedAt,
     );
   }
 }

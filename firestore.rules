@@ -168,8 +168,9 @@ service cloud.firestore {
     match /friendships/{friendshipId} {
       // Helper function to check if user is involved in friendship
       function isFriendshipMember() {
-        return request.auth.uid == resource.data.userId || 
-               request.auth.uid == resource.data.friendId;
+        return request.auth.uid == resource.data.get('userId', '') || 
+               request.auth.uid == resource.data.get('friendId', '') ||
+               friendshipId.matches('^.*' + request.auth.uid + '.*$');
       }
       
       // Allow read if:
@@ -184,8 +185,8 @@ service cloud.firestore {
       // - User is authenticated and is the requester (userId OR friendId)
       // - This allows both sending requests and accepting invitations
       allow create: if isAuthenticated() && (
-        request.auth.uid == request.resource.data.userId ||
-        request.auth.uid == request.resource.data.friendId
+        request.auth.uid == request.resource.data.get('userId', '') ||
+        request.auth.uid == request.resource.data.get('friendId', '')
       );
       
       // Allow update if:

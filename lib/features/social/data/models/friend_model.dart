@@ -13,10 +13,20 @@ class FriendModel extends Friend {
     required super.createdAt,
     super.friendPhotoUrl,
     super.updatedAt,
+    super.direction,
+    super.requestedBy,
+    super.acceptedAt,
   });
 
   /// Create from Firestore document.
   factory FriendModel.fromFirestore(Map<String, dynamic> json) {
+    DateTime? parseTimestamp(dynamic value) {
+      if (value == null) return null;
+      if (value is Timestamp) return value.toDate();
+      if (value is DateTime) return value;
+      return null;
+    }
+
     return FriendModel(
       id: json['id'] as String,
       userId: json['userId'] as String,
@@ -25,10 +35,11 @@ class FriendModel extends Friend {
       friendDisplayName: json['friendDisplayName'] as String,
       friendPhotoUrl: json['friendPhotoUrl'] as String?,
       status: _statusFromString(json['status'] as String),
-      createdAt: (json['createdAt'] as Timestamp).toDate(),
-      updatedAt: json['updatedAt'] != null
-          ? (json['updatedAt'] as Timestamp).toDate()
-          : null,
+      createdAt: parseTimestamp(json['createdAt']) ?? DateTime.now(),
+      updatedAt: parseTimestamp(json['updatedAt']),
+      direction: json['direction'] as String?,
+      requestedBy: json['requestedBy'] as String?,
+      acceptedAt: parseTimestamp(json['acceptedAt']),
     );
   }
 
@@ -40,7 +51,7 @@ class FriendModel extends Friend {
 
   /// Convert to Firestore map.
   Map<String, dynamic> toFirestore() {
-    return {
+    final data = {
       'userId': userId,
       'friendId': friendId,
       'friendUsername': friendUsername,
@@ -50,6 +61,16 @@ class FriendModel extends Friend {
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
     };
+    if (direction != null) {
+      data['direction'] = direction;
+    }
+    if (requestedBy != null) {
+      data['requestedBy'] = requestedBy;
+    }
+    if (acceptedAt != null) {
+      data['acceptedAt'] = Timestamp.fromDate(acceptedAt!);
+    }
+    return data;
   }
 
   /// Convert to entity.
