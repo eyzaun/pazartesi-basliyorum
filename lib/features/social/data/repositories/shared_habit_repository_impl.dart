@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../shared/models/result.dart';
 import '../../domain/entities/shared_habit.dart';
 import '../../domain/repositories/shared_habit_repository.dart';
+import '../../utils/habit_summary.dart';
 import '../models/shared_habit_model.dart';
 
 /// Implementation of SharedHabitRepository.
@@ -81,6 +82,13 @@ class SharedHabitRepositoryImpl implements SharedHabitRepository {
         }
       }
       
+      final habitCategory = habitData['category'] as String?;
+      final dynamic frequencyDataRaw = habitData['frequency'];
+      final Map<String, dynamic>? frequencyMap =
+          frequencyDataRaw is Map<String, dynamic> ? frequencyDataRaw : null;
+      final frequencyLabel = buildFrequencyLabel(frequencyMap);
+      final goalLabel = buildGoalLabel(habitData);
+
       final sharedHabit = SharedHabitModel(
         id: docRef.id,
         habitId: habitId,
@@ -88,6 +96,9 @@ class SharedHabitRepositoryImpl implements SharedHabitRepository {
         habitDescription: habitData['description'] as String?,
         habitIcon: habitData['icon'] as String?,
         habitColor: habitColor,
+        habitCategory: habitCategory,
+        habitFrequencyLabel: frequencyLabel,
+        habitGoalLabel: goalLabel,
         ownerId: userId,
         ownerUsername: userData['username'] as String,
         sharedWithId: friendId,

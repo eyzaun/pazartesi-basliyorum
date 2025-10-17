@@ -55,11 +55,12 @@ service cloud.firestore {
       // - User is authenticated
       // - Creating their own document
       // - Required fields are valid
-      allow create: if isAuthenticated() 
+      allow create: if isAuthenticated()
         && isOwner(userId)
         && isValidString(request.resource.data.email, 3, 100)
         && isValidEmail(request.resource.data.email)
         && isValidString(request.resource.data.username, 3, 30)
+        && isValidString(request.resource.data.usernameLower, 3, 30)
         && isValidString(request.resource.data.displayName, 1, 50)
         && request.resource.data.stats.totalCompletions == 0
         && request.resource.data.stats.currentStreak == 0

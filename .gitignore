@@ -74,9 +74,10 @@ coverage/
 **/android/gradlew.bat
 **/android/local.properties
 **/android/**/GeneratedPluginRegistrant.java
-# IMPORTANT: Uncomment below to exclude keys (keep commented for backup)
-# **/android/key.properties
-# *.jks
+# IMPORTANT: Exclude local keys and key properties from the repo
+# Keep a `key.properties.template` in the repo instead (see key.properties.template)
+**/android/key.properties
+*.jks
 
 # iOS/XCode related
 **/ios/**/*.mode1v3

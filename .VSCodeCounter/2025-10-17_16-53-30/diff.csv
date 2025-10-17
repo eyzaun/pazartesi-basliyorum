@@ -1,0 +1,33 @@
+"filename", "language", "Python", "JSON", "HTML", "Markdown", "YAML", "Dart", "Firebase Rules", "PowerShell", "Properties", "comment", "blank", "total"
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\.claude\settings.local.json", "JSON", 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 1, 12
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\ANALYSIS_REPORT.md", "Markdown", 0, 0, 0, 1065, 0, 0, 0, 0, 0, 0, 214, 1279
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\ANALYSIS_REPORT_APPENDIX.md", "Markdown", 0, 0, 0, 34, 0, 0, 0, 0, 0, 0, 13, 47
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\SECURITY.md", "Markdown", 0, 0, 0, 35, 0, 0, 0, 0, 0, 0, 14, 49
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\android\key.properties", "Properties", 0, 0, 0, 0, 0, 0, 0, 0, -4, 0, -1, -5
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\firebase.json", "JSON", 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\firestore.rules", "Firebase Rules", 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\install.ps1", "PowerShell", 0, 0, 0, 0, 0, 0, 0, -35, 0, -3, -10, -48
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\auth\data\models\user_model.dart", "Dart", 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\screens\today_screen.dart", "Dart", 0, 0, 0, 0, 0, 13, 0, 0, 0, 0, 2, 15
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\data\models\habit_activity_model.dart", "Dart", 0, 0, 0, 0, 0, 29, 0, 0, 0, 0, 0, 29
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\data\models\shared_habit_model.dart", "Dart", 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 16
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\data\repositories\friend_repository_impl.dart", "Dart", 0, 0, 0, 0, 0, 43, 0, 0, 0, 2, 5, 50
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\data\repositories\habit_activity_repository_impl.dart", "Dart", 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 8
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\data\repositories\shared_habit_repository_impl.dart", "Dart", 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 1, 11
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\data\repositories\user_search_repository.dart", "Dart", 0, 0, 0, 0, 0, 1, 0, 0, 0, -1, 1, 1
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\domain\entities\habit_activity.dart", "Dart", 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 8
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\domain\entities\shared_habit.dart", "Dart", 0, 0, 0, 0, 0, 12, 0, 0, 0, 0, 0, 12
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\domain\repositories\habit_activity_repository.dart", "Dart", 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 4
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\presentation\screens\social_screen.dart", "Dart", 0, 0, 0, 0, 0, 63, 0, 0, 0, -1, 7, 69
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\presentation\widgets\activity_card.dart", "Dart", 0, 0, 0, 0, 0, 115, 0, 0, 0, -1, 11, 125
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\presentation\widgets\friend_list_item.dart", "Dart", 0, 0, 0, 0, 0, -2, 0, 0, 0, 2, 0, 0
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\presentation\widgets\shared_habit_card.dart", "Dart", 0, 0, 0, 0, 0, 118, 0, 0, 0, 0, 14, 132
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\utils\habit_summary.dart", "Dart", 0, 0, 0, 0, 0, 78, 0, 0, 0, 17, 14, 109
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\main.dart", "Dart", 0, 0, 0, 0, 0, 10, 0, 0, 0, 1, 1, 12
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\pubspec.yaml", "YAML", 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\run.ps1", "PowerShell", 0, 0, 0, 0, 0, 0, 0, -34, 0, -5, -7, -46
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\storage.cors.json", "JSON", 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 1, 21
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\tools\generate_web_icons.py", "Python", 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 46
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\web\index.html", "HTML", 0, 0, 17, 0, 0, 0, 0, 0, 0, 0, 1, 18
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\wifi-connect.ps1", "PowerShell", 0, 0, 0, 0, 0, 0, 0, -44, 0, -7, -13, -64
+"Total", "-", 32, 42, 17, 1134, 1, 527, 1, -113, -4, 4, 283, 1924

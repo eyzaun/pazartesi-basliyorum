@@ -13,6 +13,9 @@ class SharedHabit {
     this.habitIcon,
     this.habitColor,
     this.canEdit,
+    this.habitCategory,
+    this.habitFrequencyLabel,
+    this.habitGoalLabel,
   });
 
   final String id;
@@ -21,6 +24,9 @@ class SharedHabit {
   final String? habitDescription;
   final String? habitIcon;
   final int? habitColor;
+  final String? habitCategory;
+  final String? habitFrequencyLabel;
+  final String? habitGoalLabel;
   final String ownerId;
   final String ownerUsername;
   final String sharedWithId;
@@ -35,6 +41,9 @@ class SharedHabit {
     String? habitDescription,
     String? habitIcon,
     int? habitColor,
+    String? habitCategory,
+    String? habitFrequencyLabel,
+    String? habitGoalLabel,
     String? ownerId,
     String? ownerUsername,
     String? sharedWithId,
@@ -49,6 +58,9 @@ class SharedHabit {
       habitDescription: habitDescription ?? this.habitDescription,
       habitIcon: habitIcon ?? this.habitIcon,
       habitColor: habitColor ?? this.habitColor,
+      habitCategory: habitCategory ?? this.habitCategory,
+      habitFrequencyLabel: habitFrequencyLabel ?? this.habitFrequencyLabel,
+      habitGoalLabel: habitGoalLabel ?? this.habitGoalLabel,
       ownerId: ownerId ?? this.ownerId,
       ownerUsername: ownerUsername ?? this.ownerUsername,
       sharedWithId: sharedWithId ?? this.sharedWithId,

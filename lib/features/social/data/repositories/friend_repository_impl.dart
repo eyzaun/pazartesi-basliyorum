@@ -145,26 +145,51 @@ class FriendRepositoryImpl implements FriendRepository {
           .get();
 
       final friends = <Friend>[];
-      
+
       // Add friends where current user sent the request
-      friends.addAll(
-        sentQuery.docs.map((doc) => FriendModel.fromDocument(doc).toEntity())
-      );
-      
+      // For sent requests, we need to show the other user's info (friendId)
+      for (final doc in sentQuery.docs) {
+        final data = doc.data();
+        final docFriendId = data['friendId'] as String;
+
+        try {
+          final friendDoc = await _firestore.collection('users').doc(docFriendId).get();
+          if (!friendDoc.exists) continue;
+          final friendData = friendDoc.data()!;
+
+          friends.add(FriendModel(
+            id: doc.id,
+            userId: userId,
+            friendId: docFriendId,
+            friendUsername: friendData['username'] as String,
+            friendDisplayName: friendData['displayName'] as String,
+            friendPhotoUrl: friendData['photoURL'] as String?,
+            status: FriendStatus.accepted,
+            createdAt: (data['createdAt'] as Timestamp).toDate(),
+            updatedAt: data['updatedAt'] != null
+                ? (data['updatedAt'] as Timestamp).toDate()
+                : null,
+          ).toEntity());
+        } catch (e) {
+          // ignore individual errors and continue
+          continue;
+        }
+      }
+
       // Add friends where current user received the request
       // Need to fetch the sender's info from users collection
       for (final doc in receivedQuery.docs) {
         final data = doc.data();
-        
+
         // Get the sender's (userId) information
         final senderDoc = await _firestore
             .collection('users')
             .doc(data['userId'] as String)
             .get();
-        
+
         if (senderDoc.exists) {
           final senderData = senderDoc.data()!;
-          
+
           friends.add(FriendModel(
             id: doc.id,
             userId: userId, // Current user
@@ -197,9 +222,34 @@ class FriendRepositoryImpl implements FriendRepository {
           .where('status', isEqualTo: 'pending')
           .get();
 
-      final requests = query.docs
-          .map((doc) => FriendModel.fromDocument(doc).toEntity())
-          .toList();
+      final requests = <Friend>[];
+
+      for (final doc in query.docs) {
+        final data = doc.data();
+        final docUserId = data['userId'] as String; // sender
+
+        try {
+          final senderDoc = await _firestore.collection('users').doc(docUserId).get();
+          if (!senderDoc.exists) continue;
+          final senderData = senderDoc.data()!;
+
+          requests.add(FriendModel(
+            id: doc.id,
+            userId: docUserId, // sender
+            friendId: userId, // current user is recipient
+            friendUsername: senderData['username'] as String,
+            friendDisplayName: senderData['displayName'] as String,
+            friendPhotoUrl: senderData['photoURL'] as String?,
+            status: FriendStatus.pending,
+            createdAt: (data['createdAt'] as Timestamp).toDate(),
+            updatedAt: data['updatedAt'] != null
+                ? (data['updatedAt'] as Timestamp).toDate()
+                : null,
+          ).toEntity());
+        } catch (e) {
+          continue;
+        }
+      }
 
       return Success(requests);
     } catch (e) {

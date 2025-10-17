@@ -14,6 +14,10 @@ class HabitActivityModel {
     required this.habitColor,
     required this.completedAt,
     required this.createdAt,
+    this.habitDescription,
+    this.habitCategory,
+    this.habitFrequencyLabel,
+    this.habitGoalLabel,
     this.quality,
     this.note,
     this.photoUrl,
@@ -34,6 +38,10 @@ class HabitActivityModel {
       habitColor: data['habitColor'] as int,
       completedAt: (data['completedAt'] as Timestamp).toDate(),
       createdAt: (data['createdAt'] as Timestamp).toDate(),
+      habitDescription: data['habitDescription'] as String?,
+      habitCategory: data['habitCategory'] as String?,
+      habitFrequencyLabel: data['habitFrequencyLabel'] as String?,
+      habitGoalLabel: data['habitGoalLabel'] as String?,
       quality: data['quality'] as String?,
       note: data['note'] as String?,
       photoUrl: data['photoUrl'] as String?,
@@ -50,13 +58,17 @@ class HabitActivityModel {
   final int habitColor;
   final DateTime completedAt;
   final DateTime createdAt;
+  final String? habitDescription;
+  final String? habitCategory;
+  final String? habitFrequencyLabel;
+  final String? habitGoalLabel;
   final String? quality;
   final String? note;
   final String? photoUrl;
   final int? timerDuration;
 
   Map<String, dynamic> toFirestore() {
-    return {
+    final data = {
       'userId': userId,
       'username': username,
       'habitId': habitId,
@@ -70,6 +82,19 @@ class HabitActivityModel {
       if (photoUrl != null) 'photoUrl': photoUrl,
       if (timerDuration != null) 'timerDuration': timerDuration,
     };
+    if (habitDescription != null && habitDescription!.isNotEmpty) {
+      data['habitDescription'] = habitDescription;
+    }
+    if (habitCategory != null && habitCategory!.isNotEmpty) {
+      data['habitCategory'] = habitCategory;
+    }
+    if (habitFrequencyLabel != null && habitFrequencyLabel!.isNotEmpty) {
+      data['habitFrequencyLabel'] = habitFrequencyLabel;
+    }
+    if (habitGoalLabel != null && habitGoalLabel!.isNotEmpty) {
+      data['habitGoalLabel'] = habitGoalLabel;
+    }
+    return data;
   }
 
   HabitActivity toEntity() {
@@ -83,6 +108,10 @@ class HabitActivityModel {
       habitColor: habitColor,
       completedAt: completedAt,
       createdAt: createdAt,
+      habitDescription: habitDescription,
+      habitCategory: habitCategory,
+      habitFrequencyLabel: habitFrequencyLabel,
+      habitGoalLabel: habitGoalLabel,
       quality: quality,
       note: note,
       photoUrl: photoUrl,

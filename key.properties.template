@@ -1,0 +1,8 @@
+# key.properties.template
+# Kopyalayın -> android/key.properties ve gerçek değerleri CI veya local environment ile doldurun.
+storePassword=YOUR_KEYSTORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
+keyAlias=upload
+storeFile=upload-keystore.jks
+
+# NOT: Bu dosyayı repoya commit etmeyin. Gerçek parolalar sadece CI secrets veya local secure storage'ta saklanmalıdır.

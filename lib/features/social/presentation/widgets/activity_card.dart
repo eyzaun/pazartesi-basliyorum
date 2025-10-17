@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../domain/entities/habit_activity.dart';
+import '../../utils/habit_summary.dart';
 
 /// Card widget for displaying a habit activity in the feed.
 class ActivityCard extends StatelessWidget {
@@ -23,6 +24,8 @@ class ActivityCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isOwnActivity = activity.userId == currentUserId;
+    final metaChips = _buildMetaChips(activity, theme);
+    final footerItems = _buildFooterInfo(activity, theme);
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -77,24 +80,47 @@ class ActivityCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.primaryContainer.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(8),
+                  color: theme.colorScheme.primaryContainer.withAlpha((0.25 * 255).round()),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      _getIconFromString(activity.habitIcon),
-                      color: theme.colorScheme.primary,
+                    Row(
+                      children: [
+                        Icon(
+                          _getIconFromString(activity.habitIcon),
+                          color: theme.colorScheme.primary,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            '${activity.habitName} alışkanlığını tamamladı! 🎉',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        '${activity.habitName} alışkanlığını tamamladı! 🎉',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
+                    if (activity.habitDescription != null &&
+                        activity.habitDescription!.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        activity.habitDescription!,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onPrimaryContainer.withAlpha((0.8 * 255).round()),
                         ),
                       ),
-                    ),
+                    ],
+                    if (metaChips.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 6,
+                        children: metaChips,
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -104,21 +130,21 @@ class ActivityCard extends StatelessWidget {
                 const SizedBox(height: 12),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: CachedNetworkImage(
-                    imageUrl: activity.photoUrl!,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
-                      height: 200,
-                      color: Colors.grey[300],
-                      child: const Center(
-                        child: CircularProgressIndicator(),
+                  child: AspectRatio(
+                    aspectRatio: 4 / 3,
+                    child: CachedNetworkImage(
+                      imageUrl: activity.photoUrl!,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        color: Colors.grey[300],
+                        child: const Center(
+                          child: CircularProgressIndicator(),
+                        ),
                       ),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      height: 200,
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.error),
+                      errorWidget: (context, url, error) => Container(
+                        color: Colors.grey[300],
+                        child: const Icon(Icons.broken_image),
+                      ),
                     ),
                   ),
                 ),
@@ -133,24 +159,12 @@ class ActivityCard extends StatelessWidget {
                 ),
               ],
 
-              // Quality if available
-              if (activity.quality != null) ...[
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.star,
-                      size: 16,
-                      color: Colors.amber[700],
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      _getQualityText(activity.quality!),
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[700],
-                      ),
-                    ),
-                  ],
+              if (footerItems.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 8,
+                  children: footerItems,
                 ),
               ],
             ],
@@ -158,6 +172,118 @@ class ActivityCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  List<Widget> _buildMetaChips(HabitActivity activity, ThemeData theme) {
+    final chips = <Widget>[];
+
+    if (activity.habitCategory != null && activity.habitCategory!.isNotEmpty) {
+      chips.add(_buildInfoChip(
+        theme,
+        Icons.category_outlined,
+        formatCategoryLabel(activity.habitCategory!),
+      ));
+    }
+    if (activity.habitFrequencyLabel != null &&
+        activity.habitFrequencyLabel!.isNotEmpty) {
+      chips.add(_buildInfoChip(
+        theme,
+        Icons.calendar_today_outlined,
+        activity.habitFrequencyLabel!,
+      ));
+    }
+    if (activity.habitGoalLabel != null &&
+        activity.habitGoalLabel!.isNotEmpty) {
+      chips.add(_buildInfoChip(
+        theme,
+        Icons.flag_outlined,
+        activity.habitGoalLabel!,
+      ));
+    }
+
+    return chips;
+  }
+
+  List<Widget> _buildFooterInfo(HabitActivity activity, ThemeData theme) {
+    final items = <Widget>[];
+
+    if (activity.quality != null && activity.quality!.isNotEmpty) {
+      items.add(_buildInfoRow(
+        theme,
+        Icons.star,
+        _getQualityText(activity.quality!),
+        iconColor: Colors.amber[700],
+      ));
+    }
+
+    if (activity.timerDuration != null && activity.timerDuration! > 0) {
+      items.add(_buildInfoRow(
+        theme,
+        Icons.timer_outlined,
+        _formatTimerDuration(activity.timerDuration!),
+      ));
+    }
+
+    final completedLabel =
+        DateFormat('d MMM - HH:mm', 'tr').format(activity.completedAt);
+    items.add(_buildInfoRow(
+      theme,
+      Icons.access_time,
+      completedLabel,
+    ));
+
+    return items;
+  }
+
+  Widget _buildInfoChip(ThemeData theme, IconData icon, String label) {
+    return Chip(
+      visualDensity: VisualDensity.compact,
+      backgroundColor: theme.colorScheme.surfaceContainerHighest
+          .withAlpha((0.7 * 255).round()),
+      avatar: Icon(
+        icon,
+        size: 16,
+        color: theme.colorScheme.onSurfaceVariant,
+      ),
+      label: Text(
+        label,
+        style: theme.textTheme.bodySmall,
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(
+    ThemeData theme,
+    IconData icon,
+    String label, {
+    Color? iconColor,
+  }) {
+    final resolvedColor = iconColor ?? theme.colorScheme.onSurfaceVariant;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 18, color: resolvedColor),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _formatTimerDuration(int seconds) {
+    if (seconds < 60) {
+      return '$seconds sn';
+    }
+    final minutes = seconds ~/ 60;
+    final remaining = seconds % 60;
+    if (remaining == 0) {
+      return '$minutes dk';
+    }
+    return '$minutes dk ${remaining.toString().padLeft(2, '0')} sn';
   }
 
   String _formatTimeAgo(DateTime dateTime) {

@@ -3,7 +3,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../../shared/models/result.dart';
 import '../../../achievements/domain/entities/achievement.dart';
-import '../../../achievements/presentation/providers/achievement_provider.dart' hide firestoreProvider;
+import '../../../achievements/presentation/providers/achievement_provider.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../data/datasources/habit_remote_datasource.dart';
 import '../../data/repositories/habit_repository_impl.dart';

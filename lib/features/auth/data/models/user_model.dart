@@ -47,6 +47,7 @@ class UserModel extends User {
       'userId': id,
       'email': email,
       'username': username,
+      'usernameLower': username.toLowerCase(), // For case-insensitive search
       'displayName': displayName,
       'photoURL': photoUrl,
       'createdAt': FieldValue.serverTimestamp(),

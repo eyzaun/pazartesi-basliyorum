@@ -22,6 +22,7 @@
 
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Pazartesi Başlıyorum">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
@@ -58,7 +59,7 @@
 
   <script>
     // The value below is injected by flutter build, do not touch.
-    const serviceWorkerVersion = null;
+    const flutterServiceWorkerVersion = '{{flutter_service_worker_version}}';
   </script>
   <!-- This script adds the flutter initialization JS code -->
   <script src="flutter.js" defer></script>
@@ -67,16 +68,32 @@
   <script>
     window.addEventListener('load', function(ev) {
       // Download main.dart.js
-      _flutter.loader.loadEntrypoint({
-        serviceWorker: {
-          serviceWorkerVersion: serviceWorkerVersion,
-        },
-        onEntrypointLoaded: function(engineInitializer) {
-          engineInitializer.initializeEngine().then(function(appRunner) {
-            appRunner.runApp();
-          });
-        }
-      });
+      const placeholderToken = '{{' + 'flutter_service_worker_version}}';
+      let serviceWorkerVersion = null;
+      if (flutterServiceWorkerVersion && flutterServiceWorkerVersion !== placeholderToken) {
+        serviceWorkerVersion = JSON.parse(flutterServiceWorkerVersion);
+      }
+      const loader = window._flutter.loader;
+      const onEntrypointLoaded = function(engineInitializer) {
+        engineInitializer.initializeEngine().then(function(appRunner) {
+          appRunner.runApp();
+        });
+      };
+      if (loader.load && window._flutter.buildConfig) {
+        loader.load({
+          serviceWorkerSettings: {
+            serviceWorkerVersion: serviceWorkerVersion,
+          },
+          onEntrypointLoaded: onEntrypointLoaded,
+        });
+      } else {
+        loader.loadEntrypoint({
+          serviceWorker: {
+            serviceWorkerVersion: serviceWorkerVersion,
+          },
+          onEntrypointLoaded: onEntrypointLoaded,
+        });
+      }
     });
   </script>
 </body>

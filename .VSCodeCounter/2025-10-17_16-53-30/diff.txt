@@ -1,0 +1,88 @@
+Date : 2025-10-17 16:53:30
+Directory : e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum
+Total : 31 files,  1637 codes, 4 comments, 283 blanks, all 1924 lines
+
+Languages
++----------------+------------+------------+------------+------------+------------+
+| language       | files      | code       | comment    | blank      | total      |
++----------------+------------+------------+------------+------------+------------+
+| Markdown       |          3 |      1,134 |          0 |        241 |      1,375 |
+| Dart           |         17 |        527 |         19 |         56 |        602 |
+| JSON           |          3 |         42 |          0 |          2 |         44 |
+| Python         |          1 |         32 |          0 |         14 |         46 |
+| HTML           |          1 |         17 |          0 |          1 |         18 |
+| YAML           |          1 |          1 |          0 |          0 |          1 |
+| Firebase Rules |          1 |          1 |          0 |          0 |          1 |
+| Properties     |          1 |         -4 |          0 |         -1 |         -5 |
+| PowerShell     |          3 |       -113 |        -15 |        -30 |       -158 |
++----------------+------------+------------+------------+------------+------------+
+
+Directories
++--------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                                                 | files      | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                                    |         31 |      1,637 |          4 |        283 |      1,924 |
+| . (Files)                                                                                                                            |         10 |      1,054 |        -15 |        212 |      1,251 |
+| .claude                                                                                                                              |          1 |         11 |          0 |          1 |         12 |
+| android                                                                                                                              |          1 |         -4 |          0 |         -1 |         -5 |
+| lib                                                                                                                                  |         17 |        527 |         19 |         56 |        602 |
+| lib (Files)                                                                                                                          |          1 |         10 |          1 |          1 |         12 |
+| lib\features                                                                                                                         |         16 |        517 |         18 |         55 |        590 |
+| lib\features\auth                                                                                                                    |          1 |          1 |          0 |          0 |          1 |
+| lib\features\auth\data                                                                                                               |          1 |          1 |          0 |          0 |          1 |
+| lib\features\auth\data\models                                                                                                        |          1 |          1 |          0 |          0 |          1 |
+| lib\features\habits                                                                                                                  |          1 |         13 |          0 |          2 |         15 |
+| lib\features\habits\presentation                                                                                                     |          1 |         13 |          0 |          2 |         15 |
+| lib\features\habits\presentation\screens                                                                                             |          1 |         13 |          0 |          2 |         15 |
+| lib\features\social                                                                                                                  |         14 |        503 |         18 |         53 |        574 |
+| lib\features\social\data                                                                                                             |          6 |        107 |          1 |          7 |        115 |
+| lib\features\social\data\models                                                                                                      |          2 |         45 |          0 |          0 |         45 |
+| lib\features\social\data\repositories                                                                                                |          4 |         62 |          1 |          7 |         70 |
+| lib\features\social\domain                                                                                                           |          3 |         24 |          0 |          0 |         24 |
+| lib\features\social\domain\entities                                                                                                  |          2 |         20 |          0 |          0 |         20 |
+| lib\features\social\domain\repositories                                                                                              |          1 |          4 |          0 |          0 |          4 |
+| lib\features\social\presentation                                                                                                     |          4 |        294 |          0 |         32 |        326 |
+| lib\features\social\presentation\screens                                                                                             |          1 |         63 |         -1 |          7 |         69 |
+| lib\features\social\presentation\widgets                                                                                             |          3 |        231 |          1 |         25 |        257 |
+| lib\features\social\utils                                                                                                            |          1 |         78 |         17 |         14 |        109 |
+| tools                                                                                                                                |          1 |         32 |          0 |         14 |         46 |
+| web                                                                                                                                  |          1 |         17 |          0 |          1 |         18 |
++--------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++--------------------------------------------------------------------------------------------------------------------------------------+----------------+------------+------------+------------+------------+
+| filename                                                                                                                             | language       | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------------------------------------------------------------------+----------------+------------+------------+------------+------------+
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\.claude\settings.local.json                                               | JSON           |         11 |          0 |          1 |         12 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\ANALYSIS_REPORT.md                                                        | Markdown       |      1,065 |          0 |        214 |      1,279 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\ANALYSIS_REPORT_APPENDIX.md                                               | Markdown       |         34 |          0 |         13 |         47 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\SECURITY.md                                                               | Markdown       |         35 |          0 |         14 |         49 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\android\key.properties                                                    | Properties     |         -4 |          0 |         -1 |         -5 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\firebase.json                                                             | JSON           |         11 |          0 |          0 |         11 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\firestore.rules                                                           | Firebase Rules |          1 |          0 |          0 |          1 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\install.ps1                                                               | PowerShell     |        -35 |         -3 |        -10 |        -48 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\auth\data\models\user_model.dart                             | Dart           |          1 |          0 |          0 |          1 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\screens\today_screen.dart                | Dart           |         13 |          0 |          2 |         15 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\data\models\habit_activity_model.dart                 | Dart           |         29 |          0 |          0 |         29 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\data\models\shared_habit_model.dart                   | Dart           |         16 |          0 |          0 |         16 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\data\repositories\friend_repository_impl.dart         | Dart           |         43 |          2 |          5 |         50 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\data\repositories\habit_activity_repository_impl.dart | Dart           |          8 |          0 |          0 |          8 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\data\repositories\shared_habit_repository_impl.dart   | Dart           |         10 |          0 |          1 |         11 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\data\repositories\user_search_repository.dart         | Dart           |          1 |         -1 |          1 |          1 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\domain\entities\habit_activity.dart                   | Dart           |          8 |          0 |          0 |          8 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\domain\entities\shared_habit.dart                     | Dart           |         12 |          0 |          0 |         12 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\domain\repositories\habit_activity_repository.dart    | Dart           |          4 |          0 |          0 |          4 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\presentation\screens\social_screen.dart               | Dart           |         63 |         -1 |          7 |         69 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\presentation\widgets\activity_card.dart               | Dart           |        115 |         -1 |         11 |        125 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\presentation\widgets\friend_list_item.dart            | Dart           |         -2 |          2 |          0 |          0 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\presentation\widgets\shared_habit_card.dart           | Dart           |        118 |          0 |         14 |        132 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\utils\habit_summary.dart                              | Dart           |         78 |         17 |         14 |        109 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\main.dart                                                             | Dart           |         10 |          1 |          1 |         12 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\pubspec.yaml                                                              | YAML           |          1 |          0 |          0 |          1 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\run.ps1                                                                   | PowerShell     |        -34 |         -5 |         -7 |        -46 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\storage.cors.json                                                         | JSON           |         20 |          0 |          1 |         21 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\tools\generate_web_icons.py                                               | Python         |         32 |          0 |         14 |         46 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\web\index.html                                                            | HTML           |         17 |          0 |          1 |         18 |
+| e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\wifi-connect.ps1                                                          | PowerShell     |        -44 |         -7 |        -13 |        -64 |
+| Total                                                                                                                                |                |      1,637 |          4 |        283 |      1,924 |
++--------------------------------------------------------------------------------------------------------------------------------------+----------------+------------+------------+------------+------------+

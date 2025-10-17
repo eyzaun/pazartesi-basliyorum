@@ -1,9 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:universal_html/html.dart' as html;
 
 import 'core/routing/app_router.dart';
 import 'core/services/notification_service.dart';
@@ -15,6 +17,16 @@ import 'l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Web cache bypass for auto-update
+  if (kIsWeb) {
+    const currentVersion = '1.1.0'; // Update this with each release
+    final storedVersion = html.window.localStorage['app_version'];
+    if (storedVersion != currentVersion) {
+      html.window.localStorage['app_version'] = currentVersion;
+      html.window.location.reload();
+    }
+  }
 
   // Initialize Firebase
   await Firebase.initializeApp(

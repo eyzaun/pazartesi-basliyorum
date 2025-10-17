@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../shared/models/result.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../data/repositories/habit_activity_repository_impl.dart';
+import '../../domain/entities/friend.dart';
+import '../../utils/habit_summary.dart';
 import '../providers/social_providers.dart';
 import '../widgets/activity_card.dart';
 import '../widgets/add_friend_dialog.dart';
@@ -25,7 +29,7 @@ class _SocialScreenState extends ConsumerState<SocialScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
       setState(() {});
     });
@@ -53,10 +57,9 @@ class _SocialScreenState extends ConsumerState<SocialScreen>
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
-            Tab(text: 'Aktiviteler', icon: Icon(Icons.feed)),
-            Tab(text: 'Arkadaşlar', icon: Icon(Icons.people)),
-            Tab(text: 'İstekler', icon: Icon(Icons.person_add)),
-            Tab(text: 'Paylaşılan', icon: Icon(Icons.share)),
+            Tab(text: 'Akış', icon: Icon(Icons.feed)),
+            Tab(text: 'Bağlantılar', icon: Icon(Icons.people)),
+            Tab(text: 'Paylaşımlar', icon: Icon(Icons.share)),
           ],
         ),
       ),
@@ -64,8 +67,7 @@ class _SocialScreenState extends ConsumerState<SocialScreen>
         controller: _tabController,
         children: [
           _buildActivityFeedTab(currentUser.id),
-          _buildFriendsTab(currentUser.id),
-          _buildRequestsTab(),
+          _buildConnectionsTab(currentUser.id),
           _buildSharedTab(currentUser.id),
         ],
       ),
@@ -149,98 +151,116 @@ class _SocialScreenState extends ConsumerState<SocialScreen>
     );
   }
 
-  Widget _buildFriendsTab(String currentUserId) {
+  Widget _buildConnectionsTab(String currentUserId) {
     final friendsAsync = ref.watch(friendsProvider);
+    final requestsAsync = ref.watch(pendingRequestsProvider);
 
     return friendsAsync.when(
       data: (friends) {
-        if (friends.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.people_outline,
-                  size: 80,
-                  color: Colors.grey[400],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Henüz arkadaşınız yok',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Arkadaş eklemek için + butonuna tıklayın',
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
-              ],
-            ),
-          );
-        }
+        return requestsAsync.when(
+          data: (requests) => _buildConnectionsContent(
+            currentUserId: currentUserId,
+            friends: friends,
+            requests: requests,
+          ),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) => Center(child: Text('Hata: $error')),
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) => Center(child: Text('Hata: $error')),
+    );
+  }
 
-        return ListView.builder(
-          itemCount: friends.length,
-          itemBuilder: (context, index) {
-            final friend = friends[index];
-            return FriendListItem(
+  Widget _buildConnectionsContent({
+    required String currentUserId,
+    required List<Friend> friends,
+    required List<Friend> requests,
+  }) {
+    final theme = Theme.of(context);
+    final hasFriends = friends.isNotEmpty;
+    final hasRequests = requests.isNotEmpty;
+
+    if (!hasFriends && !hasRequests) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.people_outline,
+              size: 80,
+              color: Colors.grey[400],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Henüz bağlantınız yok',
+              style: theme.textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Arkadaş eklemek için + butonuna tıklayın',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final children = <Widget>[];
+
+    if (hasRequests) {
+      children.add(_buildSectionHeader('Bekleyen İstekler'));
+      children.add(const SizedBox(height: 8));
+      for (final request in requests) {
+        children.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: FriendRequestCard(
+              friend: request,
+              onAccept: () => _acceptRequest(request.id),
+              onReject: () => _rejectRequest(request.id),
+            ),
+          ),
+        );
+      }
+      children.add(const SizedBox(height: 12));
+    }
+
+    if (hasFriends) {
+      children.add(_buildSectionHeader('Arkadaşlar'));
+      children.add(const SizedBox(height: 8));
+      for (final friend in friends) {
+        children.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: FriendListItem(
               friend: friend,
               currentUserId: currentUserId,
               trailing: IconButton(
                 icon: const Icon(Icons.more_vert),
                 onPressed: () => _showFriendOptions(friend),
               ),
-            );
-          },
+            ),
+          ),
         );
-      },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => Center(
-        child: Text('Hata: $error'),
-      ),
+      }
+    }
+
+    return ListView(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      children: children,
     );
   }
 
-  Widget _buildRequestsTab() {
-    final requestsAsync = ref.watch(pendingRequestsProvider);
-
-    return requestsAsync.when(
-      data: (requests) {
-        if (requests.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.inbox_outlined,
-                  size: 80,
-                  color: Colors.grey[400],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Arkadaşlık isteği yok',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ],
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Text(
+        title,
+        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w600,
             ),
-          );
-        }
-
-        return ListView.builder(
-          itemCount: requests.length,
-          itemBuilder: (context, index) {
-            final request = requests[index];
-            return FriendRequestCard(
-              friend: request,
-              onAccept: () => _acceptRequest(request.id),
-              onReject: () => _rejectRequest(request.id),
-            );
-          },
-        );
-      },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => Center(
-        child: Text('Hata: $error'),
       ),
     );
   }
@@ -385,6 +405,41 @@ class _SocialScreenState extends ConsumerState<SocialScreen>
   }
 
   void _showActivityDetails(activity) {
+    final detailChips = <Widget>[];
+    if (activity.habitCategory != null && activity.habitCategory!.isNotEmpty) {
+      detailChips.add(
+        _buildDetailChip(
+          Icons.category_outlined,
+          formatCategoryLabel(activity.habitCategory!),
+        ),
+      );
+    }
+    if (activity.habitFrequencyLabel != null &&
+        activity.habitFrequencyLabel!.isNotEmpty) {
+      detailChips.add(
+        _buildDetailChip(
+          Icons.calendar_today_outlined,
+          activity.habitFrequencyLabel!,
+        ),
+      );
+    }
+    if (activity.habitGoalLabel != null &&
+        activity.habitGoalLabel!.isNotEmpty) {
+      detailChips.add(
+        _buildDetailChip(
+          Icons.flag_outlined,
+          activity.habitGoalLabel!,
+        ),
+      );
+    }
+
+    final timerLabel = activity.timerDuration != null &&
+            activity.timerDuration! > 0
+        ? _formatTimerDuration(activity.timerDuration!)
+        : null;
+    final completedLabel =
+        DateFormat('d MMMM yyyy - HH:mm', 'tr').format(activity.completedAt);
+
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -428,8 +483,33 @@ class _SocialScreenState extends ConsumerState<SocialScreen>
               ),
               const SizedBox(height: 16),
 
+              if (activity.habitDescription != null &&
+                  activity.habitDescription!.isNotEmpty) ...[
+                Text(
+                  'Alışkanlık özeti',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  activity.habitDescription!,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
+
+              if (detailChips.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  children: detailChips,
+                ),
+              ],
+
               // Photo if available
               if (activity.photoUrl != null) ...[
+                const SizedBox(height: 16),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: Image.network(
@@ -457,19 +537,25 @@ class _SocialScreenState extends ConsumerState<SocialScreen>
                 const SizedBox(height: 16),
               ],
 
-              // Quality and time info
-              Row(
+              // Additional info chips
+              Wrap(
+                spacing: 16,
+                runSpacing: 8,
                 children: [
-                  if (activity.quality != null) ...[
-                    Icon(Icons.star, size: 20, color: Colors.amber[700]),
-                    const SizedBox(width: 4),
-                    Text(_getQualityText(activity.quality!)),
-                    const SizedBox(width: 16),
-                  ],
-                  const Icon(Icons.access_time, size: 20),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${activity.createdAt.hour}:${activity.createdAt.minute.toString().padLeft(2, '0')}',
+                  if (activity.quality != null)
+                    _buildDetailInfo(
+                      icon: Icons.star,
+                      label: _getQualityText(activity.quality!),
+                      iconColor: Colors.amber[700],
+                    ),
+                  if (timerLabel != null)
+                    _buildDetailInfo(
+                      icon: Icons.timer_outlined,
+                      label: timerLabel,
+                    ),
+                  _buildDetailInfo(
+                    icon: Icons.access_time,
+                    label: completedLabel,
                   ),
                 ],
               ),
@@ -478,6 +564,59 @@ class _SocialScreenState extends ConsumerState<SocialScreen>
         ),
       ),
     );
+  }
+
+  Widget _buildDetailChip(IconData icon, String label) {
+    final theme = Theme.of(context);
+    return Chip(
+      visualDensity: VisualDensity.compact,
+      backgroundColor: theme.colorScheme.surfaceContainerHighest
+          .withAlpha((0.7 * 255).round()),
+      avatar: Icon(
+        icon,
+        size: 16,
+        color: theme.colorScheme.onSurfaceVariant,
+      ),
+      label: Text(
+        label,
+        style: theme.textTheme.bodySmall,
+      ),
+    );
+  }
+
+  Widget _buildDetailInfo({
+    required IconData icon,
+    required String label,
+    Color? iconColor,
+  }) {
+    final theme = Theme.of(context);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          icon,
+          size: 20,
+          color: iconColor ?? theme.colorScheme.onSurfaceVariant,
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: theme.textTheme.bodySmall,
+        ),
+      ],
+    );
+  }
+
+  String _formatTimerDuration(int seconds) {
+    if (seconds < 60) {
+      return '$seconds sn';
+    }
+    final minutes = seconds ~/ 60;
+    final remaining = seconds % 60;
+    if (remaining == 0) {
+      return '$minutes dk';
+    }
+    return '$minutes dk ${remaining.toString().padLeft(2, '0')} sn';
   }
 
   String _getQualityText(String quality) {
@@ -515,10 +654,21 @@ class _SocialScreenState extends ConsumerState<SocialScreen>
     );
 
     if (confirmed == true && mounted) {
-      // TODO: Implement delete activity
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Aktivite siliniyor...')),
-      );
+      final result =
+          await ref.read(habitActivityRepositoryProvider).deleteActivity(activityId);
+
+      if (!mounted) return;
+
+      if (result is Failure) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result.message)),
+        );
+      } else {
+        ref.invalidate(activityFeedProvider);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Aktivite silindi')),
+        );
+      }
     }
   }
 }

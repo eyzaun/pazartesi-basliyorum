@@ -16,6 +16,7 @@ import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../social/data/repositories/friend_repository_impl.dart';
 import '../../../social/data/repositories/habit_activity_repository_impl.dart';
 import '../../../social/data/repositories/shared_habit_repository_impl.dart';
+import '../../../social/utils/habit_summary.dart';
 import '../../domain/entities/habit.dart';
 import '../../domain/entities/habit_log.dart';
 import '../providers/habits_provider.dart';
@@ -788,31 +789,44 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
         final habitsAsync = ref.read(habitsProvider(userId));
         
         habitsAsync.whenData((habits) {
-          try {
-            final habit = habits.firstWhere((h) => h.id == habitId);
-            
-            // Convert hex color string to int
-            int habitColor;
             try {
-              final hexColor = habit.color.replaceAll('#', '');
-              habitColor = int.parse('FF$hexColor', radix: 16);
-            } catch (e) {
-              habitColor = 0xFF6200EA; // Default purple
-            }
+              final habit = habits.firstWhere((h) => h.id == habitId);
 
-            // Share activity in background (don't block UI)
-            unawaited(
-              ref.read(habitActivityRepositoryProvider).shareActivity(
-                habitId: habit.id,
-                habitName: habit.name,
-                habitIcon: habit.icon,
-                habitColor: habitColor,
-                completedAt: DateTime.now(),
-                quality: quality?.toString().split('.').last,
-                note: note,
-                photo: photo,
-              ),
-            );
+              // Convert hex color string to int
+              int habitColor;
+              try {
+                final hexColor = habit.color.replaceAll('#', '');
+                habitColor = int.parse('FF$hexColor', radix: 16);
+              } catch (e) {
+                habitColor = 0xFF6200EA; // Default purple
+              }
+
+              final frequencyLabel = buildFrequencyLabel({
+                'type': habit.frequency.type.value,
+                'config': habit.frequency.config,
+              });
+              final goalLabel = buildGoalLabel({
+                'isTimedHabit': habit.isTimedHabit,
+                'targetDurationMinutes': habit.targetDurationMinutes,
+              });
+
+              // Share activity in background (don't block UI)
+              unawaited(
+                ref.read(habitActivityRepositoryProvider).shareActivity(
+                  habitId: habit.id,
+                  habitName: habit.name,
+                  habitIcon: habit.icon,
+                  habitColor: habitColor,
+                  completedAt: DateTime.now(),
+                  habitDescription: habit.description,
+                  habitCategory: habit.category,
+                  habitFrequencyLabel: frequencyLabel,
+                  habitGoalLabel: goalLabel,
+                  quality: quality?.toString().split('.').last,
+                  note: note,
+                  photo: photo,
+                ),
+              );
           } catch (e) {
             // Habit not found or error, silently fail
           }

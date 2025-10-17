@@ -18,12 +18,13 @@ class UserSearchRepository {
         return const Success([]);
       }
 
-      // Firestore doesn't support case-insensitive search
-      // We'll fetch users and filter client-side for better UX
+      final queryLower = query.toLowerCase();
+
+      // Use usernameLower field for case-insensitive search
       final snapshot = await _firestore
           .collection('users')
-          .where('username', isGreaterThanOrEqualTo: query.toLowerCase())
-          .where('username', isLessThan: '${query.toLowerCase()}z')
+          .where('usernameLower', isGreaterThanOrEqualTo: queryLower)
+          .where('usernameLower', isLessThan: '${queryLower}z')
           .limit(20)
           .get();
 
@@ -42,7 +43,7 @@ class UserSearchRepository {
     try {
       final snapshot = await _firestore
           .collection('users')
-          .where('username', isEqualTo: username.toLowerCase())
+          .where('usernameLower', isEqualTo: username.toLowerCase())
           .limit(1)
           .get();
 

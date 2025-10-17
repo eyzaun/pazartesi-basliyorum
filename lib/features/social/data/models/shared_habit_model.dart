@@ -16,6 +16,9 @@ class SharedHabitModel extends SharedHabit {
     super.habitIcon,
     super.habitColor,
     super.canEdit,
+    super.habitCategory,
+    super.habitFrequencyLabel,
+    super.habitGoalLabel,
   });
 
   /// Create from Firestore document.
@@ -38,6 +41,9 @@ class SharedHabitModel extends SharedHabit {
       habitDescription: json['habitDescription'] as String?,
       habitIcon: json['habitIcon'] as String?,
       habitColor: habitColor,
+      habitCategory: json['habitCategory'] as String?,
+      habitFrequencyLabel: json['habitFrequencyLabel'] as String?,
+      habitGoalLabel: json['habitGoalLabel'] as String?,
       ownerId: json['ownerId'] as String,
       ownerUsername: json['ownerUsername'] as String,
       sharedWithId: json['sharedWithId'] as String,
@@ -55,7 +61,7 @@ class SharedHabitModel extends SharedHabit {
 
   /// Convert to Firestore map.
   Map<String, dynamic> toFirestore() {
-    return {
+    final data = {
       'habitId': habitId,
       'habitName': habitName,
       'habitDescription': habitDescription,
@@ -68,6 +74,16 @@ class SharedHabitModel extends SharedHabit {
       'canEdit': canEdit ?? false,
       'createdAt': Timestamp.fromDate(createdAt),
     };
+    if (habitCategory != null) {
+      data['habitCategory'] = habitCategory;
+    }
+    if (habitFrequencyLabel != null) {
+      data['habitFrequencyLabel'] = habitFrequencyLabel;
+    }
+    if (habitGoalLabel != null) {
+      data['habitGoalLabel'] = habitGoalLabel;
+    }
+    return data;
   }
 
   /// Convert to entity.

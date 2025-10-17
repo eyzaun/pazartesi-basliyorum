@@ -21,23 +21,24 @@ class FriendListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // Determine which user info to show (the friend, not current user)
-    final displayName = friend.userId == currentUserId
+    // The repository constructs Friend objects so that `friend*` fields
+    // represent the other user's public info. Prefer those fields and
+    // fall back to safe defaults.
+    final displayName = friend.friendDisplayName.isNotEmpty
         ? friend.friendDisplayName
-        : friend.friendDisplayName;
-    final username = friend.userId == currentUserId
-        ? friend.friendUsername
-        : friend.friendUsername;
-    final photoUrl = friend.userId == currentUserId
-        ? friend.friendPhotoUrl
-        : friend.friendPhotoUrl;
+        : 'Unknown';
+    final username =
+        friend.friendUsername.isNotEmpty ? friend.friendUsername : '';
+    final photoUrl = friend.friendPhotoUrl;
 
     return ListTile(
       onTap: onTap,
       leading: CircleAvatar(
         backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
         child: photoUrl == null
-            ? Text(displayName[0].toUpperCase())
+            ? Text(
+                (displayName.isNotEmpty ? displayName[0] : '?').toUpperCase(),
+              )
             : null,
       ),
       title: Text(
@@ -46,7 +47,7 @@ class FriendListItem extends StatelessWidget {
           fontWeight: FontWeight.w500,
         ),
       ),
-      subtitle: Text('@$username'),
+      subtitle: username.isNotEmpty ? Text('@$username') : null,
       trailing: trailing,
     );
   }

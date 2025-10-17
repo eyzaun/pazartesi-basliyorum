@@ -10,6 +10,10 @@ class HabitActivity {
     required this.habitColor,
     required this.completedAt,
     required this.createdAt,
+    this.habitDescription,
+    this.habitCategory,
+    this.habitFrequencyLabel,
+    this.habitGoalLabel,
     this.quality,
     this.note,
     this.photoUrl,
@@ -25,6 +29,10 @@ class HabitActivity {
   final int habitColor;
   final DateTime completedAt;
   final DateTime createdAt;
+  final String? habitDescription;
+  final String? habitCategory;
+  final String? habitFrequencyLabel;
+  final String? habitGoalLabel;
   final String? quality; // 'poor', 'fair', 'good', 'excellent'
   final String? note;
   final String? photoUrl;
