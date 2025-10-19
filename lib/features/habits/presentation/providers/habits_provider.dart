@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../../core/utils/time_override.dart';
 import '../../../../shared/models/result.dart';
 import '../../../achievements/domain/entities/achievement.dart';
 import '../../../achievements/presentation/providers/achievement_provider.dart';
@@ -11,6 +12,7 @@ import '../../domain/entities/habit.dart' as domain;
 import '../../domain/entities/habit_log.dart' as domain;
 import '../../domain/entities/streak_recovery.dart';
 import '../../domain/repositories/habit_repository.dart';
+import '../../domain/services/habit_score_service.dart';
 
 // ============================================================================
 // Dependencies
@@ -44,9 +46,15 @@ final habitRepositoryProvider = Provider<HabitRepository>((ref) {
 // State Providers
 // ============================================================================
 
+/// Date refresh notifier - increment this to force refresh of date-dependent providers
+final dateRefreshProvider = StateProvider<int>((ref) => 0);
+
 /// Provider for habits list.
 final habitsProvider =
     FutureProvider.family<List<domain.Habit>, String>((ref, userId) async {
+  // Watch date refresh to rebuild when time override changes
+  ref.watch(dateRefreshProvider);
+  
   final result =
       await ref.watch(habitRepositoryProvider).getActiveHabits(userId);
   return result is Success<List<domain.Habit>> ? result.data : [];
@@ -61,9 +69,46 @@ final habitProvider =
 
 /// Provider for today's logs.
 final todayLogsProvider =
-    FutureProvider.family<List<domain.HabitLog>, String>((ref, userId) async {
-  final result = await ref.watch(habitRepositoryProvider).getTodayLogs(userId);
-  return result is Success<List<domain.HabitLog>> ? result.data : [];
+    StreamProvider.family<List<domain.HabitLog>, String>((ref, userId) {
+  // Watch date refresh to rebuild stream when time override changes
+  ref.watch(dateRefreshProvider);
+  
+  return ref.watch(habitRepositoryProvider).watchTodayLogs(userId);
+});
+
+/// Time-weighted score provider for custom frequency habits.
+final habitScoreProvider =
+    FutureProvider.family<HabitScore?, String>((ref, habitId) async {
+  // Watch date refresh to rebuild when time override changes
+  ref.watch(dateRefreshProvider);
+  
+  // Get habit from habitProvider
+  final habitAsync = ref.watch(habitProvider(habitId));
+  final habit = habitAsync.value;
+  
+  if (habit == null || habit.frequency.type != domain.FrequencyType.custom) {
+    return null;
+  }
+
+  final config = habit.frequency.config;
+  final periodDays = config['periodDays'] as int? ?? 0;
+  final timesInPeriod = config['timesInPeriod'] as int? ?? 1;
+
+  if (periodDays <= 0 || timesInPeriod <= 0) {
+    return null;
+  }
+
+  final repository = ref.watch(habitRepositoryProvider);
+  final logsResult = await repository.getLogsForHabit(habit.id);
+  if (logsResult is! Success<List<domain.HabitLog>>) {
+    return null;
+  }
+
+  final calculator = HabitScoreCalculator();
+  return calculator.computeScore(
+    habit: habit,
+    logs: logsResult.data,
+  );
 });
 
 /// Provider for habit statistics.
@@ -251,7 +296,7 @@ class HabitActionNotifier extends StateNotifier<HabitActionState> {
           currentStreak: stats.currentStreak,
           longestStreak: stats.longestStreak,
           isFirstCompletion: isFirstCompletion,
-          completionTime: DateTime.now(),
+          completionTime: TimeOverride.now(),
           habitId: habitId,
         );
 

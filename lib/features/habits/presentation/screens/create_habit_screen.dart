@@ -35,12 +35,9 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
 
   // Step 2: Frequency
   FrequencyType _frequencyType = FrequencyType.daily;
-  bool _everyDay = true;
   final List<String> _selectedDays = [];
-  int _timesPerWeek = 3;
-  // Custom frequency (X günde Y kere)
-  int _customPeriodDays = 7;      // X günde
-  int _customTimesInPeriod = 3;   // Y kere
+  // Custom frequency (X günde 1 kere, X: 1-7)
+  int _customPeriodDays = 2;      // X günde 1 kere
 
   // Step 3: Goals & Reminders
   TimeOfDay? _reminderTime;
@@ -391,16 +388,8 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
             theme,
             FrequencyType.daily,
             Icons.calendar_today,
-            'Günlük',
-            'Her gün tekrarla',
-          ),
-          const SizedBox(height: 12),
-          _buildFrequencyOption(
-            theme,
-            FrequencyType.weekly,
-            Icons.calendar_view_week,
-            'Haftalık',
-            'Haftada belirli sayıda',
+            'Haftanın Belirli Günleri',
+            'Seçtiğiniz günlerde tekrarla',
           ),
           const SizedBox(height: 12),
           _buildFrequencyOption(
@@ -408,104 +397,51 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
             FrequencyType.custom,
             Icons.tune,
             'Özel Sıklık',
-            'X günde Y kere',
+            'X günde 1 kere (X: 1-7)',
           ),
           const SizedBox(height: 24),
 
           // Daily Options
           if (_frequencyType == FrequencyType.daily) ...[
             Text(
-              'Günler',
+              'Haftanın Hangi Günleri?',
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 12),
-            SwitchListTile(
-              value: _everyDay,
-              onChanged: (value) {
-                setState(() {
-                  _everyDay = value;
-                  if (value) {
-                    _selectedDays.clear();
-                  }
-                });
-              },
-              title: const Text('Her gün'),
-              contentPadding: EdgeInsets.zero,
-            ),
-            if (!_everyDay) ...[
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _daysOfWeek.map((day) {
-                  final isSelected = _selectedDays.contains(day['value']);
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _daysOfWeek.map((day) {
+                final isSelected = _selectedDays.contains(day['value']);
 
-                  return FilterChip(
-                    selected: isSelected,
-                    label: Text(day['label']!),
-                    onSelected: (selected) {
-                      setState(() {
-                        if (selected) {
-                          _selectedDays.add(day['value']!);
-                        } else {
-                          _selectedDays.remove(day['value']);
-                        }
-                      });
-                    },
-                  );
-                }).toList(),
-              ),
-            ],
-          ],
-
-          // Weekly Options
-          if (_frequencyType == FrequencyType.weekly) ...[
-            Text(
-              'Haftalık Hedef',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: Slider(
-                    value: _timesPerWeek.toDouble(),
-                    min: 1,
-                    max: 7,
-                    divisions: 6,
-                    label: '$_timesPerWeek kez',
-                    onChanged: (value) {
-                      setState(() {
-                        _timesPerWeek = value.toInt();
-                      });
-                    },
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  '$_timesPerWeek kez',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+                return FilterChip(
+                  selected: isSelected,
+                  label: Text(day['label']!),
+                  onSelected: (selected) {
+                    setState(() {
+                      if (selected) {
+                        _selectedDays.add(day['value']!);
+                      } else {
+                        _selectedDays.remove(day['value']);
+                      }
+                    });
+                  },
+                );
+              }).toList(),
             ),
           ],
 
           // Custom Frequency Options
           if (_frequencyType == FrequencyType.custom) ...[
             Text(
-              'Özel Sıklık',
+              'Kaç günde bir tekrarlanacak?',
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 16),
-            // X günde
             Row(
               children: [
                 Expanded(
@@ -514,23 +450,19 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Periyot (gün)',
+                        'Her X günde 1 kere',
                         style: theme.textTheme.bodyMedium,
                       ),
                       const SizedBox(height: 8),
                       Slider(
                         value: _customPeriodDays.toDouble(),
-                        min: 2,
-                        max: 30,
-                        divisions: 28,
-                        label: '$_customPeriodDays gün',
+                        min: 1,
+                        max: 7,
+                        divisions: 6,
+                        label: '$_customPeriodDays günde 1 kere',
                         onChanged: (value) {
                           setState(() {
                             _customPeriodDays = value.toInt();
-                            // Ensure timesInPeriod doesn't exceed periodDays
-                            if (_customTimesInPeriod > _customPeriodDays) {
-                              _customTimesInPeriod = _customPeriodDays;
-                            }
                           });
                         },
                       ),
@@ -539,45 +471,7 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  '$_customPeriodDays gün',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            // Y kere
-            Row(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Tekrar sayısı',
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      Slider(
-                        value: _customTimesInPeriod.toDouble(),
-                        min: 1,
-                        max: _customPeriodDays.toDouble(),
-                        divisions: _customPeriodDays - 1,
-                        label: '$_customTimesInPeriod kere',
-                        onChanged: (value) {
-                          setState(() {
-                            _customTimesInPeriod = value.toInt();
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  '$_customTimesInPeriod kere',
+                  '$_customPeriodDays günde 1',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -585,29 +479,12 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
               ],
             ),
             const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.info_outline,
-                    size: 20,
-                    color: theme.colorScheme.primary,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      '$_customPeriodDays günde $_customTimesInPeriod kere yapılacak',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
-                  ),
-                ],
+            Text(
+              _customPeriodDays == 1
+                  ? 'Her gün 1 kere yapılacak'
+                  : '$_customPeriodDays gün içinde 1 kere yapmanız yeterli',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: Colors.grey[600],
               ),
             ),
           ],
@@ -1004,9 +881,7 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
     }
 
     if (_currentStep == 1) {
-      if (_frequencyType == FrequencyType.daily &&
-          !_everyDay &&
-          _selectedDays.isEmpty) {
+      if (_frequencyType == FrequencyType.daily && _selectedDays.isEmpty) {
         context.showErrorSnackBar('Lütfen en az bir gün seçin');
         return;
       }
@@ -1038,17 +913,14 @@ class _CreateHabitScreenState extends ConsumerState<CreateHabitScreen> {
     // Prepare frequency config
     final Map<String, dynamic> frequencyConfig;
     if (_frequencyType == FrequencyType.daily) {
-      frequencyConfig =
-          _everyDay ? {'everyDay': true} : {'specificDays': _selectedDays};
-    } else if (_frequencyType == FrequencyType.weekly) {
-      frequencyConfig = {'timesPerWeek': _timesPerWeek};
+      frequencyConfig = {'specificDays': _selectedDays};
     } else if (_frequencyType == FrequencyType.custom) {
       frequencyConfig = {
         'periodDays': _customPeriodDays,
-        'timesInPeriod': _customTimesInPeriod,
+        'timesInPeriod': 1, // Her zaman 1
       };
     } else {
-      frequencyConfig = {'everyDay': true};
+      frequencyConfig = {'specificDays': _selectedDays};
     }
 
     // Create new habit

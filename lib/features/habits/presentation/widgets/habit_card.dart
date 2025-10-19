@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../domain/entities/habit.dart';
 import '../../domain/entities/habit_log.dart';
+import '../../domain/services/habit_score_service.dart';
+import '../providers/habits_provider.dart';
 import 'detailed_checkin_sheet.dart';
 import 'skip_reason_sheet.dart';
 
 /// Card widget to display a habit with check-in options and swipe actions.
-class HabitCard extends StatelessWidget {
+class HabitCard extends ConsumerWidget {
   const HabitCard({
     required this.habit,
     super.key,
@@ -20,7 +23,6 @@ class HabitCard extends StatelessWidget {
     this.onShare,
     this.onTimer, // Part 4: Timer callback
     this.showStreakWarning = false,
-    this.onRecoverStreak,
   });
 
   final Habit habit;
@@ -33,13 +35,15 @@ class HabitCard extends StatelessWidget {
   final VoidCallback? onShare;
   final VoidCallback? onTimer; // Part 4: Timer callback
   final bool showStreakWarning;
-  final VoidCallback? onRecoverStreak;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isCompleted = log?.completed ?? false;
     final isSkipped = log?.skipped ?? false;
+    final scoreAsync = habit.frequency.type == FrequencyType.custom
+        ? ref.watch(habitScoreProvider(habit.id))
+        : null;
 
     // Determine card background color based on status
     Color? cardColor;
@@ -138,6 +142,7 @@ class HabitCard extends StatelessWidget {
                     // Name and category
                     Expanded(
                       child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
@@ -152,11 +157,50 @@ class HabitCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 2),
-                          Text(
-                            habit.category,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.textTheme.bodySmall?.color,
-                            ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  habit.category,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.textTheme.bodySmall?.color,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              if (scoreAsync != null)
+                                scoreAsync.maybeWhen(
+                                  data: (score) {
+                                    if (score == null || score.maxScore == 0) {
+                                      return const SizedBox.shrink();
+                                    }
+                                    return Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          ' • ',
+                                          style: theme.textTheme.bodySmall,
+                                        ),
+                                        Icon(
+                                          Icons.auto_graph,
+                                          size: 12,
+                                          color: theme.colorScheme.primary,
+                                        ),
+                                        const SizedBox(width: 2),
+                                        Text(
+                                          '${score.percentage}%',
+                                          style: theme.textTheme.bodySmall?.copyWith(
+                                            color: theme.colorScheme.primary,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                  orElse: () => const SizedBox.shrink(),
+                                ),
+                            ],
                           ),
                         ],
                       ),
@@ -228,6 +272,20 @@ class HabitCard extends StatelessWidget {
                   ],
                 ),
 
+                if (scoreAsync != null) ...[
+                  const SizedBox(height: 8),
+                  scoreAsync.maybeWhen(
+                    data: (score) {
+                      if (score == null || score.maxScore == 0) {
+                        return const SizedBox.shrink();
+                      }
+                      return _buildScoreChip(theme, score);
+                    },
+                    loading: () => const SizedBox(height: 4),
+                    orElse: () => const SizedBox.shrink(),
+                  ),
+                ],
+
                 // Description (if available)
                 if (habit.description != null &&
                     habit.description!.isNotEmpty) ...[
@@ -282,21 +340,6 @@ class HabitCard extends StatelessWidget {
                             ],
                           ),
                         ),
-                        if (onRecoverStreak != null)
-                          TextButton(
-                            onPressed: onRecoverStreak,
-                            style: TextButton.styleFrom(
-                              foregroundColor: Colors.orange[900],
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                            ),
-                            child: const Text(
-                              'Kurtar',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
                       ],
                     ),
                   ),
@@ -483,6 +526,27 @@ class HabitCard extends StatelessWidget {
     if (result != null) {
       onSkip?.call(result);
     }
+  }
+
+  Widget _buildScoreChip(ThemeData theme, HabitScore score) {
+    final percent = score.percentage;
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Chip(
+        backgroundColor:
+            theme.colorScheme.secondaryContainer.withValues(alpha: 0.4),
+        avatar: Icon(
+          Icons.auto_graph_outlined,
+          color: theme.colorScheme.secondary,
+        ),
+        label: Text(
+          '$percent%',
+          style: theme.textTheme.bodySmall?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
   }
 
   /// Convert hex color string to Color.

@@ -14,6 +14,7 @@ class HabitLog extends Equatable {
     this.quality,
     this.note,
     this.mood,
+    this.photoUrl,
     this.durationSeconds, // Part 4: Timer duration
   });
   final String id;
@@ -26,6 +27,7 @@ class HabitLog extends Equatable {
   final LogQuality? quality;
   final String? note;
   final String? mood;
+  final String? photoUrl; // Photo URL for completion proof
   final int? durationSeconds; // Part 4: Duration in seconds for timed habits
   final DateTime createdAt;
 
@@ -40,6 +42,7 @@ class HabitLog extends Equatable {
     LogQuality? quality,
     String? note,
     String? mood,
+    String? photoUrl,
     int? durationSeconds,
     DateTime? createdAt,
   }) {
@@ -54,6 +57,7 @@ class HabitLog extends Equatable {
       quality: quality ?? this.quality,
       note: note ?? this.note,
       mood: mood ?? this.mood,
+      photoUrl: photoUrl ?? this.photoUrl,
       durationSeconds: durationSeconds ?? this.durationSeconds,
       createdAt: createdAt ?? this.createdAt,
     );
@@ -71,6 +75,7 @@ class HabitLog extends Equatable {
         quality,
         note,
         mood,
+        photoUrl,
         durationSeconds,
         createdAt,
       ];

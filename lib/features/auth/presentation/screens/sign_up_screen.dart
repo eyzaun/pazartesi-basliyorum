@@ -175,13 +175,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 32),
+                const SizedBox(height: 16),
 
                 // Welcome text
                 Text(
@@ -508,6 +508,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 16),
               ],
             ),
           ),

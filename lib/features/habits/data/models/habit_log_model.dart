@@ -16,6 +16,7 @@ class HabitLogModel extends domain.HabitLog {
     super.quality,
     super.note,
     super.mood,
+    super.photoUrl,
     super.durationSeconds, // Part 4
   });
 
@@ -32,6 +33,7 @@ class HabitLogModel extends domain.HabitLog {
       quality: log.quality,
       note: log.note,
       mood: log.mood,
+      photoUrl: log.photoUrl,
       durationSeconds: log.durationSeconds,
       createdAt: log.createdAt,
     );
@@ -50,6 +52,7 @@ class HabitLogModel extends domain.HabitLog {
       quality: (json['quality'] as String?)?.toLogQuality(),
       note: json['note'] as String?,
       mood: json['mood'] as String?,
+      photoUrl: json['photoUrl'] as String?,
       durationSeconds: json['durationSeconds'] as int?,
       createdAt: (json['createdAt'] as Timestamp).toDate(),
     );
@@ -68,6 +71,7 @@ class HabitLogModel extends domain.HabitLog {
       'quality': quality?.value,
       'note': note,
       'mood': mood,
+      if (photoUrl != null) 'photoUrl': photoUrl,
       if (durationSeconds != null) 'durationSeconds': durationSeconds,
       'createdAt': FieldValue.serverTimestamp(),
     };
@@ -86,6 +90,7 @@ class HabitLogModel extends domain.HabitLog {
       quality: quality,
       note: note,
       mood: mood,
+      photoUrl: photoUrl,
       durationSeconds: durationSeconds,
       createdAt: createdAt,
     );
@@ -103,6 +108,7 @@ class HabitLogModel extends domain.HabitLog {
     domain.LogQuality? quality,
     String? note,
     String? mood,
+    String? photoUrl,
     int? durationSeconds,
     DateTime? createdAt,
   }) {
@@ -117,6 +123,7 @@ class HabitLogModel extends domain.HabitLog {
       quality: quality ?? this.quality,
       note: note ?? this.note,
       mood: mood ?? this.mood,
+      photoUrl: photoUrl ?? this.photoUrl,
       durationSeconds: durationSeconds ?? this.durationSeconds,
       createdAt: createdAt ?? this.createdAt,
     );

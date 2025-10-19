@@ -237,6 +237,43 @@ class HabitFrequency extends Equatable {
     }
   }
 
+  /// Check if this habit is due today (needs to be completed today)
+  /// For custom frequency: checks if enough time has passed since last completion
+  bool isDueToday(DateTime date, DateTime? lastCompletedDate) {
+    switch (type) {
+      case FrequencyType.daily:
+        // Daily habits with specific days
+        return isScheduledForToday(date);
+
+      case FrequencyType.weekly:
+      case FrequencyType.flexible:
+        // Weekly and flexible are always due
+        return true;
+
+      case FrequencyType.custom:
+        // Custom frequency: X times in Y days
+        if (lastCompletedDate == null) {
+          return true; // Never completed, so it's due
+        }
+
+        final periodDays = (config['periodDays'] as int?) ?? 7;
+        final timesInPeriod = (config['timesInPeriod'] as int?) ?? 1;
+        
+        // Calculate adjusted period (how many days between completions)
+        final adjustedPeriod = (periodDays / timesInPeriod).ceil();
+        
+        // Check if enough days have passed since last completion
+        final daysSinceCompletion = date.difference(
+          DateTime(lastCompletedDate.year, lastCompletedDate.month, lastCompletedDate.day)
+        ).inDays;
+        
+        return daysSinceCompletion >= adjustedPeriod;
+
+      case FrequencyType.monthly:
+        return true;
+    }
+  }
+
   @override
   List<Object?> get props => [type, config];
 }

@@ -28,9 +28,8 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
       AppConstants.categoryIcons[AppConstants.categories.first]!;
   String _selectedColor = '#6C63FF';
   FrequencyType _frequencyType = FrequencyType.daily;
-  bool _everyDay = true;
   final List<String> _selectedDays = [];
-  int _timesPerWeek = 3;
+  int _customPeriodDays = 2; // X günde 1 kere (X: 1-7)
   HabitStatus _status = HabitStatus.active;
 
   bool _isInitialized = false;
@@ -76,12 +75,19 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
 
     final config = habit.frequency.config;
     if (_frequencyType == FrequencyType.daily) {
-      _everyDay = config['everyDay'] == true;
-      if (!_everyDay && config['specificDays'] != null) {
+      if (config['specificDays'] != null) {
         _selectedDays.addAll(List<String>.from(config['specificDays']));
+      } else if (config['everyDay'] == true) {
+        // Eski "her gün" verisini tüm günler olarak yükle
+        _selectedDays.addAll(['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']);
       }
+    } else if (_frequencyType == FrequencyType.custom) {
+      _customPeriodDays = (config['periodDays'] ?? 2).clamp(1, 7);
+      // timesInPeriod artık her zaman 1, eski veriyi yok say
     } else if (_frequencyType == FrequencyType.weekly) {
-      _timesPerWeek = config['timesPerWeek'] ?? 3;
+      // Eski haftalık veriyi günlük'e çevir - haftanın tüm günleri
+      _frequencyType = FrequencyType.daily;
+      _selectedDays.addAll(['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']);
     }
 
     _isInitialized = true;
@@ -92,12 +98,14 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
 
     final Map<String, dynamic> frequencyConfig;
     if (_frequencyType == FrequencyType.daily) {
-      frequencyConfig =
-          _everyDay ? {'everyDay': true} : {'specificDays': _selectedDays};
-    } else if (_frequencyType == FrequencyType.weekly) {
-      frequencyConfig = {'timesPerWeek': _timesPerWeek};
+      frequencyConfig = {'specificDays': _selectedDays};
+    } else if (_frequencyType == FrequencyType.custom) {
+      frequencyConfig = {
+        'periodDays': _customPeriodDays,
+        'timesInPeriod': 1, // Her zaman 1
+      };
     } else {
-      frequencyConfig = {'everyDay': true};
+      frequencyConfig = {'specificDays': _selectedDays};
     }
 
     final updatedHabit = originalHabit.copyWith(
@@ -352,13 +360,13 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
                           segments: const [
                             ButtonSegment(
                               value: FrequencyType.daily,
-                              label: Text('Günlük'),
+                              label: Text('Belirli Günler'),
                               icon: Icon(Icons.today, size: 16),
                             ),
                             ButtonSegment(
-                              value: FrequencyType.weekly,
-                              label: Text('Haftalık'),
-                              icon: Icon(Icons.calendar_view_week, size: 16),
+                              value: FrequencyType.custom,
+                              label: Text('X Günde 1'),
+                              icon: Icon(Icons.tune, size: 16),
                             ),
                           ],
                           selected: {_frequencyType},
@@ -371,55 +379,94 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
                         ),
                         const SizedBox(height: 16),
                         if (_frequencyType == FrequencyType.daily) ...[
-                          SwitchListTile(
-                            title: const Text('Her gün'),
-                            value: _everyDay,
-                            onChanged: (value) {
-                              setState(() => _everyDay = value);
-                            },
-                            contentPadding: EdgeInsets.zero,
-                          ),
-                          if (!_everyDay) ...[
-                            const SizedBox(height: 8),
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: _daysOfWeek.map((day) {
-                                final isSelected =
-                                    _selectedDays.contains(day['value']);
-                                return FilterChip(
-                                  label: Text(day['label']!),
-                                  selected: isSelected,
-                                  onSelected: (selected) {
-                                    setState(() {
-                                      if (selected) {
-                                        _selectedDays.add(day['value']!);
-                                      } else {
-                                        _selectedDays.remove(day['value']);
-                                      }
-                                    });
-                                  },
-                                );
-                              }).toList(),
-                            ),
-                          ],
-                        ],
-                        if (_frequencyType == FrequencyType.weekly) ...[
                           Text(
-                            'Haftada kaç kez: $_timesPerWeek',
-                            style: theme.textTheme.bodyMedium,
+                            'Haftanın Hangi Günleri?',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                          Slider(
-                            value: _timesPerWeek.toDouble(),
-                            min: 1,
-                            max: 7,
-                            divisions: 6,
-                            label: _timesPerWeek.toString(),
-                            onChanged: (value) {
-                              setState(() {
-                                _timesPerWeek = value.toInt();
-                              });
-                            },
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: _daysOfWeek.map((day) {
+                              final isSelected =
+                                  _selectedDays.contains(day['value']);
+                              return FilterChip(
+                                label: Text(day['label']!),
+                                selected: isSelected,
+                                onSelected: (selected) {
+                                  setState(() {
+                                    if (selected) {
+                                      _selectedDays.add(day['value']!);
+                                    } else {
+                                      _selectedDays.remove(day['value']);
+                                    }
+                                  });
+                                },
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                        if (_frequencyType == FrequencyType.custom) ...[
+                          const SizedBox(height: 16),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Kaç günde bir tekrarlanacak?',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Slider(
+                                value: _customPeriodDays.toDouble(),
+                                min: 1,
+                                max: 7,
+                                divisions: 6,
+                                label: '$_customPeriodDays günde 1 kere',
+                                onChanged: (value) {
+                                  setState(() {
+                                    _customPeriodDays = value.toInt();
+                                  });
+                                },
+                              ),
+                              Text(
+                                '$_customPeriodDays günde 1 kere',
+                                style: theme.textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.info_outline,
+                                  size: 16,
+                                  color: Colors.blue[700],
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    _customPeriodDays == 1
+                                        ? 'Her gün 1 kere yapılacak'
+                                        : '$_customPeriodDays gün içinde 1 kere yapmanız yeterli',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.blue[700],
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ],

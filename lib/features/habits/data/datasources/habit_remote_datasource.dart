@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../../../core/utils/time_override.dart';
 import '../models/habit_log_model.dart';
 import '../models/habit_model.dart';
 import '../models/streak_recovery_model.dart';
@@ -172,7 +173,7 @@ class HabitRemoteDataSource {
   /// Get today's logs for a user.
   Future<List<HabitLogModel>> getTodayLogsForUser(String userId) async {
     try {
-      final now = DateTime.now();
+      final now = TimeOverride.now();
       final startOfDay = DateTime(now.year, now.month, now.day);
       final endOfDay = startOfDay.add(const Duration(days: 1));
 
@@ -211,7 +212,7 @@ class HabitRemoteDataSource {
 
   /// Stream of today's logs for real-time updates.
   Stream<List<HabitLogModel>> watchTodayLogs(String userId) {
-    final now = DateTime.now();
+    final now = TimeOverride.now();
     final startOfDay = DateTime(now.year, now.month, now.day);
     final endOfDay = startOfDay.add(const Duration(days: 1));
 

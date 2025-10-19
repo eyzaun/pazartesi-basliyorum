@@ -1,5 +1,6 @@
 import 'package:uuid/uuid.dart';
 
+import '../../../../core/utils/time_override.dart';
 import '../../../../shared/models/result.dart';
 import '../../domain/entities/habit.dart';
 import '../../domain/entities/habit_log.dart';
@@ -106,7 +107,7 @@ class HabitRepositoryImpl implements HabitRepository {
 
       final updatedHabit = habit.copyWith(
         status: status,
-        updatedAt: DateTime.now(),
+        updatedAt: TimeOverride.now(),
       );
 
       return await updateHabit(updatedHabit.toEntity());
@@ -127,7 +128,7 @@ class HabitRepositoryImpl implements HabitRepository {
     String? note,
   }) async {
     try {
-      final now = DateTime.now();
+      final now = TimeOverride.now();
       final logId = uuid.v4();
 
       final log = HabitLogModel(
@@ -156,7 +157,7 @@ class HabitRepositoryImpl implements HabitRepository {
     String? note,
   }) async {
     try {
-      final now = DateTime.now();
+      final now = TimeOverride.now();
       final logId = uuid.v4();
 
       final log = HabitLogModel(
@@ -181,7 +182,7 @@ class HabitRepositoryImpl implements HabitRepository {
   @override
   Future<Result<void>> undoCheckIn(String habitId, String userId) async {
     try {
-      final now = DateTime.now();
+      final now = TimeOverride.now();
       final logs = await remoteDataSource.getLogsForHabit(habitId);
 
       // Find today's log
@@ -304,7 +305,7 @@ class HabitRepositoryImpl implements HabitRepository {
     final sortedLogs = logs.toList()..sort((a, b) => b.date.compareTo(a.date));
 
     var streak = 0;
-    var currentDate = DateTime.now();
+    var currentDate = TimeOverride.now();
 
     for (final log in sortedLogs) {
       final logDate = DateTime(log.date.year, log.date.month, log.date.day);
@@ -392,7 +393,7 @@ class HabitRepositoryImpl implements HabitRepository {
         habitId: habitId,
         userId: userId,
         recoveredDate: missedDate,
-        usedAt: DateTime.now(),
+        usedAt: TimeOverride.now(),
       );
 
       await remoteDataSource.createStreakRecovery(recovery);
@@ -406,7 +407,7 @@ class HabitRepositoryImpl implements HabitRepository {
         completed: true,
         quality: LogQuality.good, // Default quality for recovery
         note: '🔄 Seri kurtarma kullanıldı',
-        createdAt: DateTime.now(),
+        createdAt: TimeOverride.now(),
       );
 
       await remoteDataSource.createHabitLog(log);

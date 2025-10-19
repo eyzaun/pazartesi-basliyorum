@@ -1,0 +1,25 @@
+"filename", "language", "Firebase Rules", "Dart", "comment", "blank", "total"
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\firestore.rules", "Firebase Rules", 6, 0, 0, 1, 7
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\core\routing\app_router.dart", "Dart", 0, 4, 0, 0, 4
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\data\models\habit_log_model.dart", "Dart", 0, 7, 0, 0, 7
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\domain\entities\habit_log.dart", "Dart", 0, 5, 0, 0, 5
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\domain\services\habit_score_service.dart", "Dart", 0, 181, 1, 35, 217
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\providers\habits_provider.dart", "Dart", 0, 23, 1, 5, 29
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\screens\all_habits_screen.dart", "Dart", 0, 252, 1, 18, 271
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\screens\edit_habit_screen.dart", "Dart", 0, 106, 1, 0, 107
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\screens\habit_activity_detail_screen.dart", "Dart", 0, 841, 15, 32, 888
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\screens\habit_detail_screen.dart", "Dart", 0, -440, 3, -44, -481
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\screens\habit_detail_screen_old.dart", "Dart", 0, 1874, 34, 109, 2017
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\screens\today_screen.dart", "Dart", 0, 30, 0, 0, 30
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\presentation\widgets\habit_card.dart", "Dart", 0, 73, 0, 2, 75
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\habits\utils\habit_test_data_seeder.dart", "Dart", 0, 85, 1, 18, 104
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\data\models\friend_model.dart", "Dart", 0, 20, 0, 1, 21
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\data\repositories\friend_repository_impl.dart", "Dart", 0, 125, -21, 9, 113
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\domain\entities\friend.dart", "Dart", 0, 12, 0, 0, 12
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\presentation\screens\social_screen.dart", "Dart", 0, 79, 0, 5, 84
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\presentation\widgets\activity_card.dart", "Dart", 0, 1, 0, 0, 1
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\presentation\widgets\friend_list_item.dart", "Dart", 0, 1, 0, 0, 1
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\presentation\widgets\shared_habit_card.dart", "Dart", 0, 1, 0, 0, 1
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\features\social\utils\habit_summary.dart", "Dart", 0, 0, 0, -1, -1
+"e:\web_project2\pazartesi_basliyorum2\pazartesi_basliyorum\lib\shared\constants\env.dart", "Dart", 0, 1, 0, 1, 2
+"Total", "-", 6, 3281, 36, 191, 3514

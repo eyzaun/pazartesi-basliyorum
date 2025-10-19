@@ -6,12 +6,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/routing/app_router.dart';
 import '../../../../core/utils/extensions.dart';
+import '../../../../core/utils/time_override.dart';
 import '../../../../core/widgets/sync_indicator.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../shared/constants/env.dart';
 import '../../../../shared/models/result.dart';
 import '../../../../shared/widgets/error_widget.dart';
 import '../../../../shared/widgets/loading_indicator.dart';
 import '../../../achievements/presentation/widgets/achievement_unlocked_dialog.dart';
+import '../../../auth/domain/entities/user.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../social/data/repositories/friend_repository_impl.dart';
 import '../../../social/data/repositories/habit_activity_repository_impl.dart';
@@ -19,10 +22,11 @@ import '../../../social/data/repositories/shared_habit_repository_impl.dart';
 import '../../../social/utils/habit_summary.dart';
 import '../../domain/entities/habit.dart';
 import '../../domain/entities/habit_log.dart';
+import '../../domain/services/habit_score_service.dart';
+import '../../utils/habit_test_data_seeder.dart';
 import '../providers/habits_provider.dart';
 import '../widgets/daily_progress_card.dart';
 import '../widgets/habit_card.dart';
-import '../widgets/streak_recovery_dialog.dart';
 import 'habit_timer_screen.dart'; // Part 4: Timer screen
 
 /// Today screen showing user's daily habits.
@@ -38,154 +42,41 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     with SingleTickerProviderStateMixin {
   bool _showCompleted = false;
   late TabController _tabController;
+  ProviderSubscription<AsyncValue<User?>>? _authListener;
+  bool _seedTriggered = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    if (kTestMode) {
+      _authListener = ref.listenManual<AsyncValue<User?>>(authStateProvider,
+          (previous, next) {
+        next.whenData((user) {
+          if (user != null && !_seedTriggered) {
+            _seedTriggered = true;
+            unawaited(
+              HabitTestDataSeeder(ref).ensureSeeded(user.id).then((_) async {
+                if (mounted) {
+                  await _refreshHabits();
+                }
+              }),
+            );
+          }
+        });
+      });
+    }
     // Trigger sync when screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(habitActionProvider.notifier).syncWithFirebase();
-      _checkForBrokenStreaks();
     });
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _authListener?.close();
     super.dispose();
-  }
-
-  /// Check for broken streaks and show recovery dialog if applicable.
-  Future<void> _checkForBrokenStreaks() async {
-    if (!mounted) return; // Check if widget is still mounted
-    
-    final user = await ref.read(currentUserProvider.future);
-    if (user == null || !mounted) return;
-
-    final habitsAsync = await ref.read(habitsProvider(user.id).future);
-    if (!mounted) return;
-
-    final yesterday = DateTime.now().subtract(const Duration(days: 1));
-    final yesterdayNormalized =
-        DateTime(yesterday.year, yesterday.month, yesterday.day);
-
-    // Check each habit for broken streak
-    for (final habit in habitsAsync) {
-      if (!mounted) return; // Check before each iteration
-      
-      // Skip habits created today or after yesterday
-      // (they shouldn't have yesterday's log)
-      final habitCreatedDate = DateTime(
-        habit.createdAt.year,
-        habit.createdAt.month,
-        habit.createdAt.day,
-      );
-      if (habitCreatedDate.isAfter(yesterdayNormalized) ||
-          habitCreatedDate.isAtSameMomentAs(DateTime(
-            DateTime.now().year,
-            DateTime.now().month,
-            DateTime.now().day,
-          ))) {
-        continue; // Skip newly created habits
-      }
-      
-      // Get logs for this habit
-      final habitLogsResult =
-          await ref.read(habitRepositoryProvider).getLogsForHabit(habit.id);
-      if (habitLogsResult is! Success<List<HabitLog>> || !mounted) continue;
-
-      final habitLogs = habitLogsResult.data;
-
-      // Check if there's a log for yesterday
-      final hasYesterdayLog = habitLogs.any((log) {
-        final logDate = DateTime(log.date.year, log.date.month, log.date.day);
-        return logDate.isAtSameMomentAs(yesterdayNormalized) && log.completed;
-      });
-
-      // If no log for yesterday, check if recovery is available
-      if (!hasYesterdayLog && mounted) {
-        final eligibilityAsync = await ref.read(
-          streakRecoveryEligibilityProvider((
-            habitId: habit.id,
-            userId: user.id,
-            missedDate: yesterday,
-          ),).future,
-        );
-        
-        if (!mounted) return;
-
-        // Calculate current streak to show in dialog
-        final statsResult = await ref
-            .read(habitRepositoryProvider)
-            .getHabitStatistics(habit.id);
-        
-        if (!mounted) return;
-        
-        final currentStreak = statsResult is Success<HabitStatistics>
-            ? statsResult.data.currentStreak
-            : 0;
-
-        // Show recovery dialog if mounted
-        if (mounted && eligibilityAsync.canRecover) {
-          await _showStreakRecoveryDialog(
-            habit: habit,
-            userId: user.id,
-            missedDate: yesterday,
-            currentStreak: currentStreak,
-            eligibility: eligibilityAsync,
-          );
-          break; // Only show one dialog at a time
-        }
-      }
-    }
-  }
-
-  /// Show streak recovery dialog.
-  Future<void> _showStreakRecoveryDialog({
-    required Habit habit,
-    required String userId,
-    required DateTime missedDate,
-    required int currentStreak,
-    required eligibility,
-  }) async {
-    final result = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => StreakRecoveryDialog(
-        habit: habit,
-        missedDate: missedDate,
-        currentStreak: currentStreak,
-        canRecover: eligibility.canRecover,
-        reasonText: eligibility.reason,
-        onRecover: () => Navigator.of(context).pop(true),
-        onSkip: () => Navigator.of(context).pop(false),
-      ),
-    );
-
-    if (result == true && mounted) {
-      // User chose to recover
-      final success =
-          await ref.read(habitActionProvider.notifier).useStreakRecovery(
-                habitId: habit.id,
-                userId: userId,
-                missedDate: missedDate,
-              );
-
-      if (success && mounted) {
-        // Refresh habits to show updated streak
-        await _refreshHabits();
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('✅ Seri başarıyla kurtarıldı!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
-      }
-    }
   }
 
   Future<void> _refreshHabits() async {
@@ -211,6 +102,22 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       appBar: AppBar(
         title: Text(l10n.today),
         actions: [
+          // Debug menu button (only in debug mode)
+          if (const bool.fromEnvironment('dart.vm.product') == false)
+            IconButton(
+              icon: const Icon(Icons.bug_report),
+              tooltip: 'Debug Menüsü',
+              onPressed: () {
+                Navigator.of(context).pushNamed(AppRouter.debugMenu);
+              },
+            ),
+          IconButton(
+            icon: const Icon(Icons.list_alt_outlined),
+            onPressed: () {
+              Navigator.of(context).pushNamed(AppRouter.habitsAll);
+            },
+            tooltip: 'Tüm alışkanlıklar',
+          ),
           // Sync indicator
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 8),
@@ -299,28 +206,61 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
     final theme = Theme.of(context);
     final habitsAsync = ref.watch(habitsProvider(userId));
     final todayLogsAsync = ref.watch(todayLogsProvider(userId));
-    final today = DateTime.now();
+    final today = TimeOverride.now();
 
     return RefreshIndicator(
       onRefresh: _refreshHabits,
       child: habitsAsync.when(
         data: (allHabits) {
+          // Build a map of habit ID -> last completed date for custom frequency habits
+          final lastCompletedDates = <String, DateTime>{};
+          for (final habit in allHabits) {
+            if (habit.frequency.type == FrequencyType.custom) {
+              final scoreAsync = ref.watch(habitScoreProvider(habit.id));
+              scoreAsync.whenData((scoreData) {
+                if (scoreData != null && scoreData.dailyScores.isNotEmpty) {
+                  // Find last action day
+                  final lastAction = scoreData.dailyScores
+                      .where((ds) => ds.dayType == HabitScoreDayType.action)
+                      .lastOrNull;
+                  if (lastAction != null) {
+                    lastCompletedDates[habit.id] = lastAction.date;
+                  }
+                }
+              });
+            }
+          }
+          
           // Filter habits based on schedule
           final habits = allHabits.where((habit) {
-            // "Günü Değil" sekmesi sadece günlük+belirli günler olanları gösterir
+            // "Günü Değil" sekmesi
             if (!showScheduledOnly) {
-              // Sadece günlük + specific days olanları kontrol et
-              if (habit.frequency.type != FrequencyType.daily) {
-                return false; // Haftalık/özel sıklık "Günü Değil"de görünmez
+              // Günlük alışkanlıklar - belirli günler kontrolü
+              if (habit.frequency.type == FrequencyType.daily) {
+                final config = habit.frequency.config;
+                if (config['everyDay'] == true) {
+                  return false; // "Her gün" olanlar "Günü Değil"de görünmez
+                }
+                // Bugün programda olmayan günlük alışkanlıkları göster
+                return !habit.frequency.isScheduledForToday(today);
               }
-              final config = habit.frequency.config;
-              if (config['everyDay'] == true) {
-                return false; // "Her gün" olanlar "Günü Değil"de görünmez
+              
+              // Custom frequency alışkanlıklar - bugün yapılması gerekmeyen
+              if (habit.frequency.type == FrequencyType.custom) {
+                final lastCompleted = lastCompletedDates[habit.id];
+                return !habit.frequency.isDueToday(today, lastCompleted);
               }
-              // Bugün programda olmayan günlük alışkanlıkları göster
-              return !habit.frequency.isScheduledForToday(today);
+              
+              // Diğer tipler "Günü Değil"de görünmez
+              return false;
             } else {
-              // "Bugün" sekmesi - bugün programda olanları göster
+              // "Bugün" sekmesi
+              if (habit.frequency.type == FrequencyType.custom) {
+                // Custom frequency için bugün yapılması gerekenleri göster
+                final lastCompleted = lastCompletedDates[habit.id];
+                return habit.frequency.isDueToday(today, lastCompleted);
+              }
+              // Diğer tipler için normal scheduled kontrolü
               return habit.frequency.isScheduledForToday(today);
             }
           }).toList();
@@ -397,7 +337,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            DateTime.now().toFormattedDate(),
+                            TimeOverride.now().toFormattedDate(),
                             style: theme.textTheme.headlineSmall?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
@@ -457,35 +397,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
                                 onTimer: habit.isTimedHabit
                                     ? () => _openTimer(habit)
                                     : null, // Part 4: Timer
-                                onRecoverStreak: () async {
-                                  final yesterday = DateTime.now()
-                                      .subtract(const Duration(days: 1));
-                                  final eligibility = await ref.read(
-                                    streakRecoveryEligibilityProvider((
-                                      habitId: habit.id,
-                                      userId: userId,
-                                      missedDate: yesterday,
-                                    ),).future,
-                                  );
-
-                                  final statsResult = await ref
-                                      .read(habitRepositoryProvider)
-                                      .getHabitStatistics(habit.id);
-                                  final currentStreak =
-                                      statsResult is Success<HabitStatistics>
-                                          ? statsResult.data.currentStreak
-                                          : 0;
-
-                                  if (mounted) {
-                                    await _showStreakRecoveryDialog(
-                                      habit: habit,
-                                      userId: userId,
-                                      missedDate: yesterday,
-                                      currentStreak: currentStreak,
-                                      eligibility: eligibility,
-                                    );
-                                  }
-                                },
                               ),
                             );
                           },
@@ -805,10 +716,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
                 'type': habit.frequency.type.value,
                 'config': habit.frequency.config,
               });
-              final goalLabel = buildGoalLabel({
-                'isTimedHabit': habit.isTimedHabit,
-                'targetDurationMinutes': habit.targetDurationMinutes,
-              });
 
               // Share activity in background (don't block UI)
               unawaited(
@@ -817,11 +724,10 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
                   habitName: habit.name,
                   habitIcon: habit.icon,
                   habitColor: habitColor,
-                  completedAt: DateTime.now(),
+                  completedAt: TimeOverride.now(),
                   habitDescription: habit.description,
                   habitCategory: habit.category,
                   habitFrequencyLabel: frequencyLabel,
-                  habitGoalLabel: goalLabel,
                   quality: quality?.toString().split('.').last,
                   note: note,
                   photo: photo,
@@ -918,7 +824,12 @@ class _TodayScreenState extends ConsumerState<TodayScreen>
       final result = await repository.deleteHabit(habitId);
 
       if (result.isSuccess && mounted) {
-        unawaited(_refreshHabits());
+        // Invalidate providers to refresh UI immediately
+        ref
+          ..invalidate(habitsProvider(userId))
+          ..invalidate(todayLogsProvider(userId));
+        
+        await _refreshHabits();
         context.showSuccessSnackBar('Alışkanlık silindi');
       } else if (result.isFailure && mounted) {
         context.showErrorSnackBar(result.errorOrNull ?? 'Silme başarısız');

@@ -133,13 +133,15 @@ service cloud.firestore {
       // Allow create if:
       // - User is authenticated
       // - User is the owner
-      // - Log is for today or past (not future)
+      // - Log is for today or past (not future - allow up to 365 days in past for testing)
       // - Either completed or skipped (but not both)
       allow create: if isAuthenticated()
         && isOwner(request.resource.data.userId)
-        && request.resource.data.date <= request.time
-        && (request.resource.data.completed != request.resource.data.skipped)
-        && request.resource.data.createdAt == request.time;
+        && request.resource.data.date is timestamp
+        && request.resource.data.date >= request.time - duration.value(365, 'd')
+        && ((request.resource.data.completed == true && request.resource.data.skipped == false)
+            || (request.resource.data.completed == false && request.resource.data.skipped == true))
+        && request.resource.data.createdAt is timestamp;
       
       // Allow update if:
       // - User is authenticated and is the owner

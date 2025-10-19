@@ -6,6 +6,8 @@ import '../../features/auth/presentation/screens/sign_up_screen.dart';
 import '../../features/auth/presentation/screens/splash_screen.dart';
 import '../../features/auth/presentation/screens/username_selection_screen.dart';
 import '../../features/auth/presentation/screens/welcome_screen.dart';
+import '../../features/debug/debug_menu_screen.dart';
+import '../../features/habits/presentation/screens/all_habits_screen.dart';
 import '../../features/habits/presentation/screens/create_habit_screen.dart';
 import '../../features/habits/presentation/screens/edit_habit_screen.dart';
 import '../../features/habits/presentation/screens/habit_detail_screen.dart';
@@ -25,9 +27,11 @@ class AppRouter {
   static const String habitCreate = '/habit/create';
   static const String habitDetail = '/habit/detail';
   static const String habitEdit = '/habit/edit';
+  static const String habitsAll = '/habit/all';
   static const String statistics = '/statistics';
   static const String social = '/social';
   static const String profile = '/profile';
+  static const String debugMenu = '/debug';
 
   /// Generate routes based on route settings.
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -83,6 +87,11 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (_) => EditHabitScreen(habitId: habitId),
         );
+      case habitsAll:
+        return MaterialPageRoute(builder: (_) => const AllHabitsScreen());
+
+      case debugMenu:
+        return MaterialPageRoute(builder: (_) => const DebugMenuScreen());
 
       default:
         return _errorRoute('No route defined for ${settings.name}');

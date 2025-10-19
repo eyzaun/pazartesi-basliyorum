@@ -1,19 +1,23 @@
 # Details
 
-Date : 2025-10-14 22:39:13
+Date : 2025-10-19 04:44:06
 
 Directory e:\\web_project2\\pazartesi_basliyorum2\\pazartesi_basliyorum
 
-Total : 154 files,  20634 codes, 1930 comments, 2786 blanks, all 25350 lines
+Total : 170 files,  26790 codes, 2067 comments, 3398 blanks, all 32255 lines
 
 [Summary](results.md) / Details / [Diff Summary](diff.md) / [Diff Details](diff-details.md)
 
 ## Files
 | filename | language | code | comment | blank | total |
 | :--- | :--- | ---: | ---: | ---: | ---: |
+| [.claude/settings.local.json](/.claude/settings.local.json) | JSON | 11 | 0 | 1 | 12 |
+| [ANALYSIS\_REPORT.md](/ANALYSIS_REPORT.md) | Markdown | 1,065 | 0 | 214 | 1,279 |
+| [ANALYSIS\_REPORT\_APPENDIX.md](/ANALYSIS_REPORT_APPENDIX.md) | Markdown | 34 | 0 | 13 | 47 |
 | [FIREBASE\_INDEX\_SETUP.md](/FIREBASE_INDEX_SETUP.md) | Markdown | 49 | 0 | 14 | 63 |
 | [README.md](/README.md) | Markdown | 208 | 0 | 129 | 337 |
-| [analysis\_options.yaml](/analysis_options.yaml) | YAML | 132 | 27 | 5 | 164 |
+| [SECURITY.md](/SECURITY.md) | Markdown | 35 | 0 | 14 | 49 |
+| [analysis\_options.yaml](/analysis_options.yaml) | YAML | 132 | 23 | 5 | 160 |
 | [android/app/build.gradle](/android/app/build.gradle) | Gradle | 75 | 0 | 13 | 88 |
 | [android/app/google-services.json](/android/app/google-services.json) | JSON | 55 | 0 | 0 | 55 |
 | [android/app/src/main/AndroidManifest.xml](/android/app/src/main/AndroidManifest.xml) | XML | 35 | 6 | 5 | 46 |
@@ -25,12 +29,10 @@ Total : 154 files,  20634 codes, 1930 comments, 2786 blanks, all 25350 lines
 | [android/build.gradle](/android/build.gradle) | Gradle | 28 | 0 | 4 | 32 |
 | [android/gradle.properties](/android/gradle.properties) | Properties | 7 | 0 | 0 | 7 |
 | [android/gradle/wrapper/gradle-wrapper.properties](/android/gradle/wrapper/gradle-wrapper.properties) | Properties | 5 | 0 | 0 | 5 |
-| [android/key.properties](/android/key.properties) | Properties | 4 | 0 | 1 | 5 |
 | [android/settings.gradle](/android/settings.gradle) | Gradle | 21 | 0 | 4 | 25 |
-| [firebase.json](/firebase.json) | JSON | 23 | 0 | 1 | 24 |
-| [firestore.indexes.json](/firestore.indexes.json) | JSON | 250 | 0 | 0 | 250 |
-| [firestore.rules](/firestore.rules) | Firebase Rules | 165 | 148 | 64 | 377 |
-| [install.ps1](/install.ps1) | PowerShell | 35 | 3 | 10 | 48 |
+| [firebase.json](/firebase.json) | JSON | 34 | 0 | 1 | 35 |
+| [firestore.indexes.json](/firestore.indexes.json) | JSON | 264 | 0 | 0 | 264 |
+| [firestore.rules](/firestore.rules) | Firebase Rules | 180 | 157 | 65 | 402 |
 | [l10n.yaml](/l10n.yaml) | YAML | 4 | 0 | 1 | 5 |
 | [lib/core/constants/app\_constants.dart](/lib/core/constants/app_constants.dart) | Dart | 47 | 7 | 8 | 62 |
 | [lib/core/constants/firebase\_constants.dart](/lib/core/constants/firebase_constants.dart) | Dart | 50 | 12 | 10 | 72 |
@@ -38,11 +40,11 @@ Total : 154 files,  20634 codes, 1930 comments, 2786 blanks, all 25350 lines
 | [lib/core/errors/failures.dart](/lib/core/errors/failures.dart) | Dart | 79 | 45 | 33 | 157 |
 | [lib/core/network/connectivity\_service.dart](/lib/core/network/connectivity_service.dart) | Dart | 46 | 11 | 12 | 69 |
 | [lib/core/network/network\_info.dart](/lib/core/network/network_info.dart) | Dart | 23 | 2 | 6 | 31 |
-| [lib/core/routing/app\_router.dart](/lib/core/routing/app_router.dart) | Dart | 72 | 5 | 14 | 91 |
+| [lib/core/routing/app\_router.dart](/lib/core/routing/app_router.dart) | Dart | 90 | 5 | 15 | 110 |
 | [lib/core/services/advanced\_statistics\_service.dart](/lib/core/services/advanced_statistics_service.dart) | Dart | 0 | 0 | 1 | 1 |
 | [lib/core/services/connectivity\_service.dart](/lib/core/services/connectivity_service.dart) | Dart | 41 | 3 | 14 | 58 |
 | [lib/core/services/export\_import\_service.dart](/lib/core/services/export_import_service.dart) | Dart | 0 | 0 | 1 | 1 |
-| [lib/core/services/initial\_sync\_service.dart](/lib/core/services/initial_sync_service.dart) | Dart | 97 | 9 | 30 | 136 |
+| [lib/core/services/initial\_sync\_service.dart](/lib/core/services/initial_sync_service.dart) | Dart | 93 | 11 | 26 | 130 |
 | [lib/core/services/notification\_service.dart](/lib/core/services/notification_service.dart) | Dart | 119 | 11 | 24 | 154 |
 | [lib/core/services/push\_notification\_service.dart](/lib/core/services/push_notification_service.dart) | Dart | 70 | 16 | 23 | 109 |
 | [lib/core/services/sync\_queue\_item.dart](/lib/core/services/sync_queue_item.dart) | Dart | 90 | 0 | 16 | 106 |
@@ -61,17 +63,19 @@ Total : 154 files,  20634 codes, 1930 comments, 2786 blanks, all 25350 lines
 | [lib/features/achievements/presentation/widgets/achievement\_unlocked\_dialog.dart](/lib/features/achievements/presentation/widgets/achievement_unlocked_dialog.dart) | Dart | 128 | 6 | 16 | 150 |
 | [lib/features/achievements/presentation/widgets/badge\_widget.dart](/lib/features/achievements/presentation/widgets/badge_widget.dart) | Dart | 109 | 1 | 9 | 119 |
 | [lib/features/auth/data/datasources/auth\_local\_datasource.dart](/lib/features/auth/data/datasources/auth_local_datasource.dart) | Dart | 77 | 12 | 17 | 106 |
-| [lib/features/auth/data/datasources/auth\_remote\_datasource.dart](/lib/features/auth/data/datasources/auth_remote_datasource.dart) | Dart | 206 | 42 | 44 | 292 |
-| [lib/features/auth/data/models/user\_model.dart](/lib/features/auth/data/models/user_model.dart) | Dart | 77 | 9 | 8 | 94 |
-| [lib/features/auth/data/repositories/auth\_repository\_impl.dart](/lib/features/auth/data/repositories/auth_repository_impl.dart) | Dart | 117 | 3 | 11 | 131 |
+| [lib/features/auth/data/datasources/auth\_remote\_datasource.dart](/lib/features/auth/data/datasources/auth_remote_datasource.dart) | Dart | 220 | 45 | 43 | 308 |
+| [lib/features/auth/data/models/user\_model.dart](/lib/features/auth/data/models/user_model.dart) | Dart | 78 | 9 | 8 | 95 |
+| [lib/features/auth/data/repositories/auth\_repository\_impl.dart](/lib/features/auth/data/repositories/auth_repository_impl.dart) | Dart | 136 | 3 | 12 | 151 |
 | [lib/features/auth/domain/entities/user.dart](/lib/features/auth/domain/entities/user.dart) | Dart | 37 | 3 | 5 | 45 |
-| [lib/features/auth/domain/repositories/auth\_repository.dart](/lib/features/auth/domain/repositories/auth_repository.dart) | Dart | 15 | 17 | 8 | 40 |
+| [lib/features/auth/domain/repositories/auth\_repository.dart](/lib/features/auth/domain/repositories/auth_repository.dart) | Dart | 21 | 19 | 9 | 49 |
 | [lib/features/auth/domain/usecases/auth\_usecases.dart](/lib/features/auth/domain/usecases/auth_usecases.dart) | Dart | 38 | 6 | 11 | 55 |
 | [lib/features/auth/presentation/providers/auth\_provider.dart](/lib/features/auth/presentation/providers/auth_provider.dart) | Dart | 48 | 25 | 14 | 87 |
+| [lib/features/auth/presentation/providers/username\_check\_provider.dart](/lib/features/auth/presentation/providers/username_check_provider.dart) | Dart | 16 | 3 | 4 | 23 |
 | [lib/features/auth/presentation/screens/onboarding\_screen.dart](/lib/features/auth/presentation/screens/onboarding_screen.dart) | Dart | 182 | 9 | 20 | 211 |
-| [lib/features/auth/presentation/screens/sign\_in\_screen.dart](/lib/features/auth/presentation/screens/sign_in_screen.dart) | Dart | 365 | 17 | 34 | 416 |
-| [lib/features/auth/presentation/screens/sign\_up\_screen.dart](/lib/features/auth/presentation/screens/sign_up_screen.dart) | Dart | 462 | 22 | 36 | 520 |
-| [lib/features/auth/presentation/screens/splash\_screen.dart](/lib/features/auth/presentation/screens/splash_screen.dart) | Dart | 98 | 13 | 18 | 129 |
+| [lib/features/auth/presentation/screens/sign\_in\_screen.dart](/lib/features/auth/presentation/screens/sign_in_screen.dart) | Dart | 376 | 19 | 34 | 429 |
+| [lib/features/auth/presentation/screens/sign\_up\_screen.dart](/lib/features/auth/presentation/screens/sign_up_screen.dart) | Dart | 473 | 24 | 36 | 533 |
+| [lib/features/auth/presentation/screens/splash\_screen.dart](/lib/features/auth/presentation/screens/splash_screen.dart) | Dart | 109 | 15 | 18 | 142 |
+| [lib/features/auth/presentation/screens/username\_selection\_screen.dart](/lib/features/auth/presentation/screens/username_selection_screen.dart) | Dart | 230 | 12 | 38 | 280 |
 | [lib/features/auth/presentation/screens/welcome\_screen.dart](/lib/features/auth/presentation/screens/welcome_screen.dart) | Dart | 172 | 13 | 16 | 201 |
 | [lib/features/auth/presentation/widgets/email\_input\_field.dart](/lib/features/auth/presentation/widgets/email_input_field.dart) | Dart | 50 | 1 | 5 | 56 |
 | [lib/features/auth/presentation/widgets/password\_input\_field.dart](/lib/features/auth/presentation/widgets/password_input_field.dart) | Dart | 144 | 3 | 17 | 164 |
@@ -87,7 +91,7 @@ Total : 154 files,  20634 codes, 1930 comments, 2786 blanks, all 25350 lines
 | [lib/features/goals/presentation/widgets/goal\_card.dart](/lib/features/goals/presentation/widgets/goal_card.dart) | Dart | 0 | 0 | 1 | 1 |
 | [lib/features/habits/data/datasources/habit\_remote\_datasource.dart](/lib/features/habits/data/datasources/habit_remote_datasource.dart) | Dart | 239 | 30 | 45 | 314 |
 | [lib/features/habits/data/datasources/timer\_session\_remote\_datasource.dart](/lib/features/habits/data/datasources/timer_session_remote_datasource.dart) | Dart | 82 | 10 | 19 | 111 |
-| [lib/features/habits/data/models/habit\_log\_model.dart](/lib/features/habits/data/models/habit_log_model.dart) | Dart | 112 | 5 | 8 | 125 |
+| [lib/features/habits/data/models/habit\_log\_model.dart](/lib/features/habits/data/models/habit_log_model.dart) | Dart | 119 | 5 | 8 | 132 |
 | [lib/features/habits/data/models/habit\_model.dart](/lib/features/habits/data/models/habit_model.dart) | Dart | 197 | 8 | 9 | 214 |
 | [lib/features/habits/data/models/streak\_recovery\_model.dart](/lib/features/habits/data/models/streak_recovery_model.dart) | Dart | 52 | 5 | 7 | 64 |
 | [lib/features/habits/data/models/timer\_session\_model.dart](/lib/features/habits/data/models/timer_session_model.dart) | Dart | 102 | 5 | 8 | 115 |
@@ -95,53 +99,64 @@ Total : 154 files,  20634 codes, 1930 comments, 2786 blanks, all 25350 lines
 | [lib/features/habits/data/repositories/offline\_first\_habit\_repository.dart](/lib/features/habits/data/repositories/offline_first_habit_repository.dart) | Dart | 292 | 23 | 49 | 364 |
 | [lib/features/habits/data/repositories/timer\_session\_repository\_impl.dart](/lib/features/habits/data/repositories/timer_session_repository_impl.dart) | Dart | 60 | 1 | 12 | 73 |
 | [lib/features/habits/domain/entities/habit.dart](/lib/features/habits/domain/entities/habit.dart) | Dart | 282 | 22 | 23 | 327 |
-| [lib/features/habits/domain/entities/habit\_log.dart](/lib/features/habits/domain/entities/habit_log.dart) | Dart | 129 | 5 | 9 | 143 |
+| [lib/features/habits/domain/entities/habit\_log.dart](/lib/features/habits/domain/entities/habit_log.dart) | Dart | 134 | 5 | 9 | 148 |
 | [lib/features/habits/domain/entities/streak\_recovery.dart](/lib/features/habits/domain/entities/streak_recovery.dart) | Dart | 77 | 12 | 12 | 101 |
 | [lib/features/habits/domain/entities/timer\_session.dart](/lib/features/habits/domain/entities/timer_session.dart) | Dart | 101 | 8 | 12 | 121 |
 | [lib/features/habits/domain/repositories/habit\_repository.dart](/lib/features/habits/domain/repositories/habit_repository.dart) | Dart | 49 | 39 | 28 | 116 |
 | [lib/features/habits/domain/repositories/timer\_session\_repository.dart](/lib/features/habits/domain/repositories/timer_session_repository.dart) | Dart | 16 | 10 | 10 | 36 |
+| [lib/features/habits/domain/services/habit\_score\_service.dart](/lib/features/habits/domain/services/habit_score_service.dart) | Dart | 181 | 1 | 35 | 217 |
 | [lib/features/habits/domain/usecases/habit\_usecases.dart](/lib/features/habits/domain/usecases/habit_usecases.dart) | Dart | 134 | 28 | 37 | 199 |
 | [lib/features/habits/presentation/providers/habit\_timer\_notifier.dart](/lib/features/habits/presentation/providers/habit_timer_notifier.dart) | Dart | 168 | 25 | 37 | 230 |
-| [lib/features/habits/presentation/providers/habits\_provider.dart](/lib/features/habits/presentation/providers/habits_provider.dart) | Dart | 290 | 41 | 55 | 386 |
-| [lib/features/habits/presentation/providers/timer\_session\_providers.dart](/lib/features/habits/presentation/providers/timer_session_providers.dart) | Dart | 33 | 6 | 8 | 47 |
+| [lib/features/habits/presentation/providers/habits\_provider.dart](/lib/features/habits/presentation/providers/habits_provider.dart) | Dart | 313 | 42 | 60 | 415 |
+| [lib/features/habits/presentation/providers/timer\_session\_providers.dart](/lib/features/habits/presentation/providers/timer_session_providers.dart) | Dart | 30 | 5 | 7 | 42 |
+| [lib/features/habits/presentation/screens/all\_habits\_screen.dart](/lib/features/habits/presentation/screens/all_habits_screen.dart) | Dart | 252 | 1 | 18 | 271 |
 | [lib/features/habits/presentation/screens/create\_habit\_screen.dart](/lib/features/habits/presentation/screens/create_habit_screen.dart) | Dart | 997 | 41 | 58 | 1,096 |
-| [lib/features/habits/presentation/screens/edit\_habit\_screen.dart](/lib/features/habits/presentation/screens/edit_habit_screen.dart) | Dart | 442 | 8 | 30 | 480 |
-| [lib/features/habits/presentation/screens/habit\_detail\_screen.dart](/lib/features/habits/presentation/screens/habit_detail_screen.dart) | Dart | 1,563 | 34 | 101 | 1,698 |
-| [lib/features/habits/presentation/screens/habit\_timer\_screen.dart](/lib/features/habits/presentation/screens/habit_timer_screen.dart) | Dart | 332 | 11 | 35 | 378 |
+| [lib/features/habits/presentation/screens/edit\_habit\_screen.dart](/lib/features/habits/presentation/screens/edit_habit_screen.dart) | Dart | 548 | 9 | 30 | 587 |
+| [lib/features/habits/presentation/screens/habit\_activity\_detail\_screen.dart](/lib/features/habits/presentation/screens/habit_activity_detail_screen.dart) | Dart | 841 | 15 | 32 | 888 |
+| [lib/features/habits/presentation/screens/habit\_detail\_screen.dart](/lib/features/habits/presentation/screens/habit_detail_screen.dart) | Dart | 1,123 | 37 | 57 | 1,217 |
+| [lib/features/habits/presentation/screens/habit\_detail\_screen\_old.dart](/lib/features/habits/presentation/screens/habit_detail_screen_old.dart) | Dart | 1,874 | 34 | 109 | 2,017 |
+| [lib/features/habits/presentation/screens/habit\_timer\_screen.dart](/lib/features/habits/presentation/screens/habit_timer_screen.dart) | Dart | 334 | 11 | 34 | 379 |
 | [lib/features/habits/presentation/screens/home\_screen.dart](/lib/features/habits/presentation/screens/home_screen.dart) | Dart | 66 | 2 | 9 | 77 |
 | [lib/features/habits/presentation/screens/statistics\_screen.dart](/lib/features/habits/presentation/screens/statistics_screen.dart) | Dart | 374 | 26 | 58 | 458 |
-| [lib/features/habits/presentation/screens/today\_screen.dart](/lib/features/habits/presentation/screens/today_screen.dart) | Dart | 819 | 51 | 81 | 951 |
+| [lib/features/habits/presentation/screens/today\_screen.dart](/lib/features/habits/presentation/screens/today_screen.dart) | Dart | 904 | 57 | 90 | 1,051 |
 | [lib/features/habits/presentation/widgets/category\_pie\_chart\_card.dart](/lib/features/habits/presentation/widgets/category_pie_chart_card.dart) | Dart | 149 | 3 | 11 | 163 |
 | [lib/features/habits/presentation/widgets/circle\_progress\_painter.dart](/lib/features/habits/presentation/widgets/circle_progress_painter.dart) | Dart | 45 | 3 | 11 | 59 |
 | [lib/features/habits/presentation/widgets/daily\_progress\_card.dart](/lib/features/habits/presentation/widgets/daily_progress_card.dart) | Dart | 185 | 10 | 10 | 205 |
-| [lib/features/habits/presentation/widgets/detailed\_checkin\_sheet.dart](/lib/features/habits/presentation/widgets/detailed_checkin_sheet.dart) | Dart | 429 | 15 | 32 | 476 |
-| [lib/features/habits/presentation/widgets/edit\_log\_sheet.dart](/lib/features/habits/presentation/widgets/edit_log_sheet.dart) | Dart | 472 | 10 | 34 | 516 |
+| [lib/features/habits/presentation/widgets/detailed\_checkin\_sheet.dart](/lib/features/habits/presentation/widgets/detailed_checkin_sheet.dart) | Dart | 476 | 16 | 33 | 525 |
+| [lib/features/habits/presentation/widgets/edit\_log\_sheet.dart](/lib/features/habits/presentation/widgets/edit_log_sheet.dart) | Dart | 474 | 10 | 34 | 518 |
 | [lib/features/habits/presentation/widgets/frequency\_selector.dart](/lib/features/habits/presentation/widgets/frequency_selector.dart) | Dart | 285 | 3 | 16 | 304 |
-| [lib/features/habits/presentation/widgets/habit\_card.dart](/lib/features/habits/presentation/widgets/habit_card.dart) | Dart | 444 | 26 | 28 | 498 |
+| [lib/features/habits/presentation/widgets/habit\_card.dart](/lib/features/habits/presentation/widgets/habit_card.dart) | Dart | 517 | 26 | 30 | 573 |
 | [lib/features/habits/presentation/widgets/heatmap\_calendar\_card.dart](/lib/features/habits/presentation/widgets/heatmap_calendar_card.dart) | Dart | 180 | 7 | 19 | 206 |
 | [lib/features/habits/presentation/widgets/monthly\_line\_chart\_card.dart](/lib/features/habits/presentation/widgets/monthly_line_chart_card.dart) | Dart | 127 | 2 | 10 | 139 |
 | [lib/features/habits/presentation/widgets/progress\_ring.dart](/lib/features/habits/presentation/widgets/progress_ring.dart) | Dart | 194 | 8 | 21 | 223 |
-| [lib/features/habits/presentation/widgets/skip\_reason\_sheet.dart](/lib/features/habits/presentation/widgets/skip_reason_sheet.dart) | Dart | 241 | 9 | 24 | 274 |
+| [lib/features/habits/presentation/widgets/skip\_reason\_sheet.dart](/lib/features/habits/presentation/widgets/skip_reason_sheet.dart) | Dart | 256 | 9 | 24 | 289 |
 | [lib/features/habits/presentation/widgets/statistics\_overview\_card.dart](/lib/features/habits/presentation/widgets/statistics_overview_card.dart) | Dart | 143 | 3 | 9 | 155 |
 | [lib/features/habits/presentation/widgets/streak\_recovery\_dialog.dart](/lib/features/habits/presentation/widgets/streak_recovery_dialog.dart) | Dart | 248 | 15 | 12 | 275 |
 | [lib/features/habits/presentation/widgets/top\_habits\_card.dart](/lib/features/habits/presentation/widgets/top_habits_card.dart) | Dart | 136 | 5 | 13 | 154 |
 | [lib/features/habits/presentation/widgets/weekly\_bar\_chart\_card.dart](/lib/features/habits/presentation/widgets/weekly_bar_chart_card.dart) | Dart | 152 | 1 | 7 | 160 |
+| [lib/features/habits/utils/habit\_test\_data\_seeder.dart](/lib/features/habits/utils/habit_test_data_seeder.dart) | Dart | 85 | 1 | 18 | 104 |
 | [lib/features/profile/presentation/screens/profile\_screen.dart](/lib/features/profile/presentation/screens/profile_screen.dart) | Dart | 422 | 14 | 24 | 460 |
-| [lib/features/social/data/models/friend\_model.dart](/lib/features/social/data/models/friend_model.dart) | Dart | 69 | 5 | 8 | 82 |
-| [lib/features/social/data/models/shared\_habit\_model.dart](/lib/features/social/data/models/shared_habit_model.dart) | Dart | 54 | 5 | 6 | 65 |
-| [lib/features/social/data/repositories/friend\_repository\_impl.dart](/lib/features/social/data/repositories/friend_repository_impl.dart) | Dart | 231 | 22 | 49 | 302 |
-| [lib/features/social/data/repositories/shared\_habit\_repository\_impl.dart](/lib/features/social/data/repositories/shared_habit_repository_impl.dart) | Dart | 136 | 7 | 26 | 169 |
-| [lib/features/social/data/repositories/user\_search\_repository.dart](/lib/features/social/data/repositories/user_search_repository.dart) | Dart | 59 | 7 | 15 | 81 |
-| [lib/features/social/domain/entities/friend.dart](/lib/features/social/domain/entities/friend.dart) | Dart | 50 | 2 | 4 | 56 |
-| [lib/features/social/domain/entities/shared\_habit.dart](/lib/features/social/domain/entities/shared_habit.dart) | Dart | 57 | 1 | 3 | 61 |
+| [lib/features/social/data/models/friend\_model.dart](/lib/features/social/data/models/friend_model.dart) | Dart | 89 | 5 | 9 | 103 |
+| [lib/features/social/data/models/habit\_activity\_model.dart](/lib/features/social/data/models/habit_activity_model.dart) | Dart | 114 | 1 | 7 | 122 |
+| [lib/features/social/data/models/shared\_habit\_model.dart](/lib/features/social/data/models/shared_habit_model.dart) | Dart | 79 | 6 | 7 | 92 |
+| [lib/features/social/data/repositories/friend\_repository\_impl.dart](/lib/features/social/data/repositories/friend_repository_impl.dart) | Dart | 431 | 5 | 72 | 508 |
+| [lib/features/social/data/repositories/habit\_activity\_repository\_impl.dart](/lib/features/social/data/repositories/habit_activity_repository_impl.dart) | Dart | 179 | 15 | 32 | 226 |
+| [lib/features/social/data/repositories/shared\_habit\_repository\_impl.dart](/lib/features/social/data/repositories/shared_habit_repository_impl.dart) | Dart | 160 | 10 | 29 | 199 |
+| [lib/features/social/data/repositories/user\_search\_repository.dart](/lib/features/social/data/repositories/user_search_repository.dart) | Dart | 60 | 6 | 16 | 82 |
+| [lib/features/social/domain/entities/friend.dart](/lib/features/social/domain/entities/friend.dart) | Dart | 62 | 2 | 4 | 68 |
+| [lib/features/social/domain/entities/habit\_activity.dart](/lib/features/social/domain/entities/habit_activity.dart) | Dart | 38 | 1 | 2 | 41 |
+| [lib/features/social/domain/entities/shared\_habit.dart](/lib/features/social/domain/entities/shared_habit.dart) | Dart | 69 | 1 | 3 | 73 |
 | [lib/features/social/domain/repositories/friend\_repository.dart](/lib/features/social/domain/repositories/friend_repository.dart) | Dart | 13 | 10 | 10 | 33 |
+| [lib/features/social/domain/repositories/habit\_activity\_repository.dart](/lib/features/social/domain/repositories/habit_activity_repository.dart) | Dart | 23 | 5 | 6 | 34 |
 | [lib/features/social/domain/repositories/shared\_habit\_repository.dart](/lib/features/social/domain/repositories/shared_habit_repository.dart) | Dart | 14 | 7 | 7 | 28 |
-| [lib/features/social/presentation/providers/social\_providers.dart](/lib/features/social/presentation/providers/social_providers.dart) | Dart | 67 | 21 | 25 | 113 |
-| [lib/features/social/presentation/screens/social\_screen.dart](/lib/features/social/presentation/screens/social_screen.dart) | Dart | 280 | 1 | 31 | 312 |
+| [lib/features/social/presentation/providers/social\_providers.dart](/lib/features/social/presentation/providers/social_providers.dart) | Dart | 78 | 25 | 29 | 132 |
+| [lib/features/social/presentation/screens/social\_screen.dart](/lib/features/social/presentation/screens/social_screen.dart) | Dart | 618 | 5 | 53 | 676 |
+| [lib/features/social/presentation/widgets/activity\_card.dart](/lib/features/social/presentation/widgets/activity_card.dart) | Dart | 317 | 8 | 26 | 351 |
 | [lib/features/social/presentation/widgets/add\_friend\_dialog.dart](/lib/features/social/presentation/widgets/add_friend_dialog.dart) | Dart | 155 | 3 | 17 | 175 |
-| [lib/features/social/presentation/widgets/friend\_list\_item.dart](/lib/features/social/presentation/widgets/friend_list_item.dart) | Dart | 45 | 2 | 7 | 54 |
+| [lib/features/social/presentation/widgets/friend\_list\_item.dart](/lib/features/social/presentation/widgets/friend_list_item.dart) | Dart | 44 | 4 | 7 | 55 |
 | [lib/features/social/presentation/widgets/friend\_request\_card.dart](/lib/features/social/presentation/widgets/friend_request_card.dart) | Dart | 86 | 1 | 6 | 93 |
-| [lib/features/social/presentation/widgets/shared\_habit\_card.dart](/lib/features/social/presentation/widgets/shared_habit_card.dart) | Dart | 107 | 1 | 6 | 114 |
+| [lib/features/social/presentation/widgets/shared\_habit\_card.dart](/lib/features/social/presentation/widgets/shared_habit_card.dart) | Dart | 226 | 1 | 20 | 247 |
+| [lib/features/social/utils/habit\_summary.dart](/lib/features/social/utils/habit_summary.dart) | Dart | 78 | 17 | 13 | 108 |
 | [lib/features/statistics/presentation/screens/statistics\_screen.dart](/lib/features/statistics/presentation/screens/statistics_screen.dart) | Dart | 461 | 8 | 31 | 500 |
 | [lib/firebase\_options.dart](/lib/firebase_options.dart) | Dart | 65 | 2 | 7 | 74 |
 | [lib/generated/intl/messages\_all.dart](/lib/generated/intl/messages_all.dart) | Dart | 46 | 10 | 10 | 66 |
@@ -152,18 +167,19 @@ Total : 154 files,  20634 codes, 1930 comments, 2786 blanks, all 25350 lines
 | [lib/l10n/app\_localizations\_en.dart](/lib/l10n/app_localizations_en.dart) | Dart | 135 | 3 | 68 | 206 |
 | [lib/l10n/app\_localizations\_tr.dart](/lib/l10n/app_localizations_tr.dart) | Dart | 135 | 3 | 68 | 206 |
 | [lib/l10n/app\_tr.arb](/lib/l10n/app_tr.arb) | JSON | 68 | 0 | 0 | 68 |
-| [lib/main.dart](/lib/main.dart) | Dart | 64 | 9 | 17 | 90 |
+| [lib/main.dart](/lib/main.dart) | Dart | 74 | 10 | 18 | 102 |
+| [lib/shared/constants/env.dart](/lib/shared/constants/env.dart) | Dart | 1 | 0 | 1 | 2 |
 | [lib/shared/models/result.dart](/lib/shared/models/result.dart) | Dart | 21 | 4 | 10 | 35 |
 | [lib/shared/widgets/custom\_button.dart](/lib/shared/widgets/custom_button.dart) | Dart | 64 | 1 | 8 | 73 |
 | [lib/shared/widgets/custom\_text\_field.dart](/lib/shared/widgets/custom_text_field.dart) | Dart | 93 | 1 | 9 | 103 |
 | [lib/shared/widgets/error\_widget.dart](/lib/shared/widgets/error_widget.dart) | Dart | 111 | 2 | 7 | 120 |
 | [lib/shared/widgets/loading\_indicator.dart](/lib/shared/widgets/loading_indicator.dart) | Dart | 56 | 2 | 6 | 64 |
-| [pubspec.yaml](/pubspec.yaml) | YAML | 62 | 1 | 7 | 70 |
-| [run.ps1](/run.ps1) | PowerShell | 34 | 5 | 7 | 46 |
-| [storage.rules](/storage.rules) | Firebase Rules | 65 | 60 | 24 | 149 |
+| [pubspec.yaml](/pubspec.yaml) | YAML | 63 | 1 | 7 | 71 |
+| [storage.cors.json](/storage.cors.json) | JSON | 20 | 0 | 1 | 21 |
+| [storage.rules](/storage.rules) | Firebase Rules | 74 | 72 | 28 | 174 |
 | [test/widget\_test.dart](/test/widget_test.dart) | Dart | 0 | 0 | 1 | 1 |
-| [web/index.html](/web/index.html) | HTML | 58 | 17 | 8 | 83 |
+| [tools/generate\_web\_icons.py](/tools/generate_web_icons.py) | Python | 32 | 0 | 14 | 46 |
+| [web/index.html](/web/index.html) | HTML | 75 | 17 | 9 | 101 |
 | [web/manifest.json](/web/manifest.json) | JSON | 35 | 0 | 0 | 35 |
-| [wifi-connect.ps1](/wifi-connect.ps1) | PowerShell | 44 | 7 | 13 | 64 |
 
 [Summary](results.md) / Details / [Diff Summary](diff.md) / [Diff Details](diff-details.md)

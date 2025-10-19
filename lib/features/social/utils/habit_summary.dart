@@ -52,8 +52,11 @@ String? buildFrequencyLabel(Map<String, dynamic>? frequencyData) {
       return 'Haftada $timesPerWeek kez';
 
     case 'custom':
-      final periodDays = config?['periodDays'] as int? ?? 7;
+      final periodDays = config?['periodDays'] as int? ?? 2;
       final timesInPeriod = config?['timesInPeriod'] as int? ?? 1;
+      if (timesInPeriod == 1) {
+        return periodDays == 1 ? 'Her gün' : '$periodDays günde 1 kere';
+      }
       return '$periodDays günde $timesInPeriod tekrar';
 
     case 'monthly':
